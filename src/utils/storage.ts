@@ -49,3 +49,4 @@ export const saveConsent = (consent: boolean): void => {
     console.error('Failed to save consent', e);
   }
 };
+

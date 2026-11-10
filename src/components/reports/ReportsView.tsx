@@ -586,3 +586,4 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
     </div>
   );
 };
+

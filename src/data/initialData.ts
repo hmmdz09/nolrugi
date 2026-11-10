@@ -162,3 +162,4 @@ export const sampleHistoricalRevenue = [
   { month: 'Okt 2026', omzet: 42100000, rescuedValue: 6900000, wasteLoss: 180000 },
   { month: 'Nov 2026 (Berjalan)', omzet: 46800000, rescuedValue: 8250000, wasteLoss: 110000 },
 ];
+

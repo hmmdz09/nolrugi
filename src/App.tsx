@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Navbar } from './components/layout/Navbar';
-import { Sidebar, ActiveTab } from './components/layout/Sidebar';
-import { DashboardView } from './components/dashboard/DashboardView';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { SkillalleySidebar } from './components/layout/SkillalleySidebar';
+import { RightInspector } from './components/layout/RightInspector';
+import { SkillalleyDashboardView } from './components/dashboard/SkillalleyDashboardView';
 import { InventoryView } from './components/inventory/InventoryView';
 import { HppCalculatorView } from './components/calculator/HppCalculatorView';
 import { ReportsView } from './components/reports/ReportsView';
@@ -10,6 +11,7 @@ import { DiscountModal } from './components/modals/DiscountModal';
 import { BundleModal } from './components/modals/BundleModal';
 import { OcrScannerModal } from './components/inventory/OcrScannerModal';
 import { ManualBatchModal } from './components/inventory/ManualBatchModal';
+import { ActiveTab } from './components/layout/Sidebar';
 import { InventoryBatch, ToastMessage } from './types';
 import { 
   loadBatches, 
@@ -19,15 +21,21 @@ import {
   saveConsent 
 } from './utils/storage';
 import { formatRupiah } from './utils/formatters';
-import gsap from 'gsap';
+import { Menu, Sparkles, Store, ShieldCheck } from 'lucide-react';
 
 export function App() {
-  // Navigation
+  // Navigation & UI State
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
-  // Batches State (Loaded and persisted in localStorage)
+  // Batches State (Loaded & persisted in localStorage)
   const [batches, setBatches] = useState<InventoryBatch[]>(() => loadBatches());
+
+  // Currently Selected Batch for Right Inspector
+  const [selectedBatchId, setSelectedBatchId] = useState<string>(() => {
+    const list = loadBatches();
+    return list[0]?.id || '';
+  });
 
   // UU PDP Consent State
   const [pdpConsent, setPdpConsent] = useState<boolean>(() => loadConsent());
@@ -47,19 +55,12 @@ export function App() {
   const [manualModalBatch, setManualModalBatch] = useState<InventoryBatch | null>(null);
   const [isManualModalOpen, setIsManualModalOpen] = useState<boolean>(false);
 
-  // Content ref for GSAP tab transitions
-  const contentAreaRef = useRef<HTMLDivElement>(null);
-
   // Sync batches to localStorage whenever changed
   useEffect(() => {
     saveBatches(batches);
   }, [batches]);
 
-  // Sync PDP consent
-  const handleToggleConsent = (val: boolean) => {
-    setPdpConsent(val);
-    saveConsent(val);
-  };
+  const selectedBatch = batches.find((b) => b.id === selectedBatchId) || batches[0] || null;
 
   // Toast Helper
   const addToast = (
@@ -71,7 +72,6 @@ export function App() {
     const newToast: ToastMessage = { id, title, description, type };
     setToasts((prev) => [...prev, newToast]);
 
-    // Auto dismiss after 4.5 seconds
     setTimeout(() => {
       removeToast(id);
     }, 4500);
@@ -81,32 +81,19 @@ export function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // GSAP Tab Switch Animation
-  const handleSelectTab = (newTab: ActiveTab) => {
-    if (newTab === activeTab) return;
-    if (contentAreaRef.current) {
-      gsap.fromTo(
-        contentAreaRef.current,
-        { opacity: 0, y: 15 },
-        { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }
-      );
-    }
-    setActiveTab(newTab);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  // 1. Reset Demo Data
+  // Reset Demo Data
   const handleResetData = () => {
     const defaults = resetToDefaults();
     setBatches(defaults);
+    setSelectedBatchId(defaults[0]?.id || '');
     addToast(
       'Demo Berhasil Direset',
-      'Data persediaan UMKM telah dikembalikan ke kondisi contoh awal.',
+      'Data inventori UMKM telah dikembalikan ke kondisi awal.',
       'info'
     );
   };
 
-  // 2. Action: Apply Discount from Modal
+  // Actions
   const handleApplyDiscount = (batchId: string, newDiscountPrice: number, strategy: string) => {
     setBatches((prev) =>
       prev.map((b) =>
@@ -123,7 +110,6 @@ export function App() {
     );
   };
 
-  // 3. Action: Create Bundle from Modal
   const handleCreateBundle = (
     bundleName: string,
     partnerBatchName: string,
@@ -140,30 +126,24 @@ export function App() {
     setIsBundleModalOpen(false);
     addToast(
       'Paket Bundling Berhasil Dibuat!',
-      `${bundleName} (${formatRupiah(bundlePrice)}) telah aktif di etalase dengan margin ${marginPct.toFixed(1)}%.`,
+      `${bundleName} (${formatRupiah(bundlePrice)}) aktif di etalase dengan margin ${marginPct.toFixed(1)}%.`,
       'success'
     );
   };
 
-  // 4. Action: Save Batch from Manual Modal (Add or Edit)
   const handleSaveManualBatch = (batchData: Omit<InventoryBatch, 'id'> | InventoryBatch) => {
     if ('id' in batchData && batchData.id) {
-      // Edit
       setBatches((prev) =>
         prev.map((b) => (b.id === batchData.id ? (batchData as InventoryBatch) : b))
       );
-      addToast(
-        'Batch Diperbarui',
-        `Perubahan data batch ${batchData.batchCode} berhasil disimpan.`,
-        'success'
-      );
+      addToast('Batch Diperbarui', `Perubahan data ${batchData.batchCode} tersimpan.`, 'success');
     } else {
-      // Add new
       const newBatch: InventoryBatch = {
         ...batchData,
         id: `batch-${Date.now()}`,
       };
       setBatches((prev) => [newBatch, ...prev]);
+      setSelectedBatchId(newBatch.id);
       addToast(
         'Batch Baru Ditambahkan!',
         `Produk ${newBatch.productName} (${newBatch.batchCode}) telah masuk radar FEFO.`,
@@ -173,13 +153,13 @@ export function App() {
     setIsManualModalOpen(false);
   };
 
-  // 5. Action: Batch Scanned from AI OCR
   const handleBatchScanned = (scannedBatch: Omit<InventoryBatch, 'id'>) => {
     const newBatch: InventoryBatch = {
       ...scannedBatch,
       id: `batch-${Date.now()}`,
     };
     setBatches((prev) => [newBatch, ...prev]);
+    setSelectedBatchId(newBatch.id);
     setIsOcrModalOpen(false);
     addToast(
       'AI Scan Sukses & Tersimpan!',
@@ -188,10 +168,12 @@ export function App() {
     );
   };
 
-  // 6. Action: Delete Batch
   const handleDeleteBatch = (id: string) => {
     const target = batches.find((b) => b.id === id);
     setBatches((prev) => prev.filter((b) => b.id !== id));
+    if (selectedBatchId === id) {
+      setSelectedBatchId(batches.find((b) => b.id !== id)?.id || '');
+    }
     addToast(
       'Batch Dihapus',
       `Batch ${target?.batchCode || id} telah dihapus dari inventori.`,
@@ -199,7 +181,6 @@ export function App() {
     );
   };
 
-  // 7. Action: Update Stock (+ / -)
   const handleUpdateStock = (id: string, delta: number) => {
     setBatches((prev) =>
       prev.map((b) => {
@@ -212,7 +193,6 @@ export function App() {
     );
   };
 
-  // 8. Action: Apply Clearance Price from Calculator tab
   const handleApplyClearancePrice = (batchId: string, newPrice: number) => {
     setBatches((prev) =>
       prev.map((b) =>
@@ -227,33 +207,61 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors">
-      {/* Top Navigation Bar */}
-      <Navbar
-        batches={batches}
-        onResetData={handleResetData}
-        onToggleMobileMenu={() => setIsMobileMenuOpen(true)}
-        pdpConsent={pdpConsent}
-        onNavigateToUUPDP={() => handleSelectTab('reports')}
-      />
+    <div className="min-h-screen bg-[#edf0f5] text-slate-800 antialiased p-3 sm:p-5 lg:p-6 font-sans">
+      {/* Mobile Top Header */}
+      <header className="lg:hidden mb-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="p-2 rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100"
+            aria-label="Buka Menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-[#5b58eb] text-white flex items-center justify-center font-bold text-xs">
+              NR
+            </div>
+            <span className="font-extrabold text-base tracking-tight text-slate-900">
+              nol<span className="text-[#5b58eb]">rugi</span>
+            </span>
+          </div>
+        </div>
 
-      {/* Main Body Shell */}
-      <div className="flex-1 flex max-w-7xl w-full mx-auto">
-        {/* Sidebar Navigation */}
-        <Sidebar
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setActiveTab('reports')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-indigo-50 text-[#5b58eb]"
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>UU PDP</span>
+          </button>
+        </div>
+      </header>
+
+      {/* Main 3-Column Container matching Skillalley Reference Image */}
+      <div className="max-w-[1560px] mx-auto flex flex-col lg:flex-row gap-5 items-start">
+        {/* Left Column: Skillalley Sidebar */}
+        <SkillalleySidebar
           activeTab={activeTab}
-          onSelectTab={handleSelectTab}
+          onSelectTab={setActiveTab}
           batches={batches}
           isMobileOpen={isMobileMenuOpen}
           onCloseMobile={() => setIsMobileMenuOpen(false)}
+          onResetData={handleResetData}
+          pdpConsent={pdpConsent}
+          onOpenUUPDP={() => setActiveTab('reports')}
         />
 
-        {/* Content View Area */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
-          <div ref={contentAreaRef}>
+        {/* Center Column: Active View with Framer Motion Animation */}
+        <main className="flex-1 min-w-0 w-full">
+          <AnimatePresence mode="wait">
             {activeTab === 'dashboard' && (
-              <DashboardView
+              <SkillalleyDashboardView
+                key="dashboard"
                 batches={batches}
+                selectedBatchId={selectedBatchId}
+                onSelectBatchId={setSelectedBatchId}
                 onTriggerDiscount={(batch) => {
                   setDiscountModalBatch(batch);
                   setIsDiscountModalOpen(true);
@@ -262,48 +270,88 @@ export function App() {
                   setBundleModalBatch(batch);
                   setIsBundleModalOpen(true);
                 }}
-                onNavigateToTab={handleSelectTab}
+                onNavigateToTab={setActiveTab}
               />
             )}
 
             {activeTab === 'inventory' && (
-              <InventoryView
-                batches={batches}
-                onOpenOcrModal={() => setIsOcrModalOpen(true)}
-                onOpenManualModal={(batch) => {
-                  setManualModalBatch(batch || null);
-                  setIsManualModalOpen(true);
-                }}
-                onDeleteBatch={handleDeleteBatch}
-                onUpdateStock={handleUpdateStock}
-                onTriggerDiscount={(batch) => {
-                  setDiscountModalBatch(batch);
-                  setIsDiscountModalOpen(true);
-                }}
-                onTriggerBundle={(batch) => {
-                  setBundleModalBatch(batch);
-                  setIsBundleModalOpen(true);
-                }}
-              />
+              <motion.div
+                key="inventory"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+              >
+                <InventoryView
+                  batches={batches}
+                  onOpenOcrModal={() => setIsOcrModalOpen(true)}
+                  onOpenManualModal={(batch) => {
+                    setManualModalBatch(batch || null);
+                    setIsManualModalOpen(true);
+                  }}
+                  onDeleteBatch={handleDeleteBatch}
+                  onUpdateStock={handleUpdateStock}
+                  onTriggerDiscount={(batch) => {
+                    setDiscountModalBatch(batch);
+                    setIsDiscountModalOpen(true);
+                  }}
+                  onTriggerBundle={(batch) => {
+                    setBundleModalBatch(batch);
+                    setIsBundleModalOpen(true);
+                  }}
+                />
+              </motion.div>
             )}
 
             {activeTab === 'calculator' && (
-              <HppCalculatorView
-                batches={batches}
-                onApplyClearancePrice={handleApplyClearancePrice}
-              />
+              <motion.div
+                key="calculator"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+              >
+                <HppCalculatorView
+                  batches={batches}
+                  onApplyClearancePrice={handleApplyClearancePrice}
+                />
+              </motion.div>
             )}
 
             {activeTab === 'reports' && (
-              <ReportsView
-                batches={batches}
-                pdpConsent={pdpConsent}
-                onToggleConsent={handleToggleConsent}
-                onShowToast={addToast}
-              />
+              <motion.div
+                key="reports"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+              >
+                <ReportsView
+                  batches={batches}
+                  pdpConsent={pdpConsent}
+                  onToggleConsent={(val) => {
+                    setPdpConsent(val);
+                    saveConsent(val);
+                  }}
+                  onShowToast={addToast}
+                />
+              </motion.div>
             )}
-          </div>
+          </AnimatePresence>
         </main>
+
+        {/* Right Column: Skillalley Right Inspector / Selected Batch Detail */}
+        <RightInspector
+          selectedBatch={selectedBatch}
+          onTriggerDiscount={(batch) => {
+            setDiscountModalBatch(batch);
+            setIsDiscountModalOpen(true);
+          }}
+          onTriggerBundle={(batch) => {
+            setBundleModalBatch(batch);
+            setIsBundleModalOpen(true);
+          }}
+        />
       </div>
 
       {/* Interactive Modals */}

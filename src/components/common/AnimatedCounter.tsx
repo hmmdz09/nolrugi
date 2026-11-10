@@ -47,3 +47,4 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
 
   return <span ref={spanRef} className={className}>0</span>;
 };
+

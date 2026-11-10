@@ -238,3 +238,4 @@ export const BundleModal: React.FC<BundleModalProps> = ({
     </div>
   );
 };
+

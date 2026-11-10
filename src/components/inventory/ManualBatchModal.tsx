@@ -321,3 +321,4 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({
     </div>
   );
 };
+

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  X, 
-  Camera, 
-  UploadCloud, 
-  Sparkles, 
-  CheckCircle2, 
-  RefreshCw, 
-  Zap, 
+import {
+  X,
+  Camera,
+  UploadCloud,
+  Sparkles,
+  CheckCircle2,
+  RefreshCw,
+  Zap,
   ScanLine,
   Image as ImageIcon
 } from 'lucide-react';
@@ -248,11 +248,10 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
                   key={preset.id}
                   type="button"
                   onClick={() => setSelectedPresetIndex(idx)}
-                  className={`p-2.5 rounded-xl text-left border transition-all text-xs ${
-                    selectedPresetIndex === idx
+                  className={`p-2.5 rounded-xl text-left border transition-all text-xs ${selectedPresetIndex === idx
                       ? 'border-teal-500 bg-teal-50/70 dark:bg-teal-950/40 ring-1 ring-teal-500 shadow-sm'
                       : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                  }`}
+                    }`}
                 >
                   <div className="font-bold text-slate-800 dark:text-slate-200 truncate">
                     {preset.name.split(' ')[0]} {preset.name.split(' ')[1]}
@@ -302,9 +301,8 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
             <div className="relative z-10 flex items-center justify-between text-xs text-white/90">
               <div className="flex items-center gap-2">
                 <div
-                  className={`w-2 h-2 rounded-full ${
-                    isScanning ? 'bg-amber-400 animate-ping' : 'bg-emerald-400'
-                  }`}
+                  className={`w-2 h-2 rounded-full ${isScanning ? 'bg-amber-400 animate-ping' : 'bg-emerald-400'
+                    }`}
                 />
                 <span className="font-medium text-[11px]">
                   {isScanning ? `Memindai ${scanProgress}%` : `Tingkat Akurasi: ${currentPreset.confidence}%`}
@@ -472,3 +470,4 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
     </div>
   );
 };
+

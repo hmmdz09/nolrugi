@@ -13,6 +13,7 @@
     "@gsap/react": "^2.1.2",
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
+    "framer-motion": "^14.12.0",
     "gsap": "^3.15.1",
     "lucide-react": "^1.71.0",
     "react": "^19.3.1",
