@@ -472,3 +472,4 @@ export const SkillalleyDashboardView: React.FC<SkillalleyDashboardViewProps> = (
     </motion.div>
   );
 };
+

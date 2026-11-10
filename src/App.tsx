@@ -13,12 +13,12 @@ import { OcrScannerModal } from './components/inventory/OcrScannerModal';
 import { ManualBatchModal } from './components/inventory/ManualBatchModal';
 import { ActiveTab } from './components/layout/Sidebar';
 import { InventoryBatch, ToastMessage } from './types';
-import { 
-  loadBatches, 
-  saveBatches, 
-  resetToDefaults, 
-  loadConsent, 
-  saveConsent 
+import {
+  loadBatches,
+  saveBatches,
+  resetToDefaults,
+  loadConsent,
+  saveConsent
 } from './utils/storage';
 import { formatRupiah } from './utils/formatters';
 import { Menu, Sparkles, Store, ShieldCheck } from 'lucide-react';
@@ -340,18 +340,20 @@ export function App() {
           </AnimatePresence>
         </main>
 
-        {/* Right Column: Skillalley Right Inspector / Selected Batch Detail */}
-        <RightInspector
-          selectedBatch={selectedBatch}
-          onTriggerDiscount={(batch) => {
-            setDiscountModalBatch(batch);
-            setIsDiscountModalOpen(true);
-          }}
-          onTriggerBundle={(batch) => {
-            setBundleModalBatch(batch);
-            setIsBundleModalOpen(true);
-          }}
-        />
+        {/* Right Column: Skillalley Right Inspector on Dashboard */}
+        {activeTab === 'dashboard' && (
+          <RightInspector
+            selectedBatch={selectedBatch}
+            onTriggerDiscount={(batch) => {
+              setDiscountModalBatch(batch);
+              setIsDiscountModalOpen(true);
+            }}
+            onTriggerBundle={(batch) => {
+              setBundleModalBatch(batch);
+              setIsBundleModalOpen(true);
+            }}
+          />
+        )}
       </div>
 
       {/* Interactive Modals */}

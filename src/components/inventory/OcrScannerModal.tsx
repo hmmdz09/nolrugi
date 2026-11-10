@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  X,
-  Camera,
-  UploadCloud,
-  Sparkles,
-  CheckCircle2,
-  RefreshCw,
-  Zap,
-  ScanLine,
+import { 
+  X, 
+  Camera, 
+  Sparkles, 
+  CheckCircle2, 
+  RefreshCw, 
   Image as ImageIcon
 } from 'lucide-react';
 import { InventoryBatch, ProductCategory } from '../../types';
@@ -33,7 +30,6 @@ interface SamplePreset {
   extractedBatch: string;
   confidence: number;
   imageBg: string;
-  description: string;
 }
 
 export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
@@ -58,7 +54,7 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
   const [unitHpp, setUnitHpp] = useState<number>(9000);
   const [sellingPrice, setSellingPrice] = useState<number>(16000);
   const [packagingType, setPackagingType] = useState<'kemasan-berlabel' | 'kemasan-polos'>('kemasan-berlabel');
-  const [location, setLocation] = useState<string>('Etalase Depan');
+  const [location] = useState<string>('Etalase Depan');
 
   const todayStr = new Date().toISOString().split('T')[0];
 
@@ -76,7 +72,6 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
       extractedBatch: 'RG-2026-X1',
       confidence: 98.7,
       imageBg: 'from-amber-700 via-orange-800 to-amber-900',
-      description: 'Stempel tanggal tinta inkjet hitam pada kemasan klip roti.',
     },
     {
       id: 'p2',
@@ -91,7 +86,6 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
       extractedBatch: 'SC-2026-9A',
       confidence: 97.4,
       imageBg: 'from-emerald-800 via-teal-900 to-slate-900',
-      description: 'Laser emboss pada tutup botol kaca sambal kedap udara.',
     },
     {
       id: 'p3',
@@ -106,7 +100,6 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
       extractedBatch: 'KT-2026-114',
       confidence: 99.1,
       imageBg: 'from-yellow-700 via-amber-800 to-stone-900',
-      description: 'Heat sealer emboss di bagian atas aluminium foil foil pouch.',
     },
     {
       id: 'p4',
@@ -121,7 +114,6 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
       extractedBatch: 'DJ-2026-202',
       confidence: 96.8,
       imageBg: 'from-cyan-900 via-blue-950 to-slate-900',
-      description: 'Stiker label beku thermo-transfer tahan air.',
     },
   ];
 
@@ -138,7 +130,6 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
     };
   }, [isScanning]);
 
-  // Simulate OCR scanning progress
   const runScanSimulation = (preset: SamplePreset) => {
     setIsScanning(true);
     setScanProgress(0);
@@ -148,7 +139,6 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
         if (prev >= 100) {
           clearInterval(interval);
           setIsScanning(false);
-          // Autofill form
           setProductName(preset.name);
           setCategory(preset.category);
           setBatchCode(preset.extractedBatch);
@@ -161,7 +151,7 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
         }
         return prev + 25;
       });
-    }, 180);
+    }, 160);
   };
 
   useEffect(() => {
@@ -174,7 +164,7 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
       particleCount: 80,
       spread: 70,
       origin: { y: 0.6 },
-      colors: ['#10b981', '#14b8a6', '#06b6d4'],
+      colors: ['#5b58eb', '#38bdf8', '#10b981'],
     });
 
     onBatchScanned({
@@ -198,34 +188,34 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity"
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-xl bg-white rounded-[28px] shadow-2xl border border-slate-100 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[88vh]">
         {/* Header */}
-        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-teal-500/10 via-emerald-500/5 to-transparent">
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-teal-600 text-white shadow-md shadow-teal-600/30">
-              <Camera className="w-5 h-5 text-amber-300" />
+            <div className="p-2 rounded-xl bg-indigo-50 text-[#5b58eb]">
+              <Camera className="w-5 h-5 text-[#5b58eb]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                  Simulasi AI Smart Scan Tanggal (OCR Engine)
+                <h3 className="text-base font-extrabold text-slate-900">
+                  Simulasi AI Scan Tanggal (OCR)
                 </h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300">
-                  Vision AI v2
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-[#5b58eb] border border-indigo-100">
+                  Vision Engine
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Pindai stempel tanggal kedaluwarsa & kode batch otomatis tanpa ketik manual.
+              <p className="text-xs text-slate-500 mt-0.5 font-medium">
+                Pindai stempel tanggal kedaluwarsa &amp; batch otomatis tanpa ketik manual.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -233,14 +223,14 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
 
         {/* Content Body */}
         <div className="p-5 overflow-y-auto space-y-4 flex-1">
-          {/* Sample preset selector buttons */}
+          {/* Preset buttons */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                <ImageIcon className="w-3.5 h-3.5 text-teal-600" />
-                Pilih Contoh Sampel Kemasan Produk UMKM:
+              <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <ImageIcon className="w-3.5 h-3.5 text-[#5b58eb]" />
+                Pilih Contoh Sampel Kemasan:
               </span>
-              <span className="text-[11px] text-slate-500">Klik untuk simulasi kamera</span>
+              <span className="text-[11px] text-slate-400 font-medium">Simulasi foto produk</span>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {presets.map((preset, idx) => (
@@ -248,15 +238,16 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
                   key={preset.id}
                   type="button"
                   onClick={() => setSelectedPresetIndex(idx)}
-                  className={`p-2.5 rounded-xl text-left border transition-all text-xs ${selectedPresetIndex === idx
-                      ? 'border-teal-500 bg-teal-50/70 dark:bg-teal-950/40 ring-1 ring-teal-500 shadow-sm'
-                      : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                    }`}
+                  className={`p-2.5 rounded-2xl text-left border transition-all text-xs ${
+                    selectedPresetIndex === idx
+                      ? 'border-[#5b58eb] bg-[#f8f9fe] shadow-2xs ring-1 ring-[#5b58eb]'
+                      : 'border-slate-200 bg-white hover:bg-slate-50'
+                  }`}
                 >
-                  <div className="font-bold text-slate-800 dark:text-slate-200 truncate">
+                  <div className="font-extrabold text-slate-900 truncate">
                     {preset.name.split(' ')[0]} {preset.name.split(' ')[1]}
                   </div>
-                  <div className="text-[10px] text-teal-600 dark:text-teal-400 font-semibold mt-0.5">
+                  <div className="text-[10px] text-[#5b58eb] font-semibold mt-0.5">
                     {preset.category}
                   </div>
                 </button>
@@ -264,75 +255,61 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
             </div>
           </div>
 
-          {/* Scanner Viewport Simulation */}
-          <div className="relative rounded-2xl overflow-hidden border-2 border-slate-700 bg-slate-950 h-52 sm:h-56 flex flex-col justify-between p-4 shadow-inner">
-            {/* Background texture imitating packaging */}
+          {/* Scanner Viewport */}
+          <div className="relative rounded-2xl overflow-hidden border-2 border-slate-800 bg-slate-950 h-44 flex flex-col justify-between p-3.5 shadow-inner">
             <div
-              className={`absolute inset-0 bg-gradient-to-br ${currentPreset.imageBg} opacity-80 mix-blend-multiply transition-colors duration-500`}
+              className={`absolute inset-0 bg-gradient-to-br ${currentPreset.imageBg} opacity-75 mix-blend-multiply transition-colors duration-500`}
             />
 
             {/* Corner Reticles */}
-            <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-emerald-400 z-10" />
-            <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-emerald-400 z-10" />
-            <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-emerald-400 z-10" />
-            <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-emerald-400 z-10" />
+            <div className="absolute top-3 left-3 w-5 h-5 border-t-2 border-l-2 border-cyan-400 z-10" />
+            <div className="absolute top-3 right-3 w-5 h-5 border-t-2 border-r-2 border-cyan-400 z-10" />
+            <div className="absolute bottom-3 left-3 w-5 h-5 border-b-2 border-l-2 border-cyan-400 z-10" />
+            <div className="absolute bottom-3 right-3 w-5 h-5 border-b-2 border-r-2 border-cyan-400 z-10" />
 
-            {/* Laser scanning beam */}
+            {/* Laser Line */}
             {isScanning && (
               <div
                 ref={laserRef}
-                className="absolute left-4 right-4 h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_15px_#34d399] z-20 pointer-events-none"
+                className="absolute left-3 right-3 h-0.5 bg-cyan-400 shadow-[0_0_12px_#38bdf8] z-20 pointer-events-none"
               />
             )}
 
-            {/* Simulated Printed Expiry Stamp in Center */}
+            {/* Scanned Text Overlay */}
             <div className="relative z-10 flex flex-col items-center justify-center my-auto">
-              <div className="bg-black/75 backdrop-blur-md px-4 py-2.5 rounded-xl border border-emerald-500/40 text-center shadow-lg">
-                <span className="text-[10px] text-emerald-400 tracking-widest font-mono uppercase block">
-                  {isScanning ? 'AI VISION: MENGANALISIS TEKS KEMASAN...' : 'OCR BERHASIL TERVERIFIKASI'}
+              <div className="bg-black/80 backdrop-blur-xs px-3.5 py-2 rounded-xl border border-white/20 text-center shadow-lg">
+                <span className="text-[9px] text-cyan-300 tracking-widest font-mono uppercase block">
+                  {isScanning ? 'AI VISION SCANNING...' : 'OCR TERVERIFIKASI'}
                 </span>
-                <span className="font-mono text-base sm:text-lg font-black text-white tracking-widest block mt-0.5">
+                <span className="font-mono text-xs sm:text-sm font-black text-white tracking-wider block mt-0.5">
                   {currentPreset.detectedText}
                 </span>
               </div>
             </div>
 
-            {/* Viewport Bottom Overlay Status */}
-            <div className="relative z-10 flex items-center justify-between text-xs text-white/90">
+            {/* Scanner status footer */}
+            <div className="relative z-10 flex items-center justify-between text-xs text-white">
               <div className="flex items-center gap-2">
-                <div
-                  className={`w-2 h-2 rounded-full ${isScanning ? 'bg-amber-400 animate-ping' : 'bg-emerald-400'
-                    }`}
-                />
-                <span className="font-medium text-[11px]">
-                  {isScanning ? `Memindai ${scanProgress}%` : `Tingkat Akurasi: ${currentPreset.confidence}%`}
+                <div className={`w-2 h-2 rounded-full ${isScanning ? 'bg-amber-400 animate-ping' : 'bg-emerald-400'}`} />
+                <span className="text-[11px] font-medium">
+                  {isScanning ? `Menganalisis ${scanProgress}%` : `Akurasi OCR: ${currentPreset.confidence}%`}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => runScanSimulation(currentPreset)}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[11px] backdrop-blur-sm transition-colors text-white"
+                className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white/20 hover:bg-white/30 text-[10px] text-white"
               >
                 <RefreshCw className="w-3 h-3" /> Pindai Ulang
               </button>
             </div>
           </div>
 
-          {/* Extracted Data Auto-Fill Form */}
+          {/* Editable auto-fill form */}
           <form onSubmit={handleSubmit} className="space-y-3 pt-1">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                Data Hasil Ekstraksi AI (Dapat Diedit):
-              </span>
-              <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
-                Auto-fill Siap
-              </span>
-            </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                <label className="block text-[11px] font-bold text-slate-800 mb-1">
                   Nama Produk
                 </label>
                 <input
@@ -340,18 +317,18 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
                   required
                   value={productName}
                   onChange={(e) => setProductName(e.target.value)}
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-900 outline-none focus:border-[#5b58eb]"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                  Kategori Pangan
+                <label className="block text-[11px] font-bold text-slate-800 mb-1">
+                  Kategori
                 </label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value as ProductCategory)}
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-900 outline-none focus:border-[#5b58eb]"
                 >
                   <option value="Roti & Kue">Roti & Kue</option>
                   <option value="Keripik & Camilan">Keripik & Camilan</option>
@@ -362,63 +339,57 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                  Kode Batch (Terdeteksi)
+                <label className="block text-[11px] font-bold text-slate-800 mb-1">
+                  Kode Batch
                 </label>
                 <input
                   type="text"
                   required
                   value={batchCode}
                   onChange={(e) => setBatchCode(e.target.value)}
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-mono font-bold text-[#5b58eb] outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                  Tanggal Kedaluwarsa (EXP)
+                <label className="block text-[11px] font-bold text-slate-800 mb-1">
+                  Tanggal Kedaluwarsa
                 </label>
                 <input
                   type="date"
                   required
                   value={expiryDate}
                   onChange={(e) => setExpiryDate(e.target.value)}
-                  className="w-full text-xs p-2.5 rounded-xl border border-emerald-400 dark:border-emerald-700 bg-emerald-50/50 dark:bg-emerald-950/20 font-bold text-emerald-800 dark:text-emerald-300 outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full text-xs p-2.5 rounded-xl border border-indigo-200 bg-indigo-50/50 font-bold text-[#5b58eb] outline-none focus:border-[#5b58eb]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                    Jumlah Masuk
-                  </label>
+                  <label className="block text-[11px] font-bold text-slate-800 mb-1">Jumlah</label>
                   <input
                     type="number"
                     min="1"
                     required
                     value={stockQty}
                     onChange={(e) => setStockQty(Number(e.target.value))}
-                    className="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-900 outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                    Satuan
-                  </label>
+                  <label className="block text-[11px] font-bold text-slate-800 mb-1">Satuan</label>
                   <input
                     type="text"
                     value={unit}
                     onChange={(e) => setUnit(e.target.value)}
-                    className="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 outline-none"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                    HPP Satuan (Rp)
-                  </label>
+                  <label className="block text-[11px] font-bold text-slate-800 mb-1">HPP Satuan (Rp)</label>
                   <input
                     type="number"
                     min="100"
@@ -426,13 +397,11 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
                     required
                     value={unitHpp}
                     onChange={(e) => setUnitHpp(Number(e.target.value))}
-                    className="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-900 outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                    Harga Jual Normal (Rp)
-                  </label>
+                  <label className="block text-[11px] font-bold text-slate-800 mb-1">Harga Jual (Rp)</label>
                   <input
                     type="number"
                     min="100"
@@ -440,25 +409,25 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
                     required
                     value={sellingPrice}
                     onChange={(e) => setSellingPrice(Number(e.target.value))}
-                    className="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-900 outline-none"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Submit Action */}
+            {/* Actions */}
             <div className="pt-2 flex items-center justify-end gap-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
               >
                 Batal
               </button>
               <button
                 type="submit"
                 disabled={isScanning}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 shadow-md shadow-teal-600/30 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#5b58eb] hover:bg-[#4a47d4] shadow-md shadow-[#5b58eb]/25 transition-all disabled:opacity-50"
               >
                 <CheckCircle2 className="w-4 h-4 text-white" />
                 <span>Simpan Batch ke FEFO Tracker</span>
@@ -470,4 +439,3 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
     </div>
   );
 };
-

@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import { 
   X, 
-  Sparkles, 
   PackagePlus, 
   CheckCircle2, 
-  TrendingUp, 
-  Layers, 
   Percent, 
   ArrowRight
 } from 'lucide-react';
@@ -30,7 +27,6 @@ export const BundleModal: React.FC<BundleModalProps> = ({
 }) => {
   if (!isOpen || !expiringBatch) return null;
 
-  // Find suitable partner items (ideally high stock, high margin, safe expiry)
   const candidatePartners = allBatches.filter(
     (b) => b.id !== expiringBatch.id && b.stockQty > 5
   );
@@ -47,7 +43,7 @@ export const BundleModal: React.FC<BundleModalProps> = ({
   const combinedHpp = expiringBatch.unitHpp + partnerBatch.unitHpp;
   const originalTotalPrice = expiringBatch.sellingPrice + partnerBatch.sellingPrice;
   const calculatedBundlePrice = Math.max(
-    combinedHpp * 1.15, // Ensure at least 15% margin
+    combinedHpp * 1.15,
     Math.round((originalTotalPrice * (1 - bundleDiscountPct / 100)) / 1000) * 1000
   );
   const bundleProfit = calculatedBundlePrice - combinedHpp;
@@ -60,7 +56,7 @@ export const BundleModal: React.FC<BundleModalProps> = ({
       particleCount: 75,
       spread: 70,
       origin: { y: 0.6 },
-      colors: ['#0d9488', '#10b981', '#6366f1'],
+      colors: ['#5b58eb', '#ec4899', '#38bdf8'],
     });
     onCreateBundle(bundleTitle, partnerBatch.productName, calculatedBundlePrice, bundleMarginPct);
   };
@@ -68,50 +64,50 @@ export const BundleModal: React.FC<BundleModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity"
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-lg bg-white rounded-[28px] shadow-2xl border border-slate-100 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-start justify-between bg-gradient-to-r from-teal-500/10 via-emerald-500/5 to-transparent">
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-teal-600 text-white shadow-md shadow-teal-600/30">
-              <PackagePlus className="w-5 h-5 text-amber-300" />
+            <div className="p-2 rounded-xl bg-indigo-50 text-[#5b58eb]">
+              <PackagePlus className="w-5 h-5 text-[#5b58eb]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                  AI Bundling Creator: Penyelamat Stok Lambat
+                <h3 className="text-base font-extrabold text-slate-900">
+                  AI Bundling: Penyelamat Stok Lambat
                 </h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-[#5b58eb] border border-indigo-100">
                   Cross-Selling
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Kombinasikan produk kritis/mengendap dengan produk favorit ber-margin tinggi.
+              <p className="text-xs text-slate-500 mt-0.5 font-medium">
+                Kombinasikan produk kritis dengan produk favorit ber-margin tinggi.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+        {/* Body */}
+        <div className="p-5 space-y-4 max-h-[72vh] overflow-y-auto">
           {/* Partner Selector */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-bold text-slate-800 mb-1.5">
               Pilih Produk Pasangan (Bestseller High-Margin):
             </label>
             <select
               value={partnerId}
               onChange={(e) => setPartnerId(e.target.value)}
-              className="w-full text-xs font-semibold p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-teal-500 outline-none"
+              className="w-full text-xs font-semibold p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:border-[#5b58eb] outline-none"
             >
               {candidatePartners.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -121,44 +117,42 @@ export const BundleModal: React.FC<BundleModalProps> = ({
             </select>
           </div>
 
-          {/* Side-by-side Items in Bundle */}
+          {/* 2 Items in Bundle */}
           <div className="grid grid-cols-2 gap-3">
-            {/* Expiring Item */}
-            <div className="p-3 rounded-xl border border-amber-200 dark:border-amber-900/40 bg-amber-50/50 dark:bg-amber-950/20">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                Item 1: Produk Kritis / Lambat
+            <div className="p-3 rounded-2xl border border-slate-200 bg-slate-50">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600">
+                Item 1: Produk Kritis
               </span>
-              <h5 className="text-xs font-bold text-slate-900 dark:text-white mt-1 truncate">
+              <h5 className="text-xs font-extrabold text-slate-900 mt-1 truncate">
                 {expiringBatch.productName}
               </h5>
-              <div className="mt-2 text-[11px] space-y-0.5 text-slate-600 dark:text-slate-300">
+              <div className="mt-2 text-[11px] space-y-0.5 text-slate-600 font-medium">
                 <div>HPP: {formatRupiah(expiringBatch.unitHpp)}</div>
                 <div className="line-through text-slate-400">Normal: {formatRupiah(expiringBatch.sellingPrice)}</div>
               </div>
             </div>
 
-            {/* Partner Item */}
-            <div className="p-3 rounded-xl border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50/50 dark:bg-emerald-950/20">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+            <div className="p-3 rounded-2xl border border-indigo-100 bg-indigo-50/50">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#5b58eb]">
                 Item 2: Pasangan Populer
               </span>
-              <h5 className="text-xs font-bold text-slate-900 dark:text-white mt-1 truncate">
+              <h5 className="text-xs font-extrabold text-slate-900 mt-1 truncate">
                 {partnerBatch.productName}
               </h5>
-              <div className="mt-2 text-[11px] space-y-0.5 text-slate-600 dark:text-slate-300">
+              <div className="mt-2 text-[11px] space-y-0.5 text-slate-600 font-medium">
                 <div>HPP: {formatRupiah(partnerBatch.unitHpp)}</div>
                 <div className="line-through text-slate-400">Normal: {formatRupiah(partnerBatch.sellingPrice)}</div>
               </div>
             </div>
           </div>
 
-          {/* Discount Slider */}
-          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-2">
+          {/* Slider */}
+          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-slate-700 dark:text-slate-300">
+              <span className="font-extrabold text-slate-900">
                 Diskon Promo Bundling:
               </span>
-              <span className="px-2 py-0.5 rounded-full font-black text-xs bg-teal-100 text-teal-800 dark:bg-teal-900/60 dark:text-teal-300">
+              <span className="px-2.5 py-0.5 rounded-full font-black text-xs bg-indigo-50 text-[#5b58eb] border border-indigo-100">
                 {bundleDiscountPct}% OFF
               </span>
             </div>
@@ -169,46 +163,46 @@ export const BundleModal: React.FC<BundleModalProps> = ({
               step={1}
               value={bundleDiscountPct}
               onChange={(e) => setBundleDiscountPct(Number(e.target.value))}
-              className="w-full accent-teal-600 cursor-pointer"
+              className="w-full accent-[#5b58eb] cursor-pointer"
             />
             <div className="flex justify-between text-[10px] text-slate-400 font-medium">
               <span>10% (Konservatif)</span>
               <span>18% (Rekomendasi AI)</span>
-              <span>35% (Cuci Gudang Kilat)</span>
+              <span>35% (Cuci Gudang)</span>
             </div>
           </div>
 
-          {/* Pricing & Margin Synthesis */}
-          <div className="p-4 rounded-xl bg-gradient-to-br from-slate-900 to-teal-950 text-white shadow-lg space-y-3">
-            <div className="flex items-center justify-between border-b border-white/10 pb-2">
-              <span className="text-xs text-slate-300">Total Harga Normal 2 Barang:</span>
-              <span className="text-xs line-through text-slate-400">
+          {/* Clean Pricing & Margin Result (NO ugly black card!) */}
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-[#f8f9fe] to-[#eef0f8] border border-indigo-100 space-y-2.5">
+            <div className="flex items-center justify-between border-b border-indigo-100/60 pb-2 text-xs">
+              <span className="text-slate-500 font-medium">Total Harga Normal 2 Barang:</span>
+              <span className="line-through text-slate-400 font-medium">
                 {formatRupiah(originalTotalPrice)}
               </span>
             </div>
 
-            <div className="flex items-center justify-between border-b border-white/10 pb-2">
-              <span className="text-xs text-slate-300">Total HPP Gabungan:</span>
-              <span className="text-xs font-semibold text-slate-200">
+            <div className="flex items-center justify-between border-b border-indigo-100/60 pb-2 text-xs">
+              <span className="text-slate-500 font-medium">Total HPP Gabungan:</span>
+              <span className="font-bold text-slate-800">
                 {formatRupiah(combinedHpp)}
               </span>
             </div>
 
             <div className="flex items-center justify-between pt-1">
               <div>
-                <div className="text-[10px] text-teal-300 uppercase font-bold tracking-wider">
+                <div className="text-[10px] text-[#5b58eb] uppercase font-extrabold tracking-wider">
                   Harga Bundling Paket Baru:
                 </div>
-                <div className="text-xl font-black text-amber-300">
+                <div className="text-xl font-black text-slate-900 mt-0.5">
                   {formatRupiah(calculatedBundlePrice)}
                 </div>
               </div>
 
               <div className="text-right">
-                <div className="text-[10px] text-teal-300 uppercase font-bold tracking-wider">
+                <div className="text-[10px] text-emerald-600 uppercase font-extrabold tracking-wider">
                   Margin Laba Bersih:
                 </div>
-                <div className="text-sm font-extrabold text-emerald-400">
+                <div className="text-sm font-black text-emerald-600 mt-0.5">
                   +{formatRupiah(bundleProfit)} ({bundleMarginPct.toFixed(1)}%)
                 </div>
               </div>
@@ -217,25 +211,24 @@ export const BundleModal: React.FC<BundleModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 flex items-center justify-between gap-3">
+        <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors"
+            className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200 transition-colors"
           >
             Batal
           </button>
           <button
             type="button"
             onClick={handleCreate}
-            className="flex-1 max-w-xs flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 shadow-md shadow-teal-600/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="flex-1 max-w-xs flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#5b58eb] hover:bg-[#4a47d4] shadow-md shadow-[#5b58eb]/25 transition-all"
           >
             <CheckCircle2 className="w-4 h-4 text-white" />
-            <span>Aktifkan Paket Promo Ini</span>
+            <span>Aktifkan Paket Promo</span>
           </button>
         </div>
       </div>
     </div>
   );
 };
-

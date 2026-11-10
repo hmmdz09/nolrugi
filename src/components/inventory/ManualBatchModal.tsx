@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle2, PlusCircle, Sparkles, RefreshCw } from 'lucide-react';
+import { X, CheckCircle2, PlusCircle, RefreshCw } from 'lucide-react';
 import { InventoryBatch, ProductCategory } from '../../types';
 
 interface ManualBatchModalProps {
@@ -105,37 +105,37 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity"
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
-        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-transparent">
+      <div className="relative w-full max-w-lg bg-white rounded-[28px] shadow-2xl border border-slate-100 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-emerald-600 text-white shadow-md shadow-emerald-600/30">
-              <PlusCircle className="w-5 h-5 text-white" />
+            <div className="p-2 rounded-xl bg-indigo-50 text-[#5b58eb]">
+              <PlusCircle className="w-5 h-5 text-[#5b58eb]" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+              <h3 className="text-base font-extrabold text-slate-900">
                 {initialBatch ? 'Edit Batch Inventori' : 'Tambah Batch Baru (FEFO)'}
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Pencatatan akurat tanggal kedaluwarsa & HPP per batch
+              <p className="text-xs text-slate-500 font-medium">
+                Pencatatan akurat tanggal kedaluwarsa &amp; HPP per batch
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-5 space-y-3.5 max-h-[76vh] overflow-y-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-bold text-slate-800 mb-1">
                 Nama Produk Kemasan
               </label>
               <input
@@ -144,18 +144,18 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({
                 placeholder="misal: Keripik Singkong Balado 200g"
                 value={productName}
                 onChange={(e) => setProductName(e.target.value)}
-                className="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-900 outline-none focus:border-[#5b58eb]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-bold text-slate-800 mb-1">
                 Kategori Pangan
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as ProductCategory)}
-                className="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-900 outline-none focus:border-[#5b58eb]"
               >
                 <option value="Roti & Kue">Roti & Kue</option>
                 <option value="Keripik & Camilan">Keripik & Camilan</option>
@@ -167,13 +167,13 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <label className="text-xs font-bold text-slate-800">
                   Kode Batch
                 </label>
                 <button
                   type="button"
                   onClick={generateBatchCode}
-                  className="text-[10px] text-teal-600 font-semibold flex items-center gap-0.5 hover:underline"
+                  className="text-[10px] text-[#5b58eb] font-bold flex items-center gap-0.5 hover:underline"
                 >
                   <RefreshCw className="w-2.5 h-2.5" /> Acak Kode
                 </button>
@@ -183,12 +183,12 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({
                 required
                 value={batchCode}
                 onChange={(e) => setBatchCode(e.target.value)}
-                className="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-mono font-bold text-[#5b58eb] outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-bold text-slate-800 mb-1">
                 Tanggal Masuk / Masak
               </label>
               <input
@@ -196,12 +196,12 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({
                 required
                 value={entryDate}
                 onChange={(e) => setEntryDate(e.target.value)}
-                className="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-900 outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-rose-600 dark:text-rose-400 mb-1">
+              <label className="block text-xs font-bold text-rose-600 mb-1">
                 Tanggal Kedaluwarsa (EXP)
               </label>
               <input
@@ -209,13 +209,13 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({
                 required
                 value={expiryDate}
                 onChange={(e) => setExpiryDate(e.target.value)}
-                className="w-full text-xs p-2.5 rounded-xl border border-rose-300 dark:border-rose-800 bg-rose-50/50 dark:bg-rose-950/20 font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-rose-500"
+                className="w-full text-xs p-2.5 rounded-xl border border-rose-200 bg-rose-50/50 font-bold text-rose-700 outline-none focus:border-rose-500"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-slate-800 mb-1">
                   Stok (Kuantitas)
                 </label>
                 <input
@@ -224,24 +224,24 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({
                   required
                   value={stockQty}
                   onChange={(e) => setStockQty(Number(e.target.value))}
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-900 outline-none"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-slate-800 mb-1">
                   Satuan
                 </label>
                 <input
                   type="text"
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 outline-none"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-bold text-slate-800 mb-1">
                 Jenis Kemasan
               </label>
               <select
@@ -249,16 +249,16 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({
                 onChange={(e) =>
                   setPackagingType(e.target.value as 'kemasan-berlabel' | 'kemasan-polos')
                 }
-                className="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-semibold outline-none"
               >
                 <option value="kemasan-berlabel">Kemasan Berlabel (EXP Cetak)</option>
-                <option value="kemasan-polos">Kemasan Polos (Pantau Dwell-Time &gt;21 Hari)</option>
+                <option value="kemasan-polos">Kemasan Polos (Pantau Dwell &gt;21 Hari)</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                HPP per Unit (Rp)
+              <label className="block text-xs font-bold text-slate-800 mb-1">
+                HPP Satuan (Rp)
               </label>
               <input
                 type="number"
@@ -267,12 +267,12 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({
                 required
                 value={unitHpp}
                 onChange={(e) => setUnitHpp(Number(e.target.value))}
-                className="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-900 outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-bold text-slate-800 mb-1">
                 Harga Jual Normal (Rp)
               </label>
               <input
@@ -282,12 +282,12 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({
                 required
                 value={sellingPrice}
                 onChange={(e) => setSellingPrice(Number(e.target.value))}
-                className="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-900 outline-none"
               />
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-bold text-slate-800 mb-1">
                 Lokasi Rak / Penyimpanan
               </label>
               <input
@@ -295,22 +295,22 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({
                 placeholder="misal: Rak Showcase Depan A2, Freezer 1"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-medium outline-none"
               />
             </div>
           </div>
 
-          <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-3">
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-md shadow-emerald-600/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#5b58eb] hover:bg-[#4a47d4] shadow-md shadow-[#5b58eb]/25 transition-all"
             >
               <CheckCircle2 className="w-4 h-4 text-white" />
               <span>{initialBatch ? 'Perbarui Batch' : 'Simpan Batch FEFO'}</span>
@@ -321,4 +321,3 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({
     </div>
   );
 };
-

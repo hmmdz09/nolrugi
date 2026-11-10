@@ -158,3 +158,4 @@ export const IsometricIllustration: React.FC<IsometricProps> = ({
     </div>
   );
 };
+

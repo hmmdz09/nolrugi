@@ -214,3 +214,4 @@ export const SkillalleySidebar: React.FC<SkillalleySidebarProps> = ({
     </>
   );
 };
+
