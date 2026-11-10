@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  X, 
-  PackagePlus, 
-  CheckCircle2, 
-  Percent, 
+import {
+  X,
+  PackagePlus,
+  CheckCircle2,
+  Percent,
   ArrowRight
 } from 'lucide-react';
 import { InventoryBatch } from '../../types';
@@ -49,7 +49,7 @@ export const BundleModal: React.FC<BundleModalProps> = ({
   const bundleProfit = calculatedBundlePrice - combinedHpp;
   const bundleMarginPct = (bundleProfit / calculatedBundlePrice) * 100;
 
-  const bundleTitle = `Paket Hemat UMKM: ${expiringBatch.productName.split(' ')[0]} + ${partnerBatch.productName.split(' ')[0]}`;
+  const bundleTitle = `Paket Hemat: ${expiringBatch.productName.split(' ')[0]} + ${partnerBatch.productName.split(' ')[0]}`;
 
   const handleCreate = () => {
     confetti({
@@ -80,13 +80,15 @@ export const BundleModal: React.FC<BundleModalProps> = ({
                 <h3 className="text-base font-extrabold text-slate-900">
                   AI Bundling: Penyelamat Stok Lambat
                 </h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-[#5b58eb] border border-indigo-100">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-[#5b58eb] border border-indigo-100 whitespace-nowrap">
                   Cross-Selling
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5 font-medium">
-                Kombinasikan produk kritis dengan produk favorit ber-margin tinggi.
-              </p>
+              <div className="flex items-center gap-1.5 mt-0.5 text-xs text-slate-500 font-medium">
+                <span>• Cross-selling stok lambat</span>
+                <span>• Produk bestseller</span>
+                <span>• Margin laba positif</span>
+              </div>
             </div>
           </div>
           <button
@@ -102,7 +104,7 @@ export const BundleModal: React.FC<BundleModalProps> = ({
           {/* Partner Selector */}
           <div>
             <label className="block text-xs font-bold text-slate-800 mb-1.5">
-              Pilih Produk Pasangan (Bestseller High-Margin):
+              Pilih Pasangan Produk (Bestseller High-Margin):
             </label>
             <select
               value={partnerId}
@@ -111,7 +113,7 @@ export const BundleModal: React.FC<BundleModalProps> = ({
             >
               {candidatePartners.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.productName} ({p.batchCode}) • Stok {p.stockQty} {p.unit} • Harga {formatRupiah(p.sellingPrice)}
+                  {p.productName} ({p.batchCode}) • Stok {p.stockQty} {p.unit} • Normal {formatRupiah(p.sellingPrice)}
                 </option>
               ))}
             </select>
@@ -120,7 +122,7 @@ export const BundleModal: React.FC<BundleModalProps> = ({
           {/* 2 Items in Bundle */}
           <div className="grid grid-cols-2 gap-3">
             <div className="p-3 rounded-2xl border border-slate-200 bg-slate-50">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600 block">
                 Item 1: Produk Kritis
               </span>
               <h5 className="text-xs font-extrabold text-slate-900 mt-1 truncate">
@@ -133,7 +135,7 @@ export const BundleModal: React.FC<BundleModalProps> = ({
             </div>
 
             <div className="p-3 rounded-2xl border border-indigo-100 bg-indigo-50/50">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#5b58eb]">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#5b58eb] block">
                 Item 2: Pasangan Populer
               </span>
               <h5 className="text-xs font-extrabold text-slate-900 mt-1 truncate">
@@ -172,7 +174,7 @@ export const BundleModal: React.FC<BundleModalProps> = ({
             </div>
           </div>
 
-          {/* Clean Pricing & Margin Result (NO ugly black card!) */}
+          {/* Clean Pricing & Margin Result */}
           <div className="p-4 rounded-2xl bg-gradient-to-br from-[#f8f9fe] to-[#eef0f8] border border-indigo-100 space-y-2.5">
             <div className="flex items-center justify-between border-b border-indigo-100/60 pb-2 text-xs">
               <span className="text-slate-500 font-medium">Total Harga Normal 2 Barang:</span>
@@ -191,7 +193,7 @@ export const BundleModal: React.FC<BundleModalProps> = ({
             <div className="flex items-center justify-between pt-1">
               <div>
                 <div className="text-[10px] text-[#5b58eb] uppercase font-extrabold tracking-wider">
-                  Harga Bundling Paket Baru:
+                  Harga Paket Bundling:
                 </div>
                 <div className="text-xl font-black text-slate-900 mt-0.5">
                   {formatRupiah(calculatedBundlePrice)}

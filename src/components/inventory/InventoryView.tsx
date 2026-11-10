@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Camera, 
-  Plus, 
-  Search, 
-  Download, 
-  Trash2, 
-  Edit3, 
-  Sparkles, 
-  PackagePlus, 
+import {
+  Camera,
+  Plus,
+  Search,
+  Download,
+  Trash2,
+  Edit3,
+  Sparkles,
+  PackagePlus,
   ArrowUpDown,
   Boxes,
   Clock
@@ -117,39 +117,42 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
 
   return (
     <div className="space-y-5 pb-12 w-full">
-      {/* 1. Header Card (Skillalley clean aesthetics) */}
+      {/* 1. Header Card - Compact, Point-by-point, Zero Fluff */}
       <div className="bg-white rounded-[28px] p-6 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
             <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
               Sistem FEFO &amp; Dwell-Time Tracker
             </h2>
-            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-[#5b58eb] border border-indigo-100">
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-[#5b58eb] border border-indigo-100 whitespace-nowrap">
               Rotasi Otomatis
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1 font-medium">
-            Pengawasan inventori pangan: First-Expired, First-Out &amp; deteksi dini kemasan polos &gt; 21 hari di rak.
-          </p>
+          {/* Point-by-point concise description */}
+          <div className="flex items-center gap-2 mt-1.5 text-xs text-slate-500 font-medium flex-wrap">
+            <span>• Rotasi stok FEFO</span>
+            <span>• Prioritas kedaluwarsa terdekat</span>
+            <span>• Monitoring dwell-time &gt; 21 hari</span>
+          </div>
         </div>
 
-        {/* Action Buttons with cohesive styling */}
+        {/* Action Buttons */}
         <div className="flex items-center gap-2.5 flex-wrap">
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => onOpenManualModal(null)}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-[#5b58eb] hover:bg-[#4a47d4] text-white shadow-md shadow-[#5b58eb]/20 transition-all"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-[#5b58eb] hover:bg-[#4a47d4] text-white shadow-md shadow-[#5b58eb]/20 transition-all whitespace-nowrap"
           >
             <Plus className="w-4 h-4" />
-            <span>Tambah Batch Baru</span>
+            <span>Tambah Batch</span>
           </motion.button>
 
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={onOpenOcrModal}
-            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-bold bg-indigo-50/80 hover:bg-indigo-100/80 text-[#5b58eb] border border-indigo-100 transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-[#5b58eb] border border-indigo-100 transition-colors whitespace-nowrap"
           >
             <Camera className="w-4 h-4 text-[#5b58eb]" />
             <span>AI Scan Tanggal</span>
@@ -157,7 +160,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
 
           <button
             onClick={handleExportCSV}
-            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition-colors whitespace-nowrap"
           >
             <Download className="w-3.5 h-3.5 text-slate-500" />
             <span>Unduh CSV</span>
@@ -172,7 +175,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Cari nama produk, batch..."
+            placeholder="Cari produk atau kode batch..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-9 pr-3 py-2 rounded-xl text-xs bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 font-medium outline-none focus:ring-2 focus:ring-[#5b58eb]/20 focus:border-[#5b58eb]"
@@ -198,7 +201,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
           {/* Dwell-Time Filter Toggle */}
           <button
             onClick={() => setDwellFilterOnly(!dwellFilterOnly)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-colors whitespace-nowrap ${
               dwellFilterOnly
                 ? 'bg-orange-500 text-white border-orange-500 shadow-xs'
                 : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
@@ -230,15 +233,15 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-slate-100 bg-[#f8fafc] text-[11px] font-bold text-slate-600 uppercase tracking-wider">
-                <th className="py-4 px-5">Nama Produk &amp; Batch</th>
-                <th className="py-4 px-3">Kategori</th>
-                <th className="py-4 px-3">Tgl Masuk</th>
-                <th className="py-4 px-3">Kedaluwarsa (EXP)</th>
-                <th className="py-4 px-3 text-center">Stok Sisa</th>
-                <th className="py-4 px-3">HPP Satuan</th>
-                <th className="py-4 px-3">Harga Jual</th>
-                <th className="py-4 px-3">Status FEFO</th>
-                <th className="py-4 px-5 text-right">Aksi</th>
+                <th className="py-4 px-4 min-w-[220px]">Produk &amp; Batch</th>
+                <th className="py-4 px-3 min-w-[110px]">Kategori</th>
+                <th className="py-4 px-3 min-w-[110px]">Tgl Masuk</th>
+                <th className="py-4 px-3 min-w-[110px]">Kedaluwarsa</th>
+                <th className="py-4 px-3 min-w-[110px] text-center">Stok</th>
+                <th className="py-4 px-3 min-w-[95px]">HPP</th>
+                <th className="py-4 px-3 min-w-[95px]">Harga Jual</th>
+                <th className="py-4 px-3 min-w-[125px]">Status FEFO</th>
+                <th className="py-4 px-4 min-w-[130px] text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -264,41 +267,41 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                       className="hover:bg-slate-50/70 transition-colors"
                     >
                       {/* Product Name & Batch */}
-                      <td className="py-3.5 px-5">
+                      <td className="py-3.5 px-4">
                         <div className="font-bold text-slate-900 text-sm">
                           {batch.productName}
                         </div>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="font-mono text-[10px] text-[#5b58eb] font-bold bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
+                          <span className="font-mono text-[10px] text-[#5b58eb] font-bold bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100 whitespace-nowrap inline-block">
                             {batch.batchCode}
                           </span>
-                          <span className="text-[10px] text-slate-500 font-medium">
+                          <span className="text-[10px] text-slate-500 font-medium whitespace-nowrap">
                             {batch.location}
                           </span>
                         </div>
                       </td>
 
                       {/* Category */}
-                      <td className="py-3.5 px-3 text-slate-700 font-medium">
+                      <td className="py-3.5 px-3 text-slate-700 font-medium whitespace-nowrap">
                         {batch.category}
                       </td>
 
                       {/* Entry Date */}
-                      <td className="py-3.5 px-3">
-                        <div className="text-slate-800 font-medium">
+                      <td className="py-3.5 px-3 whitespace-nowrap">
+                        <div className="text-slate-800 font-medium whitespace-nowrap">
                           {formatDateIndo(batch.entryDate)}
                         </div>
-                        <div className="text-[10px] text-slate-400 mt-0.5">
-                          Mengendap {statusInfo.dwellDays} hari
+                        <div className="text-[10px] text-slate-400 mt-0.5 whitespace-nowrap">
+                          Dwell: {statusInfo.dwellDays} hari
                         </div>
                       </td>
 
                       {/* Expiration Date */}
-                      <td className="py-3.5 px-3">
-                        <div className="font-bold text-slate-900">
+                      <td className="py-3.5 px-3 whitespace-nowrap">
+                        <div className="font-bold text-slate-900 whitespace-nowrap">
                           {formatDateIndo(batch.expiryDate)}
                         </div>
-                        <div className={`text-[10px] font-bold mt-0.5 ${
+                        <div className={`text-[10px] font-bold mt-0.5 whitespace-nowrap ${
                           statusInfo.daysLeft <= 3 ? 'text-rose-600' : 'text-amber-600'
                         }`}>
                           {statusInfo.daysLeft <= 0 ? 'Hari Ini!' : `H-${statusInfo.daysLeft} hari`}
@@ -306,15 +309,15 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                       </td>
 
                       {/* Stock with quick +/- */}
-                      <td className="py-3.5 px-3 text-center">
-                        <div className="inline-flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 border border-slate-200/60">
+                      <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                        <div className="inline-flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 border border-slate-200/60 whitespace-nowrap">
                           <button
                             onClick={() => onUpdateStock(batch.id, -1)}
                             className="w-5 h-5 rounded-lg bg-white text-slate-700 font-bold flex items-center justify-center hover:bg-slate-200 shadow-2xs"
                           >
                             -
                           </button>
-                          <span className="font-bold px-1.5 text-slate-900">
+                          <span className="font-bold px-1.5 text-slate-900 whitespace-nowrap">
                             {batch.stockQty} {batch.unit}
                           </span>
                           <button
@@ -327,32 +330,32 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                       </td>
 
                       {/* HPP */}
-                      <td className="py-3.5 px-3 font-semibold text-slate-800">
+                      <td className="py-3.5 px-3 font-semibold text-slate-800 whitespace-nowrap">
                         {formatRupiah(batch.unitHpp)}
                       </td>
 
                       {/* Selling Price */}
-                      <td className="py-3.5 px-3">
+                      <td className="py-3.5 px-3 whitespace-nowrap">
                         {isDiscounted ? (
                           <div>
-                            <span className="line-through text-[10px] text-slate-400 block font-medium">
+                            <span className="line-through text-[10px] text-slate-400 block font-medium whitespace-nowrap">
                               {formatRupiah(batch.sellingPrice)}
                             </span>
-                            <span className="font-extrabold text-[#5b58eb]">
+                            <span className="font-extrabold text-[#5b58eb] whitespace-nowrap">
                               {formatRupiah(batch.discountPrice!)}
                             </span>
                           </div>
                         ) : (
-                          <span className="font-bold text-slate-900">
+                          <span className="font-bold text-slate-900 whitespace-nowrap">
                             {formatRupiah(batch.sellingPrice)}
                           </span>
                         )}
                       </td>
 
                       {/* FEFO Status */}
-                      <td className="py-3.5 px-3">
+                      <td className="py-3.5 px-3 whitespace-nowrap">
                         <span
-                          className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-extrabold border ${
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-extrabold border whitespace-nowrap ${
                             statusInfo.status === 'kritis'
                               ? 'bg-rose-50 text-rose-700 border-rose-200'
                               : statusInfo.status === 'waspada'
@@ -366,37 +369,37 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                         </span>
                       </td>
 
-                      {/* Actions */}
-                      <td className="py-3.5 px-5 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
+                      {/* Actions - Grouped in clean pill container */}
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <div className="inline-flex items-center gap-1 p-1 bg-slate-50 border border-slate-200/70 rounded-xl whitespace-nowrap">
                           <button
                             onClick={() => onTriggerDiscount(batch)}
-                            title="Terapkan Diskon Bertahap (BEP)"
-                            className="p-1.5 rounded-lg bg-indigo-50 text-[#5b58eb] hover:bg-indigo-100 transition-colors border border-indigo-100"
+                            title="Diskon BEP"
+                            className="p-1.5 rounded-lg bg-white text-[#5b58eb] hover:bg-indigo-50 border border-indigo-100 shadow-2xs transition-colors"
                           >
                             <Sparkles className="w-3.5 h-3.5" />
                           </button>
 
                           <button
                             onClick={() => onTriggerBundle(batch)}
-                            title="Buat Paket Bundling"
-                            className="p-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors border border-slate-200"
+                            title="Bundling Promo"
+                            className="p-1.5 rounded-lg bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 shadow-2xs transition-colors"
                           >
                             <PackagePlus className="w-3.5 h-3.5" />
                           </button>
 
                           <button
                             onClick={() => onOpenManualModal(batch)}
-                            title="Edit batch"
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                            title="Edit Batch"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-white transition-colors"
                           >
                             <Edit3 className="w-3.5 h-3.5" />
                           </button>
 
                           <button
                             onClick={() => onDeleteBatch(batch.id)}
-                            title="Hapus batch"
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                            title="Hapus Batch"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-white transition-colors"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>

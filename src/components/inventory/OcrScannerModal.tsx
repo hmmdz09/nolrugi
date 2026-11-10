@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  X, 
-  Camera, 
-  Sparkles, 
-  CheckCircle2, 
-  RefreshCw, 
+import {
+  X,
+  Camera,
+  Sparkles,
+  CheckCircle2,
+  RefreshCw,
   Image as ImageIcon
 } from 'lucide-react';
 import { InventoryBatch, ProductCategory } from '../../types';
@@ -208,9 +208,11 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
                   Vision Engine
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5 font-medium">
-                Pindai stempel tanggal kedaluwarsa &amp; batch otomatis tanpa ketik manual.
-              </p>
+              <div className="flex items-center gap-1.5 mt-0.5 text-xs text-slate-500 font-medium flex-wrap">
+                <span>• Pindai stempel kedaluwarsa</span>
+                <span>• Akurasi OCR 98%</span>
+                <span>• Auto-fill radar FEFO</span>
+              </div>
             </div>
           </div>
           <button
@@ -238,11 +240,10 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
                   key={preset.id}
                   type="button"
                   onClick={() => setSelectedPresetIndex(idx)}
-                  className={`p-2.5 rounded-2xl text-left border transition-all text-xs ${
-                    selectedPresetIndex === idx
+                  className={`p-2.5 rounded-2xl text-left border transition-all text-xs ${selectedPresetIndex === idx
                       ? 'border-[#5b58eb] bg-[#f8f9fe] shadow-2xs ring-1 ring-[#5b58eb]'
                       : 'border-slate-200 bg-white hover:bg-slate-50'
-                  }`}
+                    }`}
                 >
                   <div className="font-extrabold text-slate-900 truncate">
                     {preset.name.split(' ')[0]} {preset.name.split(' ')[1]}

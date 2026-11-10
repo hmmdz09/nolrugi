@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  X, 
-  Sparkles, 
-  ShieldCheck, 
-  CheckCircle2, 
+import {
+  X,
+  Sparkles,
+  ShieldCheck,
+  CheckCircle2,
   ArrowRight
 } from 'lucide-react';
 import { InventoryBatch } from '../../types';
@@ -38,18 +38,26 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({
       title: 'Tahap 1: Diskon Waspada (H-7 s/d H-5)',
       discountPct: 15,
       price: Math.max(hpp, Math.round(normalPrice * 0.85 / 500) * 500),
-      label: 'Margin Tipis',
+      label: 'Margin Laba Aman',
       badgeColor: 'bg-indigo-50 text-[#5b58eb] border-indigo-100',
-      description: 'Menarik pembeli cepat tanpa mengorbankan seluruh laba usaha.',
+      bullets: [
+        'Diskon 15% dari harga normal',
+        `Laba per pcs: +${formatRupiah(Math.max(0, Math.round(normalPrice * 0.85 / 500) * 500 - hpp))}`,
+        'Menjaga perputaran stok tetap positif',
+      ],
     },
     {
       tier: 2,
-      title: 'Tahap 2: Diskon Penyelamat Modal (H-4 s/d H-2)',
+      title: 'Tahap 2: Penyelamat Kas (H-4 s/d H-2)',
       discountPct: 30,
       price: Math.max(hpp, Math.round(normalPrice * 0.70 / 500) * 500),
-      label: 'Prioritas Kas',
+      label: 'Prioritas Likuidasi',
       badgeColor: 'bg-amber-50 text-amber-700 border-amber-100',
-      description: 'Mencegah pembusukan total, uang kas modal segera kembali.',
+      bullets: [
+        'Diskon 30% dari harga normal',
+        `Laba per pcs: +${formatRupiah(Math.max(0, Math.round(normalPrice * 0.70 / 500) * 500 - hpp))}`,
+        'Percepat arus kas sebelum mendekati H-1',
+      ],
     },
     {
       tier: 3,
@@ -58,13 +66,15 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({
       price: hpp,
       label: 'Harga Modal (0% Rugi)',
       badgeColor: 'bg-rose-50 text-rose-700 border-rose-100',
-      description: 'Batas diskon terendah! Modal HPP 100% pulih tanpa rugi kas riil.',
+      bullets: [
+        `Diskon maksimal hingga harga modal (${formatRupiah(hpp)})`,
+        'Pemulihan 100% modal kerja tanpa rugi kas',
+        'Mencegah kerugian barang basi/musnah',
+      ],
     },
   ];
 
   const currentSelection = tiers.find((t) => t.tier === selectedTier) || tiers[0];
-  const unitProfitAtDiscount = currentSelection.price - hpp;
-  const totalRecovery = currentSelection.price * batch.stockQty;
   const totalPotentialLossWithoutAction = hpp * batch.stockQty;
 
   const handleApply = () => {
@@ -100,13 +110,15 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({
                 <h3 className="text-base font-extrabold text-slate-900">
                   AI Markdown Rescue: Diskon Bertahap
                 </h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-[#5b58eb] border border-indigo-100">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-[#5b58eb] border border-indigo-100 whitespace-nowrap">
                   BEP Optimizer
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5 font-medium">
-                Hitung harga diskon teraman agar modal HPP kembali tanpa risiko rugi kas.
-              </p>
+              <div className="flex items-center gap-1.5 mt-0.5 text-xs text-slate-500 font-medium">
+                <span>• Optimasi diskon</span>
+                <span>• Batas HPP pokok</span>
+                <span>• 0% rugi kas</span>
+              </div>
             </div>
           </div>
           <button
@@ -123,16 +135,16 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({
           <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <span className="text-[10px] font-mono font-bold text-[#5b58eb]">
+                <span className="text-[10px] font-mono font-bold text-[#5b58eb] whitespace-nowrap">
                   {batch.batchCode} • {batch.category}
                 </span>
                 <h4 className="text-sm font-extrabold text-slate-900 mt-0.5">
                   {batch.productName}
                 </h4>
-                <div className="flex items-center gap-2.5 mt-1 text-xs text-slate-600 font-medium">
+                <div className="flex items-center gap-2 mt-1 text-xs text-slate-600 font-medium">
                   <span>Stok: <strong>{batch.stockQty} {batch.unit}</strong></span>
                   <span>•</span>
-                  <span>Simpan: <strong>{daysLeft <= 0 ? 'Hari Ini' : `${daysLeft} Hari Lagi`}</strong></span>
+                  <span>Sisa: <strong>{daysLeft <= 0 ? 'Hari Ini' : `${daysLeft} Hari Lagi`}</strong></span>
                 </div>
               </div>
 
@@ -148,87 +160,89 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({
             </div>
           </div>
 
-          {/* Principle Callout */}
-          <div className="p-3 rounded-xl bg-indigo-50/70 border border-indigo-100 flex items-start gap-2.5">
-            <ShieldCheck className="w-4 h-4 text-[#5b58eb] shrink-0 mt-0.5" />
-            <div className="text-xs text-slate-700 leading-relaxed font-medium">
-              <strong className="text-slate-900">Prinsip NolRugi:</strong> Harga terendah dibatasi pada <strong>{formatRupiah(hpp)}</strong> (HPP Modal). Menjual di atas harga ini menyelamatkan kas modal <strong>{formatRupiah(totalPotentialLossWithoutAction)}</strong> dari risiko basi.
+          {/* Principle Callout - Point-by-point grid */}
+          <div className="p-3 rounded-2xl bg-indigo-50/70 border border-indigo-100">
+            <div className="flex items-center gap-2 pb-1.5 border-b border-indigo-100/70 text-xs font-bold text-[#5b58eb]">
+              <ShieldCheck className="w-4 h-4 text-[#5b58eb]" />
+              <span>Batas Aman Likuidasi Modal (Prinsip NolRugi):</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
+              <div>
+                <span className="text-[10px] text-slate-500 block">Harga Lantai (HPP):</span>
+                <strong className="text-slate-900 font-black">{formatRupiah(hpp)}</strong>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-500 block">Modal Terlindungi:</span>
+                <strong className="text-emerald-600 font-black">{formatRupiah(totalPotentialLossWithoutAction)}</strong>
+              </div>
             </div>
           </div>
 
           {/* Skenario Diskon List */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-800">
-              Pilih Skenario Diskon AI:
-            </label>
+            <div className="text-xs font-bold text-slate-800">
+              Pilih Skenario Diskon Bertahap:
+            </div>
 
-            <div className="space-y-2">
-              {tiers.map((t) => {
-                const isSelected = selectedTier === t.tier;
-                return (
-                  <button
-                    key={t.tier}
-                    type="button"
-                    onClick={() => setSelectedTier(t.tier)}
-                    className={`w-full text-left p-3.5 rounded-2xl border transition-all flex flex-col gap-1 ${
-                      isSelected
-                        ? 'border-[#5b58eb] bg-[#f8f9fe] shadow-xs ring-1 ring-[#5b58eb]'
-                        : 'border-slate-200 bg-white hover:bg-slate-50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-4 h-4 rounded-full border flex items-center justify-center text-[9px] font-bold ${
-                            isSelected
-                              ? 'border-[#5b58eb] bg-[#5b58eb] text-white'
-                              : 'border-slate-300'
-                          }`}
-                        >
-                          {isSelected && '✓'}
-                        </div>
-                        <span className="font-extrabold text-xs text-slate-900">
-                          {t.title}
-                        </span>
+            {tiers.map((tier) => {
+              const isSelected = selectedTier === tier.tier;
+              return (
+                <div
+                  key={tier.tier}
+                  onClick={() => setSelectedTier(tier.tier)}
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                    isSelected
+                      ? 'border-[#5b58eb] bg-[#f8f9fe] ring-1 ring-[#5b58eb]'
+                      : 'border-slate-200 hover:border-slate-300 bg-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <div
+                        className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                          isSelected
+                            ? 'border-[#5b58eb] bg-[#5b58eb]'
+                            : 'border-slate-300'
+                        }`}
+                      >
+                        {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                       </div>
-                      <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${t.badgeColor}`}>
-                        {t.label}
+                      <span className="text-xs font-extrabold text-slate-900">
+                        {tier.title}
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between pl-6 text-xs mt-1">
-                      <p className="text-slate-500 text-[11px] font-medium pr-2">
-                        {t.description}
-                      </p>
-                      <div className="text-right shrink-0">
-                        <span className="text-sm font-black text-[#5b58eb]">
-                          {formatRupiah(t.price)}
-                        </span>
-                        <span className="text-[10px] ml-1 font-bold text-rose-500">
-                          (-{t.discountPct}%)
-                        </span>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-md border whitespace-nowrap ${tier.badgeColor}`}
+                    >
+                      {tier.label}
+                    </span>
+                  </div>
 
-          {/* Recovery Summary */}
-          <div className="p-3.5 rounded-2xl bg-slate-900 text-white flex items-center justify-between text-xs">
-            <div>
-              <div className="text-[10px] text-slate-400 font-semibold uppercase">Kas Modal Terselamatkan:</div>
-              <div className="text-base font-black text-white mt-0.5">
-                {formatRupiah(totalRecovery)}
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-[10px] text-slate-400 font-semibold uppercase">Laba per Unit:</div>
-              <div className="text-sm font-bold text-emerald-400 mt-0.5">
-                {unitProfitAtDiscount >= 0 ? `+${formatRupiah(unitProfitAtDiscount)}` : 'Impas (Rp 0)'}
-              </div>
-            </div>
+                  {/* Bullet points instead of long paragraphs */}
+                  <div className="mt-2 pl-6 space-y-0.5 text-[11px] text-slate-600 font-medium">
+                    {tier.bullets.map((b, bi) => (
+                      <div key={bi} className="flex items-center gap-1.5">
+                        <span className="w-1 h-1 rounded-full bg-slate-400" />
+                        <span>{b}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-2.5 pl-6 flex items-center justify-between text-xs pt-2 border-t border-slate-100">
+                    <span className="text-slate-500 font-medium">Harga Rekomendasi:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="line-through text-slate-400 text-[10px]">
+                        {formatRupiah(normalPrice)}
+                      </span>
+                      <span className="font-black text-[#5b58eb] text-sm">
+                        {formatRupiah(tier.price)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -244,10 +258,10 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({
           <button
             type="button"
             onClick={handleApply}
-            className="flex-1 max-w-xs flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#5b58eb] hover:bg-[#4a47d4] shadow-md shadow-[#5b58eb]/25 transition-all"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#5b58eb] hover:bg-[#4a47d4] shadow-md shadow-[#5b58eb]/25 transition-all"
           >
             <CheckCircle2 className="w-4 h-4 text-white" />
-            <span>Terapkan Harga ({formatRupiah(currentSelection.price)})</span>
+            <span>Terapkan Harga Diskon ({formatRupiah(currentSelection.price)})</span>
           </button>
         </div>
       </div>

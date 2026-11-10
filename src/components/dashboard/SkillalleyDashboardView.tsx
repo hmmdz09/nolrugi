@@ -113,9 +113,11 @@ export const SkillalleyDashboardView: React.FC<SkillalleyDashboardViewProps> = (
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
             Selamatkan Margin &amp; Cegah Food Waste.
           </h1>
-          <p className="mt-2 text-xs sm:text-sm text-slate-500 font-medium leading-relaxed">
-            Sistem cerdas FEFO &amp; kalkulator likuidasi otomatis untuk UMKM Pangan Kemasan. Dapatkan rekomendasi harga titik impas (BEP) tanpa risiko boncos kas. 🔥
-          </p>
+          <div className="mt-2 flex items-center gap-2 text-xs sm:text-sm text-slate-500 font-medium flex-wrap">
+            <span>• Rotasi stok FEFO</span>
+            <span>• Titik impas BEP</span>
+            <span>• Proteksi modal pangan</span>
+          </div>
           <div className="mt-5 flex items-center gap-3">
             <motion.button
               whileHover={{ scale: 1.03 }}

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { 
-  FileSpreadsheet, 
-  Printer, 
-  ShieldCheck, 
-  CheckCircle2, 
-  Award, 
-  Download, 
-  Sparkles, 
+import {
+  FileSpreadsheet,
+  Printer,
+  ShieldCheck,
+  CheckCircle2,
+  Award,
+  Download,
+  Sparkles,
   FileText,
   X
 } from 'lucide-react';
@@ -49,28 +49,28 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       title: 'Disiplin Pencatatan Sistem FEFO',
       score: 95,
       weight: 25,
-      description: 'Pencatatan batch dan tanggal kedaluwarsa rutin setiap penerimaan barang.',
+      description: 'Pencatatan batch rutin setiap barang masuk.',
       status: 'optimal',
     },
     {
       title: 'Gross Margin Usaha Sehat (> 30%)',
       score: 88,
       weight: 30,
-      description: 'Gross margin stabil di angka 34.6%, melampaui batas aman perbankan retail (25%).',
+      description: 'Gross margin 34.6%, di atas ambang batas bank (25%).',
       status: 'optimal',
     },
     {
       title: 'Rasio Kerugian Stok Terkendali (< 1%)',
       score: 92,
       weight: 25,
-      description: 'Pemborosan pangan ditekan dari 4.5% menjadi 0.23% berkat diskon bertahap NolRugi.',
+      description: 'Limbah pangan ditekan ke 0.23% berkat diskon bertahap.',
       status: 'optimal',
     },
     {
       title: 'Arus Kas & Likuiditas Modal Kerja',
       score: 75,
       weight: 20,
-      description: 'Perputaran kas rata-rata 18 hari, mampu menopang angsuran kredit produktif.',
+      description: 'Perputaran kas 18 hari, aman menopang angsuran kredit.',
       status: 'cukup',
     },
   ];
@@ -139,19 +139,21 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
               Laporan SAK-EMKM &amp; Skor Kesiapan KUR
             </h2>
-            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-[#5b58eb] border border-indigo-100">
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-[#5b58eb] border border-indigo-100 whitespace-nowrap">
               Standar BI &amp; OJK
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1 font-medium">
-            Laporan keuangan resmi entitas mikro &amp; instrumen verifikasi kelayakan kredit perbankan sesuai regulasi UU PDP.
-          </p>
+          <div className="flex items-center gap-2 mt-1.5 text-xs text-slate-500 font-medium flex-wrap">
+            <span>• Laporan laba rugi entitas mikro</span>
+            <span>• Skor kelayakan kredit perbankan</span>
+            <span>• Kepatuhan UU PDP No. 27/2022</span>
+          </div>
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
           <button
             onClick={() => setIsPrintModalOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition-colors whitespace-nowrap"
           >
             <Printer className="w-4 h-4 text-slate-500" />
             <span>Cetak / PDF Preview</span>
@@ -159,22 +161,22 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
           <button
             onClick={handleExportKurDossier}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-[#5b58eb] hover:bg-[#4a47d4] text-white shadow-md shadow-[#5b58eb]/20 transition-all"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-[#5b58eb] hover:bg-[#4a47d4] text-white shadow-md shadow-[#5b58eb]/20 transition-all whitespace-nowrap"
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-4 h-4 text-white" />
             <span>Export Berkas Verifikasi KUR</span>
           </button>
         </div>
       </div>
 
-      {/* 2. Grid: SAK-EMKM Laba Rugi (7 cols) & Credit Readiness Gauge (5 cols) */}
+      {/* 2. Grid Content */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Left: Financial Statement */}
+        {/* Left: Laba Rugi Sederhana SAK-EMKM (7 cols) */}
         <div className="lg:col-span-7 bg-white rounded-[28px] p-6 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.05)] border border-slate-100 space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#5b58eb]">
-                Standar Akuntansi Keuangan SAK-EMKM
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Standar Akuntansi Keuangan Entitas Mikro Kecil
               </span>
               <h3 className="text-base font-extrabold text-slate-900 mt-0.5">
                 Laporan Laba Rugi Periode Berjalan (Nov 2026)
@@ -185,55 +187,50 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             </div>
           </div>
 
-          <div className="space-y-2.5 text-xs">
-            {/* 1. Omzet */}
+          <div className="space-y-2 text-xs">
+            {/* 1. Pendapatan Usaha */}
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <div>
-                <span className="font-extrabold text-slate-900">
-                  Pendapatan Penjualan Usaha (Omzet)
-                </span>
-                <span className="text-[10px] text-slate-400 block mt-0.5">Total penjualan produk kemasan</span>
-              </div>
-              <span className="font-black text-slate-900 text-sm">
+              <span className="font-semibold text-slate-800">
+                Pendapatan Penjualan Usaha (Omzet)
+              </span>
+              <span className="font-extrabold text-slate-900">
                 {formatRupiah(grossRevenue)}
               </span>
             </div>
 
-            {/* 2. HPP */}
+            {/* 2. Beban Pokok Penjualan (HPP) */}
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
               <div>
-                <span className="font-bold text-slate-800">
+                <span className="font-semibold text-slate-800">
                   Beban Pokok Penjualan (HPP Terjual)
                 </span>
-                <span className="text-[10px] text-slate-400 block mt-0.5">Bahan baku, kemasan, tenaga langsung</span>
+                <span className="text-[10px] text-slate-400 block mt-0.5">Bahan baku pokok &amp; kemasan terpakai</span>
               </div>
               <span className="font-bold text-rose-600">
                 ({formatRupiah(cogsSold)})
               </span>
             </div>
 
-            {/* 3. Penyelamatan Margin */}
-            <div className="flex items-center justify-between p-3 rounded-xl bg-indigo-50/70 border border-indigo-100">
+            {/* 3. Margin Terselamatkan NolRugi */}
+            <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-50/70 border border-emerald-100">
               <div>
-                <span className="font-extrabold text-[#5b58eb] flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Penyelamatan Margin NolRugi
+                <span className="font-bold text-emerald-900 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> Penyelamatan Margin (NolRugi)
                 </span>
-                <span className="text-[10px] text-slate-500 block mt-0.5">
-                  Kas pulih dari diskon bertahap &amp; bundling sebelum expired
-                </span>
+                <span className="text-[10px] text-emerald-700 block mt-0.5">Hasil optimasi diskon FEFO &amp; paket bundling</span>
               </div>
-              <span className="font-black text-[#5b58eb] text-sm">
+              <span className="font-extrabold text-emerald-700">
                 +{formatRupiah(rescuedMarginGain)}
               </span>
             </div>
 
-            {/* 4. Kerugian Limbah */}
+            {/* 4. Kerugian Produk Basi */}
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
               <div>
-                <span className="font-bold text-slate-800">
+                <span className="font-semibold text-slate-700">
                   Kerugian Produk Basi / Rusak (Food Waste)
                 </span>
-                <span className="text-[10px] text-slate-400 block mt-0.5">Ditekan tinggal 0.23% dari omzet</span>
+                <span className="text-[10px] text-slate-400 block mt-0.5">Terkendali hanya 0.23% dari omzet</span>
               </div>
               <span className="font-semibold text-rose-500">
                 ({formatRupiah(wastedInventoryLoss)})
@@ -305,7 +302,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           </div>
         </div>
 
-        {/* Right: Credit Readiness Index & UU PDP */}
+        {/* Right: Credit Readiness Index & UU PDP (5 cols) */}
         <div className="lg:col-span-5 space-y-4">
           {/* Credit Score Gauge Card */}
           <div className="bg-white rounded-[28px] p-6 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.05)] border border-slate-100 space-y-4">
@@ -380,7 +377,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               <div className="flex items-start gap-2 p-2 rounded-xl bg-slate-50">
                 <CheckCircle2 className="w-4 h-4 text-[#5b58eb] shrink-0 mt-0.5" />
                 <p className="text-[11px] text-slate-600">
-                  <strong>Enkripsi Sisi Klien:</strong> Data keuangan HPP tersimpan privat di perangkat pengguna.
+                  <strong>Enkripsi Sisi Klien:</strong> Data keuangan tersimpan privat di perangkat pengguna.
                 </p>
               </div>
 
@@ -391,7 +388,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                     Consent Sharing (Izin KUR)
                   </strong>
                   <p className="text-[10px] text-slate-500 mt-0.5 font-medium">
-                    Izin verifikasi skor kesiapan kredit kepada bank penyalur KUR.
+                    Izin verifikasi skor kesiapan kredit kepada bank mitra KUR.
                   </p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer shrink-0">
@@ -403,8 +400,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                       onShowToast(
                         e.target.checked ? 'Consent Berbagi Aktif' : 'Consent Dinonaktifkan',
                         e.target.checked
-                          ? 'Data keuangan dapat diakses mitra perbankan secara aman.'
-                          : 'Data hanya tersimpan privat di perangkat Anda.',
+                          ? 'Data keuangan dapat diverifikasi mitra perbankan.'
+                          : 'Data hanya tersimpan privat di perangkat lokal.',
                         'info'
                       );
                     }}
@@ -451,82 +448,87 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               </div>
             </div>
 
-            <div className="p-8 overflow-y-auto space-y-6 text-xs bg-white text-slate-900 font-serif">
-              <div className="text-center border-b-2 border-slate-900 pb-4">
-                <h2 className="text-lg font-bold uppercase tracking-wider text-slate-900">
-                  Dapur Berkah Nusantara
+            <div className="p-8 overflow-y-auto space-y-6 text-slate-900 print:p-0">
+              <div className="text-center border-b pb-4">
+                <h2 className="text-lg font-black uppercase tracking-tight">
+                  Laporan Keuangan SAK-EMKM
                 </h2>
-                <p className="text-[11px] text-slate-600 mt-0.5">
-                  Sentra Industri Pangan Kemasan UMKM • Jawa Timur, Indonesia
+                <p className="text-xs text-slate-600 font-semibold mt-1">
+                  Entitas Mikro: Dapur Berkah Nusantara • NIB: 0220268841901
                 </p>
-                <p className="text-[10px] text-slate-500">
-                  Nomor Induk Berusaha (NIB): 120524009182 • Standar SAK-EMKM
-                </p>
-              </div>
-
-              <div className="text-center space-y-1">
-                <h3 className="text-sm font-bold uppercase underline">
-                  Laporan Laba Rugi Entitas Mikro Kecil Menengah
-                </h3>
-                <p className="text-[11px] text-slate-600">
-                  Periode: 01 November 2026 s/d 10 November 2026 (Berjalan)
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Periode Berjalan: November 2026 • Sesuai Standar IAI &amp; Regulasi Perbankan KUR
                 </p>
               </div>
 
-              <table className="w-full border border-slate-300 text-xs">
-                <tbody>
-                  <tr className="border-b border-slate-200">
-                    <td className="p-2.5 font-bold">1. Pendapatan Penjualan Usaha</td>
-                    <td className="p-2.5 text-right font-bold">{formatRupiah(grossRevenue)}</td>
-                  </tr>
-                  <tr className="border-b border-slate-200">
-                    <td className="p-2.5 pl-6 text-slate-600">Beban Pokok Penjualan (HPP)</td>
-                    <td className="p-2.5 text-right text-rose-700">({formatRupiah(cogsSold)})</td>
-                  </tr>
-                  <tr className="border-b border-slate-200 bg-indigo-50/50">
-                    <td className="p-2.5 pl-6 font-semibold text-[#5b58eb]">
-                      Penyelamatan Margin NolRugi (Diskon Bertahap/Bundling)
-                    </td>
-                    <td className="p-2.5 text-right font-bold text-[#5b58eb]">+{formatRupiah(rescuedMarginGain)}</td>
-                  </tr>
-                  <tr className="border-b border-slate-200">
-                    <td className="p-2.5 pl-6 text-slate-600">Kerugian Barang Kedaluwarsa/Rusak</td>
-                    <td className="p-2.5 text-right text-rose-700">({formatRupiah(wastedInventoryLoss)})</td>
-                  </tr>
-                  <tr className="border-b border-slate-300 font-bold bg-slate-50">
-                    <td className="p-2.5">LABA KOTOR (GROSS PROFIT)</td>
-                    <td className="p-2.5 text-right">{formatRupiah(grossProfit)}</td>
-                  </tr>
-                  <tr className="border-b border-slate-200">
-                    <td className="p-2.5">2. Beban Operasional &amp; Usaha</td>
-                    <td className="p-2.5 text-right text-rose-700">({formatRupiah(operationalExpenses)})</td>
-                  </tr>
-                  <tr className="border-b border-slate-200 font-bold">
-                    <td className="p-2.5">LABA SEBELUM PAJAK (EBIT)</td>
-                    <td className="p-2.5 text-right">{formatRupiah(ebit)}</td>
-                  </tr>
-                  <tr className="border-b border-slate-200 text-amber-900 bg-amber-50/40">
-                    <td className="p-2.5 pl-6">PPh Final UMKM 0,5% (PP No. 55/2022)</td>
-                    <td className="p-2.5 text-right font-bold">({formatRupiah(pphFinalUMKM)})</td>
-                  </tr>
-                  <tr className="font-bold text-sm bg-slate-100">
-                    <td className="p-3">LABA BERSIH SETELAH PAJAK (NET PROFIT)</td>
-                    <td className="p-3 text-right text-[#5b58eb]">{formatRupiah(netProfit)}</td>
-                  </tr>
-                </tbody>
-              </table>
+              {/* Laba Rugi Table */}
+              <div className="space-y-2 text-xs">
+                <div className="font-bold uppercase tracking-wider text-slate-500 text-[10px]">
+                  I. Rincian Laba Rugi
+                </div>
+                <table className="w-full text-left border-collapse">
+                  <tbody>
+                    <tr className="border-b border-slate-100 py-1.5">
+                      <td className="py-2 text-slate-700">Pendapatan Penjualan Usaha Bruto</td>
+                      <td className="py-2 text-right font-bold">{formatRupiah(grossRevenue)}</td>
+                    </tr>
+                    <tr className="border-b border-slate-100 py-1.5">
+                      <td className="py-2 text-slate-700">Beban Pokok Penjualan (HPP)</td>
+                      <td className="py-2 text-right text-rose-600 font-semibold">({formatRupiah(cogsSold)})</td>
+                    </tr>
+                    <tr className="border-b border-slate-100 py-1.5 bg-emerald-50/50">
+                      <td className="py-2 text-emerald-800 font-semibold">+ Pemulihan Margin NolRugi</td>
+                      <td className="py-2 text-right text-emerald-700 font-bold">+{formatRupiah(rescuedMarginGain)}</td>
+                    </tr>
+                    <tr className="border-b border-slate-100 py-1.5">
+                      <td className="py-2 text-slate-700">- Beban Barang Rusak/Basi</td>
+                      <td className="py-2 text-right text-rose-600 font-semibold">({formatRupiah(wastedInventoryLoss)})</td>
+                    </tr>
+                    <tr className="border-b-2 border-slate-300 py-2 font-bold bg-slate-50">
+                      <td className="py-2 text-slate-900">Laba Kotor (Gross Profit)</td>
+                      <td className="py-2 text-right text-slate-900 font-black">{formatRupiah(grossProfit)}</td>
+                    </tr>
+                    <tr className="border-b border-slate-100 py-1.5">
+                      <td className="py-2 text-slate-700">Beban Operasional, Listrik &amp; Sewa</td>
+                      <td className="py-2 text-right text-rose-600 font-semibold">({formatRupiah(operationalExpenses)})</td>
+                    </tr>
+                    <tr className="border-b border-slate-100 py-1.5 font-bold">
+                      <td className="py-2 text-slate-900">Laba Sebelum Pajak (EBIT)</td>
+                      <td className="py-2 text-right text-slate-900 font-extrabold">{formatRupiah(ebit)}</td>
+                    </tr>
+                    <tr className="border-b border-slate-100 py-1.5 text-amber-900">
+                      <td className="py-2 text-amber-800">PPh Final UMKM 0,5% (PP 55/2022)</td>
+                      <td className="py-2 text-right text-amber-800 font-bold">({formatRupiah(pphFinalUMKM)})</td>
+                    </tr>
+                    <tr className="border-t-2 border-b-2 border-[#5b58eb] py-2.5 font-black bg-indigo-50/60 text-slate-900">
+                      <td className="py-2.5 text-slate-900 text-sm">Laba Bersih Setelah Pajak (Net Profit)</td>
+                      <td className="py-2.5 text-right text-[#5b58eb] text-base">{formatRupiah(netProfit)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
 
-              <div className="pt-6 flex justify-between text-center text-xs">
+              {/* Credit Readiness Seal */}
+              <div className="p-4 rounded-2xl border border-indigo-200 bg-indigo-50/40 flex items-center justify-between">
                 <div>
-                  <p className="text-slate-500">Diverifikasi Sistem AI:</p>
-                  <div className="mt-8 font-bold text-[#5b58eb]">NolRugi Sentinel AI</div>
-                  <p className="text-[10px] text-slate-400">Verifikasi Kriptografis Sisi Klien</p>
+                  <div className="text-[10px] uppercase font-bold text-[#5b58eb]">
+                    Verifikasi Kelayakan KUR
+                  </div>
+                  <div className="text-base font-black text-slate-900 mt-0.5">
+                    Credit Readiness Score: {creditScore}/100
+                  </div>
+                  <div className="text-xs text-slate-600 mt-0.5">
+                    Status: <strong>{scoreCategory}</strong>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-slate-500">Pemilik Usaha:</p>
-                  <div className="mt-8 font-bold text-slate-800">Hj. Siti Rahmawati</div>
-                  <p className="text-[10px] text-slate-400">Dapur Berkah Nusantara</p>
+                <div className="text-right text-[11px] text-slate-500">
+                  <div>Kepatuhan UU PDP No. 27/2022: <strong>Aktif</strong></div>
+                  <div>Terenkripsi Digital: SHA-256 Valid</div>
                 </div>
+              </div>
+
+              <div className="pt-4 border-t text-[10px] text-slate-400 text-center">
+                Dicetak otomatis dari Sistem Manajemen Inventori &amp; Margin NolRugi pada {new Date().toLocaleDateString('id-ID')}.
               </div>
             </div>
           </div>

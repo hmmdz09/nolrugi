@@ -119,9 +119,11 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({
               <h3 className="text-base font-extrabold text-slate-900">
                 {initialBatch ? 'Edit Batch Inventori' : 'Tambah Batch Baru (FEFO)'}
               </h3>
-              <p className="text-xs text-slate-500 font-medium">
-                Pencatatan akurat tanggal kedaluwarsa &amp; HPP per batch
-              </p>
+              <div className="flex items-center gap-1.5 mt-0.5 text-xs text-slate-500 font-medium flex-wrap">
+                <span>• Kode batch otomatis</span>
+                <span>• Tanggal kedaluwarsa</span>
+                <span>• HPP modal pokok</span>
+              </div>
             </div>
           </div>
           <button

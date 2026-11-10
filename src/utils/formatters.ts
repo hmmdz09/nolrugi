@@ -90,7 +90,7 @@ export const getBatchStatus = (
   if (packagingType === 'kemasan-polos' && dwellDays > 21) {
     return {
       status: 'dwell-alert',
-      label: `Mengendap ${dwellDays} Hari (>21h)`,
+      label: `Dwell >21h (${dwellDays}h)`,
       badgeClass: 'bg-orange-500/10 text-orange-600 border-orange-200 dark:border-orange-900/50 dark:text-orange-400',
       daysLeft,
       dwellDays,

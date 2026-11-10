@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Calculator, 
-  ShieldAlert, 
-  Sparkles, 
-  Coins, 
-  CheckCircle2, 
-  Percent, 
+import {
+  Calculator,
+  ShieldAlert,
+  Sparkles,
+  Coins,
+  CheckCircle2,
+  Percent,
   Info,
   ArrowRight
 } from 'lucide-react';
@@ -65,19 +65,31 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({
       level: 'Waspada (H-7)',
       discountPct: 20,
       price: selectedBatch ? Math.max(clearanceFloorPrice, Math.round(selectedBatch.sellingPrice * 0.8 / 500) * 500) : 0,
-      description: 'Menstimulasi penjualan cepat dengan margin laba tipis aman.',
+      bullets: [
+        'Target H-7 s/d H-5 sebelum tanggal kritis',
+        'Pertahankan perputaran stok tetap untung',
+        'Laba per pcs tetap positif',
+      ],
     },
     {
       level: 'Kritis (H-3)',
       discountPct: 35,
       price: selectedBatch ? Math.max(clearanceFloorPrice, Math.round(selectedBatch.sellingPrice * 0.65 / 500) * 500) : 0,
-      description: 'Diskon agresif untuk menyelamatkan likuiditas kas modal.',
+      bullets: [
+        'Target H-4 s/d H-2 menuju batas kedaluwarsa',
+        'Prioritaskan percepatan likuidasi kas modal',
+        'Margin tipis untuk dorongan konversi pembeli',
+      ],
     },
     {
       level: 'Emergency BEP (H-1)',
       discountPct: selectedBatch ? Math.round(((selectedBatch.sellingPrice - clearanceFloorPrice) / selectedBatch.sellingPrice) * 100) : 0,
       price: clearanceFloorPrice,
-      description: 'Harga Modal Murni (HPP). Kas 100% kembali, 0% rugi kas riil.',
+      bullets: [
+        'Target H-1 / H-0 batas akhir keselamatan',
+        'Harga modal murni (HPP) • 0% rugi kas',
+        '100% modal kerja kembali ke rekening',
+      ],
     },
   ];
 
@@ -101,13 +113,15 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({
             <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
               Kalkulator Penyelamat Margin UMKM
             </h2>
-            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-[#5b58eb] border border-indigo-100">
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-[#5b58eb] border border-indigo-100 whitespace-nowrap">
               Formula HPP &amp; BEP
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1 font-medium">
-            Hitung biaya pokok produksi secara menyeluruh dan tetapkan batas diskon terendah agar modal tidak boncos.
-          </p>
+          <div className="flex items-center gap-2 mt-1.5 text-xs text-slate-500 font-medium flex-wrap">
+            <span>• Biaya pokok produksi</span>
+            <span>• Titik impas (BEP)</span>
+            <span>• Batas aman diskon likuidasi</span>
+          </div>
         </div>
 
         {/* Clean Pill Toggle */}
@@ -147,9 +161,11 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({
                 <h3 className="text-base font-extrabold text-slate-900">
                   Komponen Biaya Produksi per Batch
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Alokasi biaya langsung dan tidak langsung untuk satu kali sesi masak/produksi.
-                </p>
+                <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500 font-medium">
+                  <span>• Biaya bahan</span>
+                  <span>• Upah kerja</span>
+                  <span>• Overhead energi</span>
+                </div>
               </div>
               <div className="p-2 rounded-xl bg-indigo-50 text-[#5b58eb]">
                 <Coins className="w-4 h-4" />
@@ -182,7 +198,7 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({
                     onChange={(e) => setRawMaterialCost(Number(e.target.value))}
                     className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-900 outline-none focus:ring-2 focus:ring-[#5b58eb]/20 focus:border-[#5b58eb]"
                   />
-                  <span className="text-[10px] text-slate-400">Tepung, minyak, bumbu, telur, dll.</span>
+                  <span className="text-[10px] text-slate-400">Tepung, bumbu, minyak, dll.</span>
                 </div>
 
                 <div>
@@ -197,7 +213,7 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({
                     onChange={(e) => setPackagingCost(Number(e.target.value))}
                     className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-900 outline-none focus:ring-2 focus:ring-[#5b58eb]/20 focus:border-[#5b58eb]"
                   />
-                  <span className="text-[10px] text-slate-400">Pouch, toples jar, stiker label printing.</span>
+                  <span className="text-[10px] text-slate-400">Pouch, toples jar, stiker label.</span>
                 </div>
 
                 <div>
@@ -212,7 +228,7 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({
                     onChange={(e) => setLaborCost(Number(e.target.value))}
                     className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-900 outline-none focus:ring-2 focus:ring-[#5b58eb]/20 focus:border-[#5b58eb]"
                   />
-                  <span className="text-[10px] text-slate-400">Upah tukang masak atau pekerja.</span>
+                  <span className="text-[10px] text-slate-400">Upah produksi / masak.</span>
                 </div>
 
                 <div>
@@ -282,8 +298,8 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({
                 />
                 <div className="flex justify-between text-[10px] text-slate-400 font-medium">
                   <span>20% (Grosir/Reseller)</span>
-                  <span>35% (Ritel UMKM Sehat)</span>
-                  <span>50% (Dapur Premium)</span>
+                  <span>35% (Ritel Sehat)</span>
+                  <span>50% (Premium)</span>
                 </div>
               </div>
             </div>
@@ -308,7 +324,7 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({
                   <AnimatedCounter value={hppPerUnit} format="rupiah" />
                 </div>
                 <p className="text-[11px] text-slate-500 mt-1 font-medium">
-                  Total biaya produksi: {formatRupiah(totalBatchVariableCost)} ({batchOutputUnits} pcs)
+                  Total biaya: {formatRupiah(totalBatchVariableCost)} ({batchOutputUnits} pcs)
                 </p>
               </div>
 
@@ -360,7 +376,7 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({
             {/* Explanatory callout */}
             <div className="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-100 flex items-start gap-2.5">
               <Info className="w-4 h-4 text-[#5b58eb] mt-0.5 shrink-0" />
-              <div className="text-xs text-slate-700 leading-relaxed">
+              <div className="text-xs text-slate-700 leading-relaxed font-medium">
                 <strong className="text-slate-900">Formula NolRugi:</strong>{' '}
                 <code className="bg-white px-1.5 py-0.5 rounded font-mono text-[11px] text-[#5b58eb] font-bold border border-indigo-100">
                   Harga = HPP ÷ (1 - Margin%)
@@ -380,12 +396,14 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({
                   Emergency Clearance Optimizer: Likuidasi Tanpa Boncos Kas
                 </h3>
                 <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-100">
-                  Zero Cash Loss
+                  Batas Lantai HPP
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-1 font-medium">
-                Sistem menghitung batas diskon terendah yang diizinkan agar penjual memperoleh kembali seluruh biaya modal pokok (HPP).
-              </p>
+              <div className="flex items-center gap-2 mt-1 text-xs text-slate-500 font-medium flex-wrap">
+                <span>• Batas diskon terendah</span>
+                <span>• Pemulihan modal pokok</span>
+                <span>• 0% rugi kas riil</span>
+              </div>
             </div>
 
             {/* Batch Selector */}
@@ -443,7 +461,7 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({
               {/* 3 Step Markdown Action Cards */}
               <div className="space-y-3">
                 <h4 className="text-xs font-bold text-slate-800">
-                  Opsi Skenario Diskon Bertahap (Actionable Markdown Steps):
+                  Opsi Skenario Diskon Bertahap:
                 </h4>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -461,9 +479,16 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({
                             Diskon {tier.discountPct}%
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-500 mt-2 leading-relaxed font-medium">
-                          {tier.description}
-                        </p>
+
+                        {/* Bullet points instead of long paragraphs */}
+                        <div className="mt-2.5 space-y-1 text-[11px] text-slate-600 font-medium">
+                          {tier.bullets.map((b, bi) => (
+                            <div key={bi} className="flex items-center gap-1.5">
+                              <span className="w-1 h-1 rounded-full bg-slate-400" />
+                              <span>{b}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
 
                       <div className="pt-3 border-t border-slate-100">

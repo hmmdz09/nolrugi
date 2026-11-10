@@ -109,10 +109,10 @@ export const RightInspector: React.FC<RightInspectorProps> = ({
                 <Calendar className="w-3.5 h-3.5" />
               </div>
               <div className="min-w-0">
-                <div className="text-[10px] text-slate-500 font-medium">
+                <div className="text-[10px] text-slate-500 font-medium whitespace-nowrap">
                   {formatDateIndo(selectedBatch.expiryDate)}
                 </div>
-                <div className="text-xs font-bold text-slate-900">
+                <div className="text-xs font-bold text-slate-900 whitespace-nowrap">
                   {daysLeft <= 0 ? 'Kedaluwarsa Hari Ini' : `Sisa ${daysLeft} Hari Lagi`}
                 </div>
               </div>
@@ -124,10 +124,10 @@ export const RightInspector: React.FC<RightInspectorProps> = ({
                 <Clock className="w-3.5 h-3.5" />
               </div>
               <div className="min-w-0">
-                <div className="text-[10px] text-slate-500 font-medium">
+                <div className="text-[10px] text-slate-500 font-medium whitespace-nowrap">
                   Stok: {selectedBatch.stockQty} {selectedBatch.unit}
                 </div>
-                <div className="text-xs font-bold text-slate-900">
+                <div className="text-xs font-bold text-slate-900 whitespace-nowrap">
                   Modal: {formatRupiah(tiedCapital)}
                 </div>
               </div>
@@ -139,10 +139,10 @@ export const RightInspector: React.FC<RightInspectorProps> = ({
                 <ShieldAlert className="w-3.5 h-3.5" />
               </div>
               <div className="min-w-0">
-                <div className="text-[10px] text-slate-500 font-medium">
+                <div className="text-[10px] text-slate-500 font-medium whitespace-nowrap">
                   Tingkat Urgensi
                 </div>
-                <div className="text-xs font-bold text-orange-700">
+                <div className="text-xs font-bold text-orange-700 whitespace-nowrap">
                   {statusInfo.label}
                 </div>
               </div>
