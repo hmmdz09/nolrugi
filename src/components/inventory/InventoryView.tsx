@@ -201,11 +201,10 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
           {/* Dwell-Time Filter Toggle */}
           <button
             onClick={() => setDwellFilterOnly(!dwellFilterOnly)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-colors whitespace-nowrap ${
-              dwellFilterOnly
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-colors whitespace-nowrap ${dwellFilterOnly
                 ? 'bg-orange-500 text-white border-orange-500 shadow-xs'
                 : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-            }`}
+              }`}
           >
             <Clock className="w-3.5 h-3.5" />
             <span>Dwell &gt; 21 Hari</span>
@@ -301,9 +300,8 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                         <div className="font-bold text-slate-900 whitespace-nowrap">
                           {formatDateIndo(batch.expiryDate)}
                         </div>
-                        <div className={`text-[10px] font-bold mt-0.5 whitespace-nowrap ${
-                          statusInfo.daysLeft <= 3 ? 'text-rose-600' : 'text-amber-600'
-                        }`}>
+                        <div className={`text-[10px] font-bold mt-0.5 whitespace-nowrap ${statusInfo.daysLeft <= 3 ? 'text-rose-600' : 'text-amber-600'
+                          }`}>
                           {statusInfo.daysLeft <= 0 ? 'Hari Ini!' : `H-${statusInfo.daysLeft} hari`}
                         </div>
                       </td>
@@ -355,15 +353,14 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                       {/* FEFO Status */}
                       <td className="py-3.5 px-3 whitespace-nowrap">
                         <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-extrabold border whitespace-nowrap ${
-                            statusInfo.status === 'kritis'
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-extrabold border whitespace-nowrap ${statusInfo.status === 'kritis'
                               ? 'bg-rose-50 text-rose-700 border-rose-200'
                               : statusInfo.status === 'waspada'
-                              ? 'bg-amber-50 text-amber-800 border-amber-200'
-                              : statusInfo.status === 'dwell-alert'
-                              ? 'bg-orange-50 text-orange-800 border-orange-200'
-                              : 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                          }`}
+                                ? 'bg-amber-50 text-amber-800 border-amber-200'
+                                : statusInfo.status === 'dwell-alert'
+                                  ? 'bg-orange-50 text-orange-800 border-orange-200'
+                                  : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                            }`}
                         >
                           {statusInfo.label}
                         </span>

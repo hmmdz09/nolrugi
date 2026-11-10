@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Sparkles, 
-  ChevronDown, 
-  Clock, 
-  ArrowRight, 
-  TrendingUp, 
-  AlertOctagon, 
-  Wallet, 
-  HeartPulse, 
-  PackagePlus, 
+import {
+  Sparkles,
+  ChevronDown,
+  Clock,
+  ArrowRight,
+  TrendingUp,
+  AlertOctagon,
+  Wallet,
+  HeartPulse,
+  PackagePlus,
   Filter,
   CheckCircle2,
   Calendar
@@ -19,15 +19,15 @@ import { formatRupiah, getBatchStatus, getDaysRemaining } from '../../utils/form
 import { sampleHistoricalRevenue } from '../../data/initialData';
 import { IsometricIllustration } from '../common/IsometricIllustration';
 import { AnimatedCounter } from '../common/AnimatedCounter';
-import { 
-  ResponsiveContainer, 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
   CartesianGrid,
-  Legend 
+  Legend
 } from 'recharts';
 
 interface SkillalleyDashboardViewProps {
@@ -241,41 +241,37 @@ export const SkillalleyDashboardView: React.FC<SkillalleyDashboardViewProps> = (
           <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-50 text-xs font-semibold self-start sm:self-auto">
             <button
               onClick={() => setFilterRisk('all')}
-              className={`px-3 py-1 rounded-xl transition-all ${
-                filterRisk === 'all'
+              className={`px-3 py-1 rounded-xl transition-all ${filterRisk === 'all'
                   ? 'bg-white text-slate-900 shadow-xs'
                   : 'text-slate-400 hover:text-slate-700'
-              }`}
+                }`}
             >
               Semua ({batches.length})
             </button>
             <button
               onClick={() => setFilterRisk('kritis')}
-              className={`px-3 py-1 rounded-xl transition-all ${
-                filterRisk === 'kritis'
+              className={`px-3 py-1 rounded-xl transition-all ${filterRisk === 'kritis'
                   ? 'bg-rose-500 text-white shadow-xs'
                   : 'text-rose-600 hover:bg-rose-50'
-              }`}
+                }`}
             >
               Kritis ({criticalCount})
             </button>
             <button
               onClick={() => setFilterRisk('waspada')}
-              className={`px-3 py-1 rounded-xl transition-all ${
-                filterRisk === 'waspada'
+              className={`px-3 py-1 rounded-xl transition-all ${filterRisk === 'waspada'
                   ? 'bg-amber-500 text-white shadow-xs'
                   : 'text-amber-600 hover:bg-amber-50'
-              }`}
+                }`}
             >
               Waspada ({warningCount})
             </button>
             <button
               onClick={() => setFilterRisk('dwell')}
-              className={`px-3 py-1 rounded-xl transition-all ${
-                filterRisk === 'dwell'
+              className={`px-3 py-1 rounded-xl transition-all ${filterRisk === 'dwell'
                   ? 'bg-orange-500 text-white shadow-xs'
                   : 'text-orange-600 hover:bg-orange-50'
-              }`}
+                }`}
             >
               Dwell ({dwellCount})
             </button>
@@ -301,25 +297,23 @@ export const SkillalleyDashboardView: React.FC<SkillalleyDashboardViewProps> = (
                 layout
                 whileHover={{ scale: 1.01, y: -2 }}
                 onClick={() => onSelectBatchId(batch.id)}
-                className={`cursor-pointer rounded-[24px] p-5 sm:p-6 transition-all relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
-                  isHighlight
+                className={`cursor-pointer rounded-[24px] p-5 sm:p-6 transition-all relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${isHighlight
                     ? 'bg-[#5b58eb] text-white shadow-xl shadow-[#5b58eb]/30'
                     : isSelected
-                    ? 'bg-[#f4f6fd] text-slate-900 border-2 border-[#5b58eb] shadow-sm'
-                    : 'bg-[#f8fafc] hover:bg-[#f1f4f9] text-slate-900 border border-slate-100'
-                }`}
+                      ? 'bg-[#f4f6fd] text-slate-900 border-2 border-[#5b58eb] shadow-sm'
+                      : 'bg-[#f8fafc] hover:bg-[#f1f4f9] text-slate-900 border border-slate-100'
+                  }`}
               >
                 {/* Left Accent Stripe */}
                 <div
-                  className={`absolute left-0 top-3 bottom-3 w-1.5 rounded-r-full ${
-                    isHighlight
+                  className={`absolute left-0 top-3 bottom-3 w-1.5 rounded-r-full ${isHighlight
                       ? 'bg-white'
                       : daysLeft <= 3
-                      ? 'bg-rose-500'
-                      : daysLeft <= 7
-                      ? 'bg-amber-500'
-                      : 'bg-[#5b58eb]'
-                  }`}
+                        ? 'bg-rose-500'
+                        : daysLeft <= 7
+                          ? 'bg-amber-500'
+                          : 'bg-[#5b58eb]'
+                    }`}
                 />
 
                 {/* Left 3D Icon & Content */}
@@ -333,9 +327,8 @@ export const SkillalleyDashboardView: React.FC<SkillalleyDashboardViewProps> = (
                     {/* Time & Urgency Pill */}
                     <div className="flex items-center gap-2">
                       <span
-                        className={`text-[11px] font-bold flex items-center gap-1 ${
-                          isHighlight ? 'text-white/80' : 'text-slate-400'
-                        }`}
+                        className={`text-[11px] font-bold flex items-center gap-1 ${isHighlight ? 'text-white/80' : 'text-slate-400'
+                          }`}
                       >
                         <Clock className="w-3 h-3" />
                         {daysLeft <= 0
@@ -346,18 +339,16 @@ export const SkillalleyDashboardView: React.FC<SkillalleyDashboardViewProps> = (
 
                     {/* Title */}
                     <h4
-                      className={`text-base font-extrabold mt-1 tracking-tight ${
-                        isHighlight ? 'text-white' : 'text-slate-900'
-                      }`}
+                      className={`text-base font-extrabold mt-1 tracking-tight ${isHighlight ? 'text-white' : 'text-slate-900'
+                        }`}
                     >
                       {batch.productName}
                     </h4>
 
                     {/* Subtitle */}
                     <p
-                      className={`text-xs mt-0.5 max-w-md ${
-                        isHighlight ? 'text-indigo-100' : 'text-slate-500'
-                      }`}
+                      className={`text-xs mt-0.5 max-w-md ${isHighlight ? 'text-indigo-100' : 'text-slate-500'
+                        }`}
                     >
                       Stok {batch.stockQty} {batch.unit} • HPP: {formatRupiah(batch.unitHpp)} • Normal: {formatRupiah(batch.sellingPrice)}
                     </p>
@@ -368,11 +359,10 @@ export const SkillalleyDashboardView: React.FC<SkillalleyDashboardViewProps> = (
                 <div className="flex items-center gap-3 self-end sm:self-center pr-2">
                   {/* Circular Score Badge matching image */}
                   <div
-                    className={`w-10 h-10 rounded-full border-2 flex items-center justify-center text-xs font-black shrink-0 ${
-                      isHighlight
+                    className={`w-10 h-10 rounded-full border-2 flex items-center justify-center text-xs font-black shrink-0 ${isHighlight
                         ? 'border-white/40 text-white bg-white/10'
                         : 'border-slate-200 text-slate-700 bg-white shadow-2xs'
-                    }`}
+                      }`}
                   >
                     {healthScore}
                   </div>
@@ -383,11 +373,10 @@ export const SkillalleyDashboardView: React.FC<SkillalleyDashboardViewProps> = (
                       e.stopPropagation();
                       onTriggerDiscount(batch);
                     }}
-                    className={`p-2 rounded-xl transition-colors ${
-                      isHighlight
+                    className={`p-2 rounded-xl transition-colors ${isHighlight
                         ? 'bg-white/20 hover:bg-white/30 text-white'
                         : 'bg-white hover:bg-[#5b58eb] text-slate-400 hover:text-white border border-slate-200 shadow-2xs'
-                    }`}
+                      }`}
                   >
                     <ArrowRight className="w-4 h-4" />
                   </motion.button>

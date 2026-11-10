@@ -128,22 +128,20 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({
         <div className="flex items-center p-1 rounded-2xl bg-slate-100 border border-slate-200/60 self-start md:self-auto">
           <button
             onClick={() => setActiveMode('standard')}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-              activeMode === 'standard'
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeMode === 'standard'
                 ? 'bg-[#5b58eb] text-white shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
-            }`}
+              }`}
           >
             <Calculator className="w-3.5 h-3.5" />
             <span>Kalkulator HPP</span>
           </button>
           <button
             onClick={() => setActiveMode('clearance')}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-              activeMode === 'clearance'
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeMode === 'clearance'
                 ? 'bg-rose-500 text-white shadow-sm'
                 : 'text-slate-600 hover:text-rose-600'
-            }`}
+              }`}
           >
             <ShieldAlert className="w-3.5 h-3.5" />
             <span>Clearance Optimizer</span>

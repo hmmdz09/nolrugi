@@ -241,8 +241,8 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
                   type="button"
                   onClick={() => setSelectedPresetIndex(idx)}
                   className={`p-2.5 rounded-2xl text-left border transition-all text-xs ${selectedPresetIndex === idx
-                      ? 'border-[#5b58eb] bg-[#f8f9fe] shadow-2xs ring-1 ring-[#5b58eb]'
-                      : 'border-slate-200 bg-white hover:bg-slate-50'
+                    ? 'border-[#5b58eb] bg-[#f8f9fe] shadow-2xs ring-1 ring-[#5b58eb]'
+                    : 'border-slate-200 bg-white hover:bg-slate-50'
                     }`}
                 >
                   <div className="font-extrabold text-slate-900 truncate">
