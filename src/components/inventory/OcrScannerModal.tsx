@@ -63,7 +63,6 @@ const PRESETS: SamplePreset[] = [
 
 export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({ isOpen, onClose, onBatchScanned }) => {
   const [presetIdx, setPresetIdx] = useState(0);
-  const [scanNonce, setScanNonce] = useState(0);
   const [progress, setProgress] = useState(0);
   const timer = useRef<number | undefined>(undefined);
 
@@ -79,28 +78,36 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({ isOpen, onClos
   const presetExpiry = isoDate(preset.expiryOffset);
   const scanning = progress < 100;
 
-  useEffect(() => {
-    setProgress(0);
+  /** Simulated OCR: ticks progress, then autofills the form from the preset. */
+  const runScan = (idx: number) => {
     window.clearInterval(timer.current);
+    let p = 0;
     timer.current = window.setInterval(() => {
-      setProgress((p) => {
-        const next = Math.min(100, p + 20);
-        if (next >= 100) window.clearInterval(timer.current);
-        return next;
-      });
+      p += 20;
+      setProgress(p);
+      if (p < 100) return;
+      window.clearInterval(timer.current);
+      const x = PRESETS[idx];
+      setProductName(x.name);
+      setCategory(x.category);
+      setBatchCode(x.extractedBatch);
+      setExpiryDate(isoDate(x.expiryOffset));
+      setUnitHpp(x.unitHpp);
+      setSellingPrice(x.sellingPrice);
     }, 180);
-    return () => window.clearInterval(timer.current);
-  }, [presetIdx, scanNonce]);
+  };
+
+  const rescan = (idx: number) => {
+    setPresetIdx(idx);
+    setProgress(0);
+    runScan(idx);
+  };
 
   useEffect(() => {
-    if (progress < 100) return;
-    setProductName(preset.name);
-    setCategory(preset.category);
-    setBatchCode(preset.extractedBatch);
-    setExpiryDate(presetExpiry);
-    setUnitHpp(preset.unitHpp);
-    setSellingPrice(preset.sellingPrice);
-  }, [progress, preset, presetExpiry]);
+    runScan(0);
+    return () => window.clearInterval(timer.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!isOpen) return null;
 
@@ -150,7 +157,7 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({ isOpen, onClos
             <button
               key={p.id}
               type="button"
-              onClick={() => setPresetIdx(i)}
+              onClick={() => rescan(i)}
               className={cn(
                 'rounded-lg border px-3 py-2 text-left transition-all',
                 i === presetIdx ? 'border-brand-500 ring-4 ring-brand-500/10' : 'border-slate-200 hover:border-slate-300'
@@ -193,7 +200,7 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({ isOpen, onClos
             </span>
             <button
               type="button"
-              onClick={() => setScanNonce((n) => n + 1)}
+              onClick={() => rescan(presetIdx)}
               className="flex items-center gap-1 h-6 px-2 rounded-md bg-white/15 hover:bg-white/25"
             >
               <RefreshCw className="w-3 h-3" /> Ulang

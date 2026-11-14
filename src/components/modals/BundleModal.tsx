@@ -13,6 +13,17 @@ interface BundleModalProps {
   onCreateBundle: (bundleName: string, partnerBatchName: string, bundlePrice: number, marginPct: number) => void;
 }
 
+const Item = ({ b, label, tone }: { b: InventoryBatch; label: string; tone: string }) => (
+  <div className="rounded-xl border border-slate-200 p-3 min-w-0 flex-1">
+    <div className={`text-[11px] font-semibold ${tone}`}>{label}</div>
+    <div className="mt-1 text-[13px] font-semibold text-ink line-clamp-2 leading-snug">{b.productName}</div>
+    <div className="mt-1.5 text-[12px] text-slate-500 tabular">
+      HPP {formatRupiah(b.unitHpp)} · {formatRupiah(b.sellingPrice)}
+    </div>
+  </div>
+);
+
+
 export const BundleModal: React.FC<BundleModalProps> = ({
   expiringBatch,
   allBatches,
@@ -49,16 +60,6 @@ export const BundleModal: React.FC<BundleModalProps> = ({
     confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 }, colors: ['#10b981', '#0f172a', '#34d399'] });
     onCreateBundle(title, partner.productName, bundlePrice, marginPct);
   };
-
-  const Item = ({ b, label, tone }: { b: InventoryBatch; label: string; tone: string }) => (
-    <div className="rounded-xl border border-slate-200 p-3 min-w-0 flex-1">
-      <div className={`text-[11px] font-semibold ${tone}`}>{label}</div>
-      <div className="mt-1 text-[13px] font-semibold text-ink line-clamp-2 leading-snug">{b.productName}</div>
-      <div className="mt-1.5 text-[12px] text-slate-500 tabular">
-        HPP {formatRupiah(b.unitHpp)} · {formatRupiah(b.sellingPrice)}
-      </div>
-    </div>
-  );
 
   return (
     <Modal
