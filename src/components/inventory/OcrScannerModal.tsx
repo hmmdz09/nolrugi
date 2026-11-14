@@ -1,14 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  X,
-  Camera,
-  Sparkles,
-  CheckCircle2,
-  RefreshCw,
-  Image as ImageIcon
-} from 'lucide-react';
+import { ScanLine, RefreshCw, Check } from 'lucide-react';
 import { InventoryBatch, ProductCategory } from '../../types';
-import { animateLaserScan } from '../../utils/gsapAnimations';
+import { Field, Modal, cn } from '../common/ui';
 import confetti from 'canvas-confetti';
 
 interface OcrScannerModalProps {
@@ -20,423 +13,217 @@ interface OcrScannerModalProps {
 interface SamplePreset {
   id: string;
   name: string;
+  short: string;
   category: ProductCategory;
   unit: string;
   unitHpp: number;
   sellingPrice: number;
   packagingType: 'kemasan-berlabel' | 'kemasan-polos';
   detectedText: string;
-  extractedExpiry: string;
+  expiryOffset: number;
   extractedBatch: string;
   confidence: number;
-  imageBg: string;
+  tint: string;
 }
 
-export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({
-  isOpen,
-  onClose,
-  onBatchScanned,
-}) => {
-  if (!isOpen) return null;
+const isoDate = (offsetDays = 0) => {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  const tz = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - tz).toISOString().split('T')[0];
+};
+const ddmmyyyy = (iso: string) => iso.split('-').reverse().join('/');
 
-  const laserRef = useRef<HTMLDivElement>(null);
-  const [selectedPresetIndex, setSelectedPresetIndex] = useState<number>(0);
-  const [isScanning, setIsScanning] = useState<boolean>(true);
-  const [scanProgress, setScanProgress] = useState<number>(0);
+const PRESETS: SamplePreset[] = [
+  {
+    id: 'p1', name: 'Roti Gandum Kismis Lembut', short: 'Roti gandum', category: 'Roti & Kue', unit: 'pcs',
+    unitHpp: 8500, sellingPrice: 15000, packagingType: 'kemasan-berlabel',
+    detectedText: 'EXP: {d} BATCH: RG-2026-X1', expiryOffset: 4, extractedBatch: 'RG-2026-X1', confidence: 98.7,
+    tint: 'from-amber-900/80 to-stone-950',
+  },
+  {
+    id: 'p2', name: 'Sambal Cumi Asin Cabe Ijo Jar 180g', short: 'Sambal cumi', category: 'Sambal & Bumbu', unit: 'jar',
+    unitHpp: 21000, sellingPrice: 36000, packagingType: 'kemasan-berlabel',
+    detectedText: 'BEST BEFORE: {d} LOT: SC-26-9A', expiryOffset: 10, extractedBatch: 'SC-2026-9A', confidence: 97.4,
+    tint: 'from-emerald-900/80 to-slate-950',
+  },
+  {
+    id: 'p3', name: 'Keripik Tempe Sagu Renyah 250g', short: 'Keripik tempe', category: 'Keripik & Camilan', unit: 'pouch',
+    unitHpp: 11000, sellingPrice: 20000, packagingType: 'kemasan-berlabel',
+    detectedText: 'EXP {d} BATCH: KT-114', expiryOffset: 6, extractedBatch: 'KT-2026-114', confidence: 99.1,
+    tint: 'from-yellow-900/80 to-stone-950',
+  },
+  {
+    id: 'p4', name: 'Dimsum Ayam Jamur Frozen (Isi 12)', short: 'Dimsum frozen', category: 'Frozen Food', unit: 'pack',
+    unitHpp: 22000, sellingPrice: 38000, packagingType: 'kemasan-berlabel',
+    detectedText: 'EXP DATE: {d} -18C BATCH: DJ-202', expiryOffset: 3, extractedBatch: 'DJ-2026-202', confidence: 96.8,
+    tint: 'from-sky-900/80 to-slate-950',
+  },
+];
 
-  // Form states editable after OCR auto-fill
-  const [productName, setProductName] = useState<string>('');
+export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({ isOpen, onClose, onBatchScanned }) => {
+  const [presetIdx, setPresetIdx] = useState(0);
+  const [scanNonce, setScanNonce] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const timer = useRef<number | undefined>(undefined);
+
+  const [productName, setProductName] = useState('');
   const [category, setCategory] = useState<ProductCategory>('Roti & Kue');
-  const [batchCode, setBatchCode] = useState<string>('');
-  const [expiryDate, setExpiryDate] = useState<string>('');
-  const [stockQty, setStockQty] = useState<number>(25);
-  const [unit, setUnit] = useState<string>('pcs');
-  const [unitHpp, setUnitHpp] = useState<number>(9000);
-  const [sellingPrice, setSellingPrice] = useState<number>(16000);
-  const [packagingType, setPackagingType] = useState<'kemasan-berlabel' | 'kemasan-polos'>('kemasan-berlabel');
-  const [location] = useState<string>('Etalase Depan');
+  const [batchCode, setBatchCode] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
+  const [stockQty, setStockQty] = useState(25);
+  const [unitHpp, setUnitHpp] = useState(9000);
+  const [sellingPrice, setSellingPrice] = useState(16000);
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const preset = PRESETS[presetIdx];
+  const presetExpiry = isoDate(preset.expiryOffset);
+  const scanning = progress < 100;
 
-  const presets: SamplePreset[] = [
-    {
-      id: 'p1',
-      name: 'Roti Gandum Kismis Lembut',
-      category: 'Roti & Kue',
-      unit: 'pcs',
-      unitHpp: 8500,
-      sellingPrice: 15000,
-      packagingType: 'kemasan-berlabel',
-      detectedText: 'EXP: 16/11/2026 BATCH: RG-2026-X1 MD 235610012',
-      extractedExpiry: '2026-11-16',
-      extractedBatch: 'RG-2026-X1',
-      confidence: 98.7,
-      imageBg: 'from-amber-700 via-orange-800 to-amber-900',
-    },
-    {
-      id: 'p2',
-      name: 'Sambal Cumi Asin Cabe Ijo Jar 180g',
-      category: 'Sambal & Bumbu',
-      unit: 'jar',
-      unitHpp: 21000,
-      sellingPrice: 36000,
-      packagingType: 'kemasan-berlabel',
-      detectedText: 'BEST BEFORE: 22/11/2026 LOT: SC-26-9A DINKES P-IRT',
-      extractedExpiry: '2026-11-22',
-      extractedBatch: 'SC-2026-9A',
-      confidence: 97.4,
-      imageBg: 'from-emerald-800 via-teal-900 to-slate-900',
-    },
-    {
-      id: 'p3',
-      name: 'Keripik Tempe Sagu Renyah 250g',
-      category: 'Keripik & Camilan',
-      unit: 'pouch',
-      unitHpp: 11000,
-      sellingPrice: 20000,
-      packagingType: 'kemasan-berlabel',
-      detectedText: 'EXP 18/11/2026 BATCH: KT-114 HALAL ID3211',
-      extractedExpiry: '2026-11-18',
-      extractedBatch: 'KT-2026-114',
-      confidence: 99.1,
-      imageBg: 'from-yellow-700 via-amber-800 to-stone-900',
-    },
-    {
-      id: 'p4',
-      name: 'Dimsum Ayam Jamur Frozen (Isi 12)',
-      category: 'Frozen Food',
-      unit: 'pack',
-      unitHpp: 22000,
-      sellingPrice: 38000,
-      packagingType: 'kemasan-berlabel',
-      detectedText: 'EXP DATE: 15/11/2026 SIMPAN BEKU -18C BATCH: DJ-202',
-      extractedExpiry: '2026-11-15',
-      extractedBatch: 'DJ-2026-202',
-      confidence: 96.8,
-      imageBg: 'from-cyan-900 via-blue-950 to-slate-900',
-    },
-  ];
-
-  const currentPreset = presets[selectedPresetIndex];
-
-  // Laser scanner animation
   useEffect(() => {
-    let tween: gsap.core.Tween | undefined;
-    if (laserRef.current && isScanning) {
-      tween = animateLaserScan(laserRef.current);
-    }
-    return () => {
-      tween?.kill();
-    };
-  }, [isScanning]);
-
-  const runScanSimulation = (preset: SamplePreset) => {
-    setIsScanning(true);
-    setScanProgress(0);
-
-    const interval = setInterval(() => {
-      setScanProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsScanning(false);
-          setProductName(preset.name);
-          setCategory(preset.category);
-          setBatchCode(preset.extractedBatch);
-          setExpiryDate(preset.extractedExpiry);
-          setUnit(preset.unit);
-          setUnitHpp(preset.unitHpp);
-          setSellingPrice(preset.sellingPrice);
-          setPackagingType(preset.packagingType);
-          return 100;
-        }
-        return prev + 25;
+    setProgress(0);
+    window.clearInterval(timer.current);
+    timer.current = window.setInterval(() => {
+      setProgress((p) => {
+        const next = Math.min(100, p + 20);
+        if (next >= 100) window.clearInterval(timer.current);
+        return next;
       });
-    }, 160);
-  };
+    }, 180);
+    return () => window.clearInterval(timer.current);
+  }, [presetIdx, scanNonce]);
 
   useEffect(() => {
-    runScanSimulation(currentPreset);
-  }, [selectedPresetIndex]);
+    if (progress < 100) return;
+    setProductName(preset.name);
+    setCategory(preset.category);
+    setBatchCode(preset.extractedBatch);
+    setExpiryDate(presetExpiry);
+    setUnitHpp(preset.unitHpp);
+    setSellingPrice(preset.sellingPrice);
+  }, [progress, preset, presetExpiry]);
+
+  if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    confetti({
-      particleCount: 80,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#5b58eb', '#38bdf8', '#10b981'],
-    });
-
+    confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 }, colors: ['#10b981', '#0f172a', '#34d399'] });
     onBatchScanned({
       productName,
       category,
       batchCode,
-      entryDate: todayStr,
+      entryDate: isoDate(0),
       expiryDate,
       stockQty,
       initialQty: stockQty,
-      unit,
+      unit: preset.unit,
       unitHpp,
       sellingPrice,
-      packagingType,
-      location,
-      notes: `Diinput via AI Smart Scan OCR (Akurasi ${currentPreset.confidence}%).`,
+      packagingType: preset.packagingType,
+      location: 'Etalase Depan',
+      notes: `Diinput via scan OCR (akurasi ${preset.confidence}%).`,
       isRescued: false,
     });
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity"
-        onClick={onClose}
-      />
-
-      <div className="relative w-full max-w-xl bg-white rounded-[28px] shadow-2xl border border-slate-100 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[88vh]">
-        {/* Header */}
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-indigo-50 text-[#5b58eb]">
-              <Camera className="w-5 h-5 text-[#5b58eb]" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-base font-extrabold text-slate-900">
-                  Simulasi AI Scan Tanggal (OCR)
-                </h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-[#5b58eb] border border-indigo-100">
-                  Vision Engine
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 mt-0.5 text-xs text-slate-500 font-medium flex-wrap">
-                <span>• Pindai stempel kedaluwarsa</span>
-                <span>• Akurasi OCR 98%</span>
-                <span>• Auto-fill radar FEFO</span>
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-          >
-            <X className="w-5 h-5" />
+    <Modal
+      onClose={onClose}
+      size="lg"
+      icon={<ScanLine className="w-4 h-4" />}
+      title="Scan tanggal kedaluwarsa"
+      description="Simulasi OCR: pilih contoh kemasan, periksa hasil, lalu simpan."
+      footer={
+        <>
+          <button type="button" onClick={onClose} className="btn-ghost">
+            Batal
           </button>
+          <button type="submit" form="ocr-form" disabled={scanning} className="btn-primary disabled:opacity-50">
+            <Check className="w-4 h-4" />
+            Simpan batch
+          </button>
+        </>
+      }
+    >
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {PRESETS.map((p, i) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => setPresetIdx(i)}
+              className={cn(
+                'rounded-lg border px-3 py-2 text-left transition-all',
+                i === presetIdx ? 'border-brand-500 ring-4 ring-brand-500/10' : 'border-slate-200 hover:border-slate-300'
+              )}
+            >
+              <div className="text-[12px] font-semibold text-ink truncate">{p.short}</div>
+              <div className="text-[11px] text-slate-500 truncate">{p.category}</div>
+            </button>
+          ))}
         </div>
 
-        {/* Content Body */}
-        <div className="p-5 overflow-y-auto space-y-4 flex-1">
-          {/* Preset buttons */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                <ImageIcon className="w-3.5 h-3.5 text-[#5b58eb]" />
-                Pilih Contoh Sampel Kemasan:
-              </span>
-              <span className="text-[11px] text-slate-400 font-medium">Simulasi foto produk</span>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {presets.map((preset, idx) => (
-                <button
-                  key={preset.id}
-                  type="button"
-                  onClick={() => setSelectedPresetIndex(idx)}
-                  className={`p-2.5 rounded-2xl text-left border transition-all text-xs ${selectedPresetIndex === idx
-                    ? 'border-[#5b58eb] bg-[#f8f9fe] shadow-2xs ring-1 ring-[#5b58eb]'
-                    : 'border-slate-200 bg-white hover:bg-slate-50'
-                    }`}
-                >
-                  <div className="font-extrabold text-slate-900 truncate">
-                    {preset.name.split(' ')[0]} {preset.name.split(' ')[1]}
-                  </div>
-                  <div className="text-[10px] text-[#5b58eb] font-semibold mt-0.5">
-                    {preset.category}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Scanner Viewport */}
-          <div className="relative rounded-2xl overflow-hidden border-2 border-slate-800 bg-slate-950 h-44 flex flex-col justify-between p-3.5 shadow-inner">
-            <div
-              className={`absolute inset-0 bg-gradient-to-br ${currentPreset.imageBg} opacity-75 mix-blend-multiply transition-colors duration-500`}
+        {/* Viewport */}
+        <div className={cn('relative h-44 rounded-xl overflow-hidden bg-gradient-to-br', preset.tint)}>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.08),transparent_60%)]" />
+          {['top-3 left-3 border-t-2 border-l-2', 'top-3 right-3 border-t-2 border-r-2', 'bottom-3 left-3 border-b-2 border-l-2', 'bottom-3 right-3 border-b-2 border-r-2'].map(
+            (c) => (
+              <span key={c} className={cn('absolute w-5 h-5 border-brand-400 rounded-[3px]', c)} />
+            )
+          )}
+          {scanning && (
+            <span
+              className="absolute left-4 right-4 h-0.5 bg-brand-400 shadow-[0_0_14px_2px_rgba(52,211,153,0.7)] motion-safe:animate-[scan_1.4s_ease-in-out_infinite_alternate]"
+              style={{ top: '12%' }}
             />
-
-            {/* Corner Reticles */}
-            <div className="absolute top-3 left-3 w-5 h-5 border-t-2 border-l-2 border-cyan-400 z-10" />
-            <div className="absolute top-3 right-3 w-5 h-5 border-t-2 border-r-2 border-cyan-400 z-10" />
-            <div className="absolute bottom-3 left-3 w-5 h-5 border-b-2 border-l-2 border-cyan-400 z-10" />
-            <div className="absolute bottom-3 right-3 w-5 h-5 border-b-2 border-r-2 border-cyan-400 z-10" />
-
-            {/* Laser Line */}
-            {isScanning && (
-              <div
-                ref={laserRef}
-                className="absolute left-3 right-3 h-0.5 bg-cyan-400 shadow-[0_0_12px_#38bdf8] z-20 pointer-events-none"
-              />
-            )}
-
-            {/* Scanned Text Overlay */}
-            <div className="relative z-10 flex flex-col items-center justify-center my-auto">
-              <div className="bg-black/80 backdrop-blur-xs px-3.5 py-2 rounded-xl border border-white/20 text-center shadow-lg">
-                <span className="text-[9px] text-cyan-300 tracking-widest font-mono uppercase block">
-                  {isScanning ? 'AI VISION SCANNING...' : 'OCR TERVERIFIKASI'}
-                </span>
-                <span className="font-mono text-xs sm:text-sm font-black text-white tracking-wider block mt-0.5">
-                  {currentPreset.detectedText}
-                </span>
+          )}
+          <div className="absolute inset-0 flex items-center justify-center px-6">
+            <div className="rounded-lg bg-black/60 backdrop-blur px-4 py-2.5 text-center ring-1 ring-white/10">
+              <div className="font-mono text-[10px] tracking-widest text-brand-300 uppercase">
+                {scanning ? 'Membaca teks…' : 'Teks terdeteksi'}
               </div>
-            </div>
-
-            {/* Scanner status footer */}
-            <div className="relative z-10 flex items-center justify-between text-xs text-white">
-              <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${isScanning ? 'bg-amber-400 animate-ping' : 'bg-emerald-400'}`} />
-                <span className="text-[11px] font-medium">
-                  {isScanning ? `Menganalisis ${scanProgress}%` : `Akurasi OCR: ${currentPreset.confidence}%`}
-                </span>
+              <div className="font-mono text-[13px] font-semibold text-white mt-0.5">
+                {preset.detectedText.replace('{d}', ddmmyyyy(presetExpiry))}
               </div>
-              <button
-                type="button"
-                onClick={() => runScanSimulation(currentPreset)}
-                className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white/20 hover:bg-white/30 text-[10px] text-white"
-              >
-                <RefreshCw className="w-3 h-3" /> Pindai Ulang
-              </button>
             </div>
           </div>
-
-          {/* Editable auto-fill form */}
-          <form onSubmit={handleSubmit} className="space-y-3 pt-1">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[11px] font-bold text-slate-800 mb-1">
-                  Nama Produk
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={productName}
-                  onChange={(e) => setProductName(e.target.value)}
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-900 outline-none focus:border-[#5b58eb]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-slate-800 mb-1">
-                  Kategori
-                </label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value as ProductCategory)}
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-900 outline-none focus:border-[#5b58eb]"
-                >
-                  <option value="Roti & Kue">Roti & Kue</option>
-                  <option value="Keripik & Camilan">Keripik & Camilan</option>
-                  <option value="Frozen Food">Frozen Food</option>
-                  <option value="Minuman">Minuman</option>
-                  <option value="Sambal & Bumbu">Sambal & Bumbu</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-slate-800 mb-1">
-                  Kode Batch
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={batchCode}
-                  onChange={(e) => setBatchCode(e.target.value)}
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-mono font-bold text-[#5b58eb] outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-slate-800 mb-1">
-                  Tanggal Kedaluwarsa
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={expiryDate}
-                  onChange={(e) => setExpiryDate(e.target.value)}
-                  className="w-full text-xs p-2.5 rounded-xl border border-indigo-200 bg-indigo-50/50 font-bold text-[#5b58eb] outline-none focus:border-[#5b58eb]"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-800 mb-1">Jumlah</label>
-                  <input
-                    type="number"
-                    min="1"
-                    required
-                    value={stockQty}
-                    onChange={(e) => setStockQty(Number(e.target.value))}
-                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-900 outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-800 mb-1">Satuan</label>
-                  <input
-                    type="text"
-                    value={unit}
-                    onChange={(e) => setUnit(e.target.value)}
-                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-800 mb-1">HPP Satuan (Rp)</label>
-                  <input
-                    type="number"
-                    min="100"
-                    step="500"
-                    required
-                    value={unitHpp}
-                    onChange={(e) => setUnitHpp(Number(e.target.value))}
-                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-900 outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-800 mb-1">Harga Jual (Rp)</label>
-                  <input
-                    type="number"
-                    min="100"
-                    step="500"
-                    required
-                    value={sellingPrice}
-                    onChange={(e) => setSellingPrice(Number(e.target.value))}
-                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-900 outline-none"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="pt-2 flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
-              >
-                Batal
-              </button>
-              <button
-                type="submit"
-                disabled={isScanning}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#5b58eb] hover:bg-[#4a47d4] shadow-md shadow-[#5b58eb]/25 transition-all disabled:opacity-50"
-              >
-                <CheckCircle2 className="w-4 h-4 text-white" />
-                <span>Simpan Batch ke FEFO Tracker</span>
-              </button>
-            </div>
-          </form>
+          <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-[11px] text-white/90 px-5">
+            <span className="flex items-center gap-2">
+              <span className={cn('w-1.5 h-1.5 rounded-full', scanning ? 'bg-amber-400 animate-pulse' : 'bg-brand-400')} />
+              {scanning ? `Menganalisis ${progress}%` : `Akurasi ${preset.confidence}%`}
+            </span>
+            <button
+              type="button"
+              onClick={() => setScanNonce((n) => n + 1)}
+              className="flex items-center gap-1 h-6 px-2 rounded-md bg-white/15 hover:bg-white/25"
+            >
+              <RefreshCw className="w-3 h-3" /> Ulang
+            </button>
+          </div>
         </div>
+
+        <form id="ocr-form" onSubmit={handleSubmit} className={cn('grid grid-cols-1 sm:grid-cols-2 gap-4 transition-opacity', scanning && 'opacity-50 pointer-events-none')}>
+          <Field label="Nama produk" className="sm:col-span-2">
+            <input required value={productName} onChange={(e) => setProductName(e.target.value)} className="input" />
+          </Field>
+          <Field label="Kode batch">
+            <input required value={batchCode} onChange={(e) => setBatchCode(e.target.value)} className="input font-mono" />
+          </Field>
+          <Field label="Tanggal kedaluwarsa">
+            <input type="date" required value={expiryDate} onChange={(e) => setExpiryDate(e.target.value)} className="input" />
+          </Field>
+          <div className="grid grid-cols-3 gap-3 sm:col-span-2">
+            <Field label={`Jumlah (${preset.unit})`}>
+              <input type="number" min={1} required value={stockQty} onChange={(e) => setStockQty(Number(e.target.value))} className="input" />
+            </Field>
+            <Field label="HPP / unit">
+              <input type="number" min={0} step={500} required value={unitHpp} onChange={(e) => setUnitHpp(Number(e.target.value))} className="input" />
+            </Field>
+            <Field label="Harga jual">
+              <input type="number" min={0} step={500} required value={sellingPrice} onChange={(e) => setSellingPrice(Number(e.target.value))} className="input" />
+            </Field>
+          </div>
+        </form>
       </div>
-    </div>
+    </Modal>
   );
 };

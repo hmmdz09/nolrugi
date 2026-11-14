@@ -5,7 +5,6 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue.svg)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-8-purple.svg)](https://vite.dev/)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind-4-38bdf8.svg)](https://tailwindcss.com/)
-[![GSAP](https://img.shields.io/badge/GSAP-3-green.svg)](https://greensock.com/gsap/)
 
 NolRugi adalah solusi digital inovatif yang dirancang khusus untuk memecahkan dua masalah terbesar **UMKM Pangan Olahan dan Produk Kemasan di Indonesia**:
 1. **Pemborosan Pangan & Kerugian Stok (Food Waste & Expired Inventory Loss)** akibat pengelolaan manual dan keterlambatan rotasi barang di rak/etalase.
@@ -54,12 +53,12 @@ NolRugi adalah solusi digital inovatif yang dirancang khusus untuk memecahkan du
   - Checklist Kepatuhan UU PDP (No. 27/2022) dengan enkripsi sisi klien dan toggle consent sharing perbankan.
   - Export berkas verifikasi KUR dalam format JSON terenkripsi.
 
-### 5. Efek Animasi GSAP & UI/UX Halus
-- Smooth staggered scroll reveal menggunakan GSAP `fromTo` & `animateFadeInUp`.
-- Animated number ticker (`AnimatedCounter`) untuk transisi angka Rupiah dan skor secara bertahap.
-- Animasi laser pemindaian OCR kamera visual.
-- Perayaan konfeti (canvas-confetti) saat berhasil mengaktifkan skema penyelamatan harga.
-- Sistem notifikasi Toast mengambang untuk memastikan setiap tombol memberikan feedback visual tanpa cela (zero broken buttons).
+### 5. Desain & UX
+- Design system konsisten (token warna brand emerald, kartu, tombol, input, chip status) di `src/index.css` + `src/components/common/ui.tsx`.
+- Layout aplikasi: sidebar tetap + topbar sticky (desktop), tab bar + drawer (mobile).
+- Satu sistem warna status: Kritis (merah), Waspada (kuning), Dwell (ungu), Aman (hijau).
+- Modal aksesibel (Esc untuk menutup, scroll-lock, bottom-sheet di mobile), hapus batch dengan konfirmasi.
+- Format angka id-ID, `prefers-reduced-motion` dihormati, view non-dashboard di-lazy-load, bundle dipecah per vendor.
 
 ---
 

@@ -1,82 +1,54 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CheckCircle2, AlertTriangle, AlertCircle, Info, X } from 'lucide-react';
 import { ToastMessage } from '../../types';
-import gsap from 'gsap';
 
 interface ToastProps {
   toasts: ToastMessage[];
   onDismiss: (id: string) => void;
 }
 
-export const ToastContainer: React.FC<ToastProps> = ({ toasts, onDismiss }) => {
-  return (
-    <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0">
-      {toasts.map((toast) => (
-        <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} />
-      ))}
-    </div>
-  );
+const ICONS = {
+  success: <CheckCircle2 className="w-[18px] h-[18px] text-emerald-400" />,
+  warning: <AlertTriangle className="w-[18px] h-[18px] text-amber-400" />,
+  danger: <AlertCircle className="w-[18px] h-[18px] text-rose-400" />,
+  info: <Info className="w-[18px] h-[18px] text-sky-400" />,
 };
 
-const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void }> = ({
-  toast,
-  onDismiss,
-}) => {
-  const itemRef = useRef<HTMLDivElement>(null);
+export const ToastContainer: React.FC<ToastProps> = ({ toasts, onDismiss }) => (
+  <div
+    className="fixed z-[60] bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 sm:w-[380px] flex flex-col gap-2 pointer-events-none"
+    aria-live="polite"
+  >
+    {toasts.map((t) => (
+      <ToastItem key={t.id} toast={t} onDismiss={onDismiss} />
+    ))}
+  </div>
+);
+
+const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void }> = ({ toast, onDismiss }) => {
+  const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
-    if (itemRef.current) {
-      gsap.fromTo(
-        itemRef.current,
-        { opacity: 0, y: 30, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.35, ease: 'back.out(1.2)' }
-      );
-    }
-  }, []);
-
-  const handleClose = () => {
-    if (itemRef.current) {
-      gsap.to(itemRef.current, {
-        opacity: 0,
-        x: 40,
-        duration: 0.25,
-        ease: 'power2.in',
-        onComplete: () => onDismiss(toast.id),
-      });
-    } else {
-      onDismiss(toast.id);
-    }
-  };
-
-  const icons = {
-    success: <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />,
-    warning: <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />,
-    danger: <AlertCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />,
-    info: <Info className="w-5 h-5 text-teal-500 shrink-0 mt-0.5" />,
-  };
-
-  const borders = {
-    success: 'border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/95 dark:bg-emerald-950/80',
-    warning: 'border-amber-200 dark:border-amber-800/60 bg-amber-50/95 dark:bg-amber-950/80',
-    danger: 'border-rose-200 dark:border-rose-800/60 bg-rose-50/95 dark:bg-rose-950/80',
-    info: 'border-teal-200 dark:border-teal-800/60 bg-teal-50/95 dark:bg-teal-950/80',
-  };
+    if (!leaving) return;
+    const t = setTimeout(() => onDismiss(toast.id), 160);
+    return () => clearTimeout(t);
+  }, [leaving, onDismiss, toast.id]);
 
   return (
     <div
-      ref={itemRef}
-      className={`pointer-events-auto flex items-start gap-3 p-3.5 rounded-xl border shadow-lg backdrop-blur-md transition-all ${borders[toast.type]}`}
+      role="status"
+      className={`pointer-events-auto flex items-start gap-3 p-3.5 pr-2.5 rounded-xl bg-slate-900 text-white shadow-pop ring-1 ring-white/10 transition-all duration-150 animate-scale-in ${
+        leaving ? 'opacity-0 translate-y-1' : ''
+      }`}
     >
-      {icons[toast.type]}
+      <span className="mt-px shrink-0">{ICONS[toast.type]}</span>
       <div className="flex-1 min-w-0">
-        <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100">{toast.title}</h4>
-        <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">
-          {toast.description}
-        </p>
+        <p className="text-[13px] font-semibold">{toast.title}</p>
+        <p className="text-[12px] text-slate-300 mt-0.5 leading-relaxed">{toast.description}</p>
       </div>
       <button
-        onClick={handleClose}
-        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1 -mr-1 -mt-1 rounded-md"
+        onClick={() => setLeaving(true)}
+        className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
         aria-label="Tutup notifikasi"
       >
         <X className="w-4 h-4" />
@@ -84,4 +56,3 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
     </div>
   );
 };
-

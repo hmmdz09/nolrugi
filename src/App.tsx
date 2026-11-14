@@ -1,391 +1,251 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { SkillalleySidebar } from './components/layout/SkillalleySidebar';
-import { RightInspector } from './components/layout/RightInspector';
-import { SkillalleyDashboardView } from './components/dashboard/SkillalleyDashboardView';
-import { InventoryView } from './components/inventory/InventoryView';
-import { HppCalculatorView } from './components/calculator/HppCalculatorView';
-import { ReportsView } from './components/reports/ReportsView';
+import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Sidebar, ActiveTab } from './components/layout/Sidebar';
+import { Topbar } from './components/layout/Topbar';
+import { DashboardView } from './components/dashboard/DashboardView';
 import { ToastContainer } from './components/common/Toast';
 import { DiscountModal } from './components/modals/DiscountModal';
 import { BundleModal } from './components/modals/BundleModal';
 import { OcrScannerModal } from './components/inventory/OcrScannerModal';
 import { ManualBatchModal } from './components/inventory/ManualBatchModal';
-import { ActiveTab } from './components/layout/Sidebar';
 import { InventoryBatch, ToastMessage } from './types';
-import {
-  loadBatches,
-  saveBatches,
-  resetToDefaults,
-  loadConsent,
-  saveConsent
-} from './utils/storage';
-import { formatRupiah } from './utils/formatters';
-import { Menu, Sparkles, Store, ShieldCheck } from 'lucide-react';
+import { loadBatches, saveBatches, resetToDefaults, loadConsent, saveConsent } from './utils/storage';
+import { formatRupiah, getBatchStatus } from './utils/formatters';
+
+const InventoryView = lazy(() =>
+  import('./components/inventory/InventoryView').then((m) => ({ default: m.InventoryView }))
+);
+const HppCalculatorView = lazy(() =>
+  import('./components/calculator/HppCalculatorView').then((m) => ({ default: m.HppCalculatorView }))
+);
+const ReportsView = lazy(() =>
+  import('./components/reports/ReportsView').then((m) => ({ default: m.ReportsView }))
+);
+
+const ViewFallback = () => (
+  <div className="space-y-4" aria-busy="true">
+    <div className="h-8 w-64 rounded-lg bg-slate-200/70 animate-pulse" />
+    <div className="h-40 rounded-2xl bg-slate-200/50 animate-pulse" />
+    <div className="h-72 rounded-2xl bg-slate-200/40 animate-pulse" />
+  </div>
+);
+
+const Page: React.FC<{ id: string; children: React.ReactNode }> = ({ id, children }) => (
+  <motion.div
+    key={id}
+    initial={{ opacity: 0, y: 8 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.22, ease: 'easeOut' }}
+  >
+    {children}
+  </motion.div>
+);
 
 export function App() {
-  // Navigation & UI State
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Batches State (Loaded & persisted in localStorage)
   const [batches, setBatches] = useState<InventoryBatch[]>(() => loadBatches());
-
-  // Currently Selected Batch for Right Inspector
-  const [selectedBatchId, setSelectedBatchId] = useState<string>(() => {
-    const list = loadBatches();
-    return list[0]?.id || '';
-  });
-
-  // UU PDP Consent State
+  const [selectedBatchId, setSelectedBatchId] = useState<string>('');
   const [pdpConsent, setPdpConsent] = useState<boolean>(() => loadConsent());
-
-  // Toast Notification System
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
-  // Modals State
-  const [discountModalBatch, setDiscountModalBatch] = useState<InventoryBatch | null>(null);
-  const [isDiscountModalOpen, setIsDiscountModalOpen] = useState<boolean>(false);
+  // Modals — mounted only while open so each opening starts from fresh state
+  const [discountBatch, setDiscountBatch] = useState<InventoryBatch | null>(null);
+  const [bundleBatch, setBundleBatch] = useState<InventoryBatch | null>(null);
+  const [isOcrOpen, setIsOcrOpen] = useState(false);
+  const [manualModal, setManualModal] = useState<{ open: boolean; batch: InventoryBatch | null }>({
+    open: false,
+    batch: null,
+  });
 
-  const [bundleModalBatch, setBundleModalBatch] = useState<InventoryBatch | null>(null);
-  const [isBundleModalOpen, setIsBundleModalOpen] = useState<boolean>(false);
+  useEffect(() => saveBatches(batches), [batches]);
 
-  const [isOcrModalOpen, setIsOcrModalOpen] = useState<boolean>(false);
-
-  const [manualModalBatch, setManualModalBatch] = useState<InventoryBatch | null>(null);
-  const [isManualModalOpen, setIsManualModalOpen] = useState<boolean>(false);
-
-  // Sync batches to localStorage whenever changed
   useEffect(() => {
-    saveBatches(batches);
-  }, [batches]);
+    window.scrollTo({ top: 0 });
+  }, [activeTab]);
 
-  const selectedBatch = batches.find((b) => b.id === selectedBatchId) || batches[0] || null;
+  const alertCount = batches.filter((b) => {
+    const s = getBatchStatus(b.expiryDate, b.entryDate, b.packagingType).status;
+    return s === 'kritis' || s === 'waspada';
+  }).length;
 
-  // Toast Helper
-  const addToast = (
-    title: string,
-    description: string,
-    type: 'success' | 'warning' | 'danger' | 'info' = 'success'
-  ) => {
-    const id = `toast-${Date.now()}-${Math.random()}`;
-    const newToast: ToastMessage = { id, title, description, type };
-    setToasts((prev) => [...prev, newToast]);
+  const removeToast = useCallback((id: string) => setToasts((prev) => prev.filter((t) => t.id !== id)), []);
 
-    setTimeout(() => {
-      removeToast(id);
-    }, 4500);
-  };
+  const addToast = useCallback(
+    (title: string, description: string, type: ToastMessage['type'] = 'success') => {
+      const id = `toast-${Date.now()}-${Math.random()}`;
+      setToasts((prev) => [...prev.slice(-2), { id, title, description, type }]);
+      setTimeout(() => removeToast(id), 4500);
+    },
+    [removeToast]
+  );
 
-  const removeToast = (id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  };
-
-  // Reset Demo Data
   const handleResetData = () => {
     const defaults = resetToDefaults();
     setBatches(defaults);
-    setSelectedBatchId(defaults[0]?.id || '');
-    addToast(
-      'Demo Berhasil Direset',
-      'Data inventori UMKM telah dikembalikan ke kondisi awal.',
-      'info'
-    );
+    setSelectedBatchId('');
+    addToast('Data demo direset', 'Inventori dikembalikan ke kondisi awal.', 'info');
   };
 
-  // Actions
-  const handleApplyDiscount = (batchId: string, newDiscountPrice: number, strategy: string) => {
-    setBatches((prev) =>
-      prev.map((b) =>
-        b.id === batchId
-          ? { ...b, discountPrice: newDiscountPrice, isRescued: true }
-          : b
-      )
-    );
-    setIsDiscountModalOpen(false);
-    addToast(
-      'Diskon Bertahap Aktif!',
-      `Harga jual disesuaikan menjadi ${formatRupiah(newDiscountPrice)} (${strategy}). Kas modal terlindungi.`,
-      'success'
-    );
+  const handleApplyDiscount = (batchId: string, price: number, strategy: string) => {
+    setBatches((prev) => prev.map((b) => (b.id === batchId ? { ...b, discountPrice: price, isRescued: true } : b)));
+    setDiscountBatch(null);
+    addToast('Diskon diterapkan', `Harga baru ${formatRupiah(price)} · ${strategy}`, 'success');
   };
 
-  const handleCreateBundle = (
-    bundleName: string,
-    partnerBatchName: string,
-    bundlePrice: number,
-    marginPct: number
-  ) => {
-    if (bundleModalBatch) {
-      setBatches((prev) =>
-        prev.map((b) =>
-          b.id === bundleModalBatch.id ? { ...b, isRescued: true } : b
-        )
-      );
+  const handleCreateBundle = (bundleName: string, _partner: string, bundlePrice: number, marginPct: number) => {
+    if (bundleBatch) {
+      setBatches((prev) => prev.map((b) => (b.id === bundleBatch.id ? { ...b, isRescued: true } : b)));
     }
-    setIsBundleModalOpen(false);
-    addToast(
-      'Paket Bundling Berhasil Dibuat!',
-      `${bundleName} (${formatRupiah(bundlePrice)}) aktif di etalase dengan margin ${marginPct.toFixed(1)}%.`,
-      'success'
-    );
+    setBundleBatch(null);
+    addToast('Paket bundling dibuat', `${bundleName} · ${formatRupiah(bundlePrice)} · margin ${marginPct.toFixed(1)}%`);
   };
 
-  const handleSaveManualBatch = (batchData: Omit<InventoryBatch, 'id'> | InventoryBatch) => {
-    if ('id' in batchData && batchData.id) {
-      setBatches((prev) =>
-        prev.map((b) => (b.id === batchData.id ? (batchData as InventoryBatch) : b))
-      );
-      addToast('Batch Diperbarui', `Perubahan data ${batchData.batchCode} tersimpan.`, 'success');
+  const handleSaveManualBatch = (data: Omit<InventoryBatch, 'id'> | InventoryBatch) => {
+    if ('id' in data && data.id) {
+      setBatches((prev) => prev.map((b) => (b.id === data.id ? (data as InventoryBatch) : b)));
+      addToast('Batch diperbarui', `Perubahan ${data.batchCode} tersimpan.`);
     } else {
-      const newBatch: InventoryBatch = {
-        ...batchData,
-        id: `batch-${Date.now()}`,
-      };
-      setBatches((prev) => [newBatch, ...prev]);
-      setSelectedBatchId(newBatch.id);
-      addToast(
-        'Batch Baru Ditambahkan!',
-        `Produk ${newBatch.productName} (${newBatch.batchCode}) telah masuk radar FEFO.`,
-        'success'
-      );
+      const nb: InventoryBatch = { ...data, id: `batch-${Date.now()}` };
+      setBatches((prev) => [nb, ...prev]);
+      setSelectedBatchId(nb.id);
+      addToast('Batch ditambahkan', `${nb.productName} (${nb.batchCode}) masuk radar FEFO.`);
     }
-    setIsManualModalOpen(false);
+    setManualModal({ open: false, batch: null });
   };
 
-  const handleBatchScanned = (scannedBatch: Omit<InventoryBatch, 'id'>) => {
-    const newBatch: InventoryBatch = {
-      ...scannedBatch,
-      id: `batch-${Date.now()}`,
-    };
-    setBatches((prev) => [newBatch, ...prev]);
-    setSelectedBatchId(newBatch.id);
-    setIsOcrModalOpen(false);
-    addToast(
-      'AI Scan Sukses & Tersimpan!',
-      `Batch ${newBatch.batchCode} berhasil diekstrak dan masuk antrean FEFO otomatis.`,
-      'success'
-    );
+  const handleBatchScanned = (scanned: Omit<InventoryBatch, 'id'>) => {
+    const nb: InventoryBatch = { ...scanned, id: `batch-${Date.now()}` };
+    setBatches((prev) => [nb, ...prev]);
+    setSelectedBatchId(nb.id);
+    setIsOcrOpen(false);
+    addToast('Hasil scan disimpan', `Batch ${nb.batchCode} masuk antrean FEFO.`);
   };
 
   const handleDeleteBatch = (id: string) => {
     const target = batches.find((b) => b.id === id);
     setBatches((prev) => prev.filter((b) => b.id !== id));
-    if (selectedBatchId === id) {
-      setSelectedBatchId(batches.find((b) => b.id !== id)?.id || '');
-    }
-    addToast(
-      'Batch Dihapus',
-      `Batch ${target?.batchCode || id} telah dihapus dari inventori.`,
-      'warning'
-    );
+    if (selectedBatchId === id) setSelectedBatchId('');
+    addToast('Batch dihapus', `${target?.batchCode ?? id} dihapus dari inventori.`, 'warning');
   };
 
   const handleUpdateStock = (id: string, delta: number) => {
-    setBatches((prev) =>
-      prev.map((b) => {
-        if (b.id === id) {
-          const newQty = Math.max(0, b.stockQty + delta);
-          return { ...b, stockQty: newQty };
-        }
-        return b;
-      })
-    );
+    setBatches((prev) => prev.map((b) => (b.id === id ? { ...b, stockQty: Math.max(0, b.stockQty + delta) } : b)));
   };
 
-  const handleApplyClearancePrice = (batchId: string, newPrice: number) => {
-    setBatches((prev) =>
-      prev.map((b) =>
-        b.id === batchId ? { ...b, discountPrice: newPrice, isRescued: true } : b
-      )
-    );
-    addToast(
-      'Harga Clearance Diterapkan!',
-      `Harga jual batch diubah menjadi ${formatRupiah(newPrice)}. Siap dipromosikan cuci stok.`,
-      'success'
-    );
+  const handleApplyClearancePrice = (batchId: string, price: number) => {
+    setBatches((prev) => prev.map((b) => (b.id === batchId ? { ...b, discountPrice: price, isRescued: true } : b)));
+    addToast('Harga clearance diterapkan', `Harga jual batch kini ${formatRupiah(price)}.`);
   };
 
   return (
-    <div className="min-h-screen bg-[#edf0f5] text-slate-800 antialiased p-3 sm:p-5 lg:p-6 font-sans">
-      {/* Mobile Top Header */}
-      <header className="lg:hidden mb-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="p-2 rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100"
-            aria-label="Buka Menu"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#5b58eb] text-white flex items-center justify-center font-bold text-xs">
-              NR
-            </div>
-            <span className="font-extrabold text-base tracking-tight text-slate-900">
-              nol<span className="text-[#5b58eb]">rugi</span>
-            </span>
-          </div>
-        </div>
+    <div className="min-h-screen">
+      <Sidebar
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        batches={batches}
+        isMobileOpen={isMobileMenuOpen}
+        onCloseMobile={() => setIsMobileMenuOpen(false)}
+        onResetData={handleResetData}
+        pdpConsent={pdpConsent}
+      />
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setActiveTab('reports')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-indigo-50 text-[#5b58eb]"
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>UU PDP</span>
-          </button>
-        </div>
-      </header>
-
-      {/* Main 3-Column Container matching Skillalley Reference Image */}
-      <div className="max-w-[1560px] mx-auto flex flex-col lg:flex-row gap-5 items-start">
-        {/* Left Column: Skillalley Sidebar */}
-        <SkillalleySidebar
+      <div className="lg:pl-[248px] min-w-0">
+        <Topbar
           activeTab={activeTab}
+          onOpenMenu={() => setIsMobileMenuOpen(true)}
           onSelectTab={setActiveTab}
-          batches={batches}
-          isMobileOpen={isMobileMenuOpen}
-          onCloseMobile={() => setIsMobileMenuOpen(false)}
-          onResetData={handleResetData}
-          pdpConsent={pdpConsent}
-          onOpenUUPDP={() => setActiveTab('reports')}
+          onQuickAdd={() => setManualModal({ open: true, batch: null })}
+          alertCount={alertCount}
         />
 
-        {/* Center Column: Active View with Framer Motion Animation */}
-        <main className="flex-1 min-w-0 w-full">
-          <AnimatePresence mode="wait">
-            {activeTab === 'dashboard' && (
-              <SkillalleyDashboardView
-                key="dashboard"
-                batches={batches}
-                selectedBatchId={selectedBatchId}
-                onSelectBatchId={setSelectedBatchId}
-                onTriggerDiscount={(batch) => {
-                  setDiscountModalBatch(batch);
-                  setIsDiscountModalOpen(true);
-                }}
-                onTriggerBundle={(batch) => {
-                  setBundleModalBatch(batch);
-                  setIsBundleModalOpen(true);
-                }}
-                onNavigateToTab={setActiveTab}
-              />
-            )}
-
-            {activeTab === 'inventory' && (
-              <motion.div
-                key="inventory"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.35, ease: 'easeOut' }}
-              >
-                <InventoryView
+        <main className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-[1440px] mx-auto pb-16">
+          <Suspense fallback={<ViewFallback />}>
+            <AnimatePresence mode="wait">
+              {activeTab === 'dashboard' && (
+                <DashboardView
+                  key="dashboard"
                   batches={batches}
-                  onOpenOcrModal={() => setIsOcrModalOpen(true)}
-                  onOpenManualModal={(batch) => {
-                    setManualModalBatch(batch || null);
-                    setIsManualModalOpen(true);
-                  }}
-                  onDeleteBatch={handleDeleteBatch}
-                  onUpdateStock={handleUpdateStock}
-                  onTriggerDiscount={(batch) => {
-                    setDiscountModalBatch(batch);
-                    setIsDiscountModalOpen(true);
-                  }}
-                  onTriggerBundle={(batch) => {
-                    setBundleModalBatch(batch);
-                    setIsBundleModalOpen(true);
-                  }}
+                  selectedBatchId={selectedBatchId}
+                  onSelectBatchId={setSelectedBatchId}
+                  onTriggerDiscount={setDiscountBatch}
+                  onTriggerBundle={setBundleBatch}
+                  onNavigateToTab={setActiveTab}
                 />
-              </motion.div>
-            )}
+              )}
 
-            {activeTab === 'calculator' && (
-              <motion.div
-                key="calculator"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.35, ease: 'easeOut' }}
-              >
-                <HppCalculatorView
-                  batches={batches}
-                  onApplyClearancePrice={handleApplyClearancePrice}
-                />
-              </motion.div>
-            )}
+              {activeTab === 'inventory' && (
+                <Page id="inventory" key="inventory">
+                  <InventoryView
+                    batches={batches}
+                    onOpenOcrModal={() => setIsOcrOpen(true)}
+                    onOpenManualModal={(batch) => setManualModal({ open: true, batch: batch || null })}
+                    onDeleteBatch={handleDeleteBatch}
+                    onUpdateStock={handleUpdateStock}
+                    onTriggerDiscount={setDiscountBatch}
+                    onTriggerBundle={setBundleBatch}
+                  />
+                </Page>
+              )}
 
-            {activeTab === 'reports' && (
-              <motion.div
-                key="reports"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.35, ease: 'easeOut' }}
-              >
-                <ReportsView
-                  batches={batches}
-                  pdpConsent={pdpConsent}
-                  onToggleConsent={(val) => {
-                    setPdpConsent(val);
-                    saveConsent(val);
-                  }}
-                  onShowToast={addToast}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
+              {activeTab === 'calculator' && (
+                <Page id="calculator" key="calculator">
+                  <HppCalculatorView batches={batches} onApplyClearancePrice={handleApplyClearancePrice} />
+                </Page>
+              )}
+
+              {activeTab === 'reports' && (
+                <Page id="reports" key="reports">
+                  <ReportsView
+                    batches={batches}
+                    pdpConsent={pdpConsent}
+                    onToggleConsent={(val) => {
+                      setPdpConsent(val);
+                      saveConsent(val);
+                    }}
+                    onShowToast={addToast}
+                  />
+                </Page>
+              )}
+            </AnimatePresence>
+          </Suspense>
         </main>
-
-        {/* Right Column: Skillalley Right Inspector on Dashboard */}
-        {activeTab === 'dashboard' && (
-          <RightInspector
-            selectedBatch={selectedBatch}
-            onTriggerDiscount={(batch) => {
-              setDiscountModalBatch(batch);
-              setIsDiscountModalOpen(true);
-            }}
-            onTriggerBundle={(batch) => {
-              setBundleModalBatch(batch);
-              setIsBundleModalOpen(true);
-            }}
-          />
-        )}
       </div>
 
-      {/* Interactive Modals */}
-      <DiscountModal
-        batch={discountModalBatch}
-        isOpen={isDiscountModalOpen}
-        onClose={() => setIsDiscountModalOpen(false)}
-        onApplyDiscount={handleApplyDiscount}
-      />
+      {discountBatch && (
+        <DiscountModal
+          key={`d-${discountBatch.id}`}
+          batch={discountBatch}
+          isOpen
+          onClose={() => setDiscountBatch(null)}
+          onApplyDiscount={handleApplyDiscount}
+        />
+      )}
+      {bundleBatch && (
+        <BundleModal
+          key={`b-${bundleBatch.id}`}
+          expiringBatch={bundleBatch}
+          allBatches={batches}
+          isOpen
+          onClose={() => setBundleBatch(null)}
+          onCreateBundle={handleCreateBundle}
+        />
+      )}
+      {isOcrOpen && (
+        <OcrScannerModal isOpen onClose={() => setIsOcrOpen(false)} onBatchScanned={handleBatchScanned} />
+      )}
+      {manualModal.open && (
+        <ManualBatchModal
+          key={manualModal.batch?.id ?? 'new'}
+          isOpen
+          onClose={() => setManualModal({ open: false, batch: null })}
+          onSaveBatch={handleSaveManualBatch}
+          initialBatch={manualModal.batch}
+        />
+      )}
 
-      <BundleModal
-        expiringBatch={bundleModalBatch}
-        allBatches={batches}
-        isOpen={isBundleModalOpen}
-        onClose={() => setIsBundleModalOpen(false)}
-        onCreateBundle={handleCreateBundle}
-      />
-
-      <OcrScannerModal
-        isOpen={isOcrModalOpen}
-        onClose={() => setIsOcrModalOpen(false)}
-        onBatchScanned={handleBatchScanned}
-      />
-
-      <ManualBatchModal
-        isOpen={isManualModalOpen}
-        onClose={() => setIsManualModalOpen(false)}
-        onSaveBatch={handleSaveManualBatch}
-        initialBatch={manualModalBatch}
-      />
-
-      {/* Floating Notifications */}
       <ToastContainer toasts={toasts} onDismiss={removeToast} />
     </div>
   );

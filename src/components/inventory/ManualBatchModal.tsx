@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { X, CheckCircle2, PlusCircle, RefreshCw } from 'lucide-react';
+import React, { useState } from 'react';
+import { PlusCircle, Pencil, RefreshCw, Check } from 'lucide-react';
 import { InventoryBatch, ProductCategory } from '../../types';
+import { Field, Modal, cn } from '../common/ui';
 
 interface ManualBatchModalProps {
   isOpen: boolean;
@@ -9,317 +10,174 @@ interface ManualBatchModalProps {
   initialBatch?: InventoryBatch | null;
 }
 
-export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({
-  isOpen,
-  onClose,
-  onSaveBatch,
-  initialBatch,
-}) => {
-  if (!isOpen) return null;
+const CATEGORIES: ProductCategory[] = ['Roti & Kue', 'Keripik & Camilan', 'Frozen Food', 'Minuman', 'Sambal & Bumbu'];
 
-  const todayStr = new Date().toISOString().split('T')[0];
-  const defaultExpStr = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split('T')[0];
+const isoDate = (offsetDays = 0) => {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  const tz = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - tz).toISOString().split('T')[0];
+};
 
+/** Parent mounts this with a `key`, so initial state always reflects the batch being edited. */
+export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({ isOpen, onClose, onSaveBatch, initialBatch }) => {
   const [productName, setProductName] = useState(initialBatch?.productName || '');
-  const [category, setCategory] = useState<ProductCategory>(
-    initialBatch?.category || 'Roti & Kue'
-  );
-  const [batchCode, setBatchCode] = useState(
-    initialBatch?.batchCode || `BATCH-${Date.now().toString().slice(-6)}`
-  );
-  const [entryDate, setEntryDate] = useState(initialBatch?.entryDate || todayStr);
-  const [expiryDate, setExpiryDate] = useState(initialBatch?.expiryDate || defaultExpStr);
-  const [stockQty, setStockQty] = useState(initialBatch?.stockQty || 30);
+  const [category, setCategory] = useState<ProductCategory>(initialBatch?.category || 'Roti & Kue');
+  const [batchCode, setBatchCode] = useState(initialBatch?.batchCode || `BATCH-${Date.now().toString().slice(-6)}`);
+  const [entryDate, setEntryDate] = useState(initialBatch?.entryDate || isoDate(0));
+  const [expiryDate, setExpiryDate] = useState(initialBatch?.expiryDate || isoDate(14));
+  const [stockQty, setStockQty] = useState(initialBatch?.stockQty ?? 30);
   const [unit, setUnit] = useState(initialBatch?.unit || 'pcs');
-  const [unitHpp, setUnitHpp] = useState(initialBatch?.unitHpp || 10000);
-  const [sellingPrice, setSellingPrice] = useState(initialBatch?.sellingPrice || 18000);
+  const [unitHpp, setUnitHpp] = useState(initialBatch?.unitHpp ?? 10000);
+  const [sellingPrice, setSellingPrice] = useState(initialBatch?.sellingPrice ?? 18000);
   const [packagingType, setPackagingType] = useState<'kemasan-berlabel' | 'kemasan-polos'>(
     initialBatch?.packagingType || 'kemasan-berlabel'
   );
   const [location, setLocation] = useState(initialBatch?.location || 'Rak A');
   const [notes, setNotes] = useState(initialBatch?.notes || '');
 
-  useEffect(() => {
-    if (initialBatch) {
-      setProductName(initialBatch.productName);
-      setCategory(initialBatch.category);
-      setBatchCode(initialBatch.batchCode);
-      setEntryDate(initialBatch.entryDate);
-      setExpiryDate(initialBatch.expiryDate);
-      setStockQty(initialBatch.stockQty);
-      setUnit(initialBatch.unit);
-      setUnitHpp(initialBatch.unitHpp);
-      setSellingPrice(initialBatch.sellingPrice);
-      setPackagingType(initialBatch.packagingType);
-      setLocation(initialBatch.location);
-      setNotes(initialBatch.notes || '');
-    }
-  }, [initialBatch]);
+  if (!isOpen) return null;
+
+  const margin = sellingPrice > 0 ? ((sellingPrice - unitHpp) / sellingPrice) * 100 : 0;
+  const invalidDates = expiryDate < entryDate;
 
   const generateBatchCode = () => {
     const prefix = category.substring(0, 2).toUpperCase();
-    const rand = Math.floor(1000 + Math.random() * 9000);
-    setBatchCode(`${prefix}-${new Date().getFullYear()}-${rand}`);
+    setBatchCode(`${prefix}-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (initialBatch) {
-      onSaveBatch({
-        ...initialBatch,
-        productName,
-        category,
-        batchCode,
-        entryDate,
-        expiryDate,
-        stockQty,
-        unit,
-        unitHpp,
-        sellingPrice,
-        packagingType,
-        location,
-        notes,
-      });
-    } else {
-      onSaveBatch({
-        productName,
-        category,
-        batchCode,
-        entryDate,
-        expiryDate,
-        stockQty,
-        initialQty: stockQty,
-        unit,
-        unitHpp,
-        sellingPrice,
-        packagingType,
-        location,
-        notes,
-        isRescued: false,
-      });
-    }
+    if (invalidDates) return;
+    const base = {
+      productName: productName.trim(),
+      category,
+      batchCode: batchCode.trim(),
+      entryDate,
+      expiryDate,
+      stockQty,
+      unit,
+      unitHpp,
+      sellingPrice,
+      packagingType,
+      location,
+      notes,
+    };
+    if (initialBatch) onSaveBatch({ ...initialBatch, ...base });
+    else onSaveBatch({ ...base, initialQty: stockQty, isRescued: false });
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity"
-        onClick={onClose}
-      />
-
-      <div className="relative w-full max-w-lg bg-white rounded-[28px] shadow-2xl border border-slate-100 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-indigo-50 text-[#5b58eb]">
-              <PlusCircle className="w-5 h-5 text-[#5b58eb]" />
-            </div>
-            <div>
-              <h3 className="text-base font-extrabold text-slate-900">
-                {initialBatch ? 'Edit Batch Inventori' : 'Tambah Batch Baru (FEFO)'}
-              </h3>
-              <div className="flex items-center gap-1.5 mt-0.5 text-xs text-slate-500 font-medium flex-wrap">
-                <span>• Kode batch otomatis</span>
-                <span>• Tanggal kedaluwarsa</span>
-                <span>• HPP modal pokok</span>
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
-          >
-            <X className="w-5 h-5" />
+    <Modal
+      onClose={onClose}
+      size="lg"
+      icon={initialBatch ? <Pencil className="w-4 h-4" /> : <PlusCircle className="w-4 h-4" />}
+      title={initialBatch ? 'Edit batch' : 'Tambah batch baru'}
+      description="Data batch digunakan untuk menghitung prioritas FEFO dan risiko kedaluwarsa."
+      footer={
+        <>
+          <button type="button" onClick={onClose} className="btn-ghost">
+            Batal
           </button>
+          <button type="submit" form="batch-form" className="btn-primary" disabled={invalidDates}>
+            <Check className="w-4 h-4" />
+            {initialBatch ? 'Simpan perubahan' : 'Simpan batch'}
+          </button>
+        </>
+      }
+    >
+      <form id="batch-form" onSubmit={handleSubmit} className="space-y-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Nama produk" className="sm:col-span-2">
+            <input
+              required
+              autoFocus
+              value={productName}
+              onChange={(e) => setProductName(e.target.value)}
+              placeholder="mis. Keripik Singkong Balado 250g"
+              className="input"
+            />
+          </Field>
+          <Field label="Kategori">
+            <select value={category} onChange={(e) => setCategory(e.target.value as ProductCategory)} className="input">
+              {CATEGORIES.map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Kode batch">
+            <div className="flex gap-2">
+              <input required value={batchCode} onChange={(e) => setBatchCode(e.target.value)} className="input font-mono" />
+              <button type="button" onClick={generateBatchCode} className="btn-secondary px-2.5" title="Buat kode otomatis" aria-label="Buat kode otomatis">
+                <RefreshCw className="w-4 h-4" />
+              </button>
+            </div>
+          </Field>
+          <Field label="Tanggal masuk">
+            <input type="date" required value={entryDate} onChange={(e) => setEntryDate(e.target.value)} className="input" />
+          </Field>
+          <Field label="Tanggal kedaluwarsa" hint={invalidDates ? undefined : 'Sesuai label kemasan'}>
+            <input
+              type="date"
+              required
+              value={expiryDate}
+              onChange={(e) => setExpiryDate(e.target.value)}
+              className={cn('input', invalidDates && 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/10')}
+            />
+            {invalidDates && <span className="block text-[11px] text-rose-600 mt-1">Harus setelah tanggal masuk</span>}
+          </Field>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 space-y-3.5 max-h-[76vh] overflow-y-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-bold text-slate-800 mb-1">
-                Nama Produk Kemasan
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="misal: Keripik Singkong Balado 200g"
-                value={productName}
-                onChange={(e) => setProductName(e.target.value)}
-                className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-900 outline-none focus:border-[#5b58eb]"
-              />
-            </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-5 border-t border-slate-100">
+          <Field label="Jumlah stok">
+            <input type="number" min={0} required value={stockQty} onChange={(e) => setStockQty(Number(e.target.value))} className="input" />
+          </Field>
+          <Field label="Satuan">
+            <input value={unit} onChange={(e) => setUnit(e.target.value)} className="input" />
+          </Field>
+          <Field label="HPP / unit (Rp)">
+            <input type="number" min={0} step={500} required value={unitHpp} onChange={(e) => setUnitHpp(Number(e.target.value))} className="input" />
+          </Field>
+          <Field
+            label="Harga jual (Rp)"
+            hint={`Margin ${margin.toLocaleString('id-ID', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`}
+          >
+            <input type="number" min={0} step={500} required value={sellingPrice} onChange={(e) => setSellingPrice(Number(e.target.value))} className="input" />
+          </Field>
+        </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-800 mb-1">
-                Kategori Pangan
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value as ProductCategory)}
-                className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-900 outline-none focus:border-[#5b58eb]"
-              >
-                <option value="Roti & Kue">Roti & Kue</option>
-                <option value="Keripik & Camilan">Keripik & Camilan</option>
-                <option value="Frozen Food">Frozen Food</option>
-                <option value="Minuman">Minuman</option>
-                <option value="Sambal & Bumbu">Sambal & Bumbu</option>
-              </select>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-bold text-slate-800">
-                  Kode Batch
-                </label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-5 border-t border-slate-100">
+          <Field label="Jenis kemasan" hint="Kemasan polos dipantau dwell-time > 21 hari">
+            <div className="grid grid-cols-2 gap-1 p-0.5 rounded-lg bg-slate-100 border border-slate-200/70">
+              {(['kemasan-berlabel', 'kemasan-polos'] as const).map((p) => (
                 <button
                   type="button"
-                  onClick={generateBatchCode}
-                  className="text-[10px] text-[#5b58eb] font-bold flex items-center gap-0.5 hover:underline"
+                  key={p}
+                  onClick={() => setPackagingType(p)}
+                  className={cn(
+                    'h-8 rounded-md text-[12px] font-semibold transition-all',
+                    packagingType === p ? 'bg-white text-ink shadow-card' : 'text-slate-500 hover:text-slate-800'
+                  )}
                 >
-                  <RefreshCw className="w-2.5 h-2.5" /> Acak Kode
+                  {p === 'kemasan-berlabel' ? 'Berlabel' : 'Polos'}
                 </button>
-              </div>
-              <input
-                type="text"
-                required
-                value={batchCode}
-                onChange={(e) => setBatchCode(e.target.value)}
-                className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-mono font-bold text-[#5b58eb] outline-none"
-              />
+              ))}
             </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-800 mb-1">
-                Tanggal Masuk / Masak
-              </label>
-              <input
-                type="date"
-                required
-                value={entryDate}
-                onChange={(e) => setEntryDate(e.target.value)}
-                className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-900 outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-rose-600 mb-1">
-                Tanggal Kedaluwarsa (EXP)
-              </label>
-              <input
-                type="date"
-                required
-                value={expiryDate}
-                onChange={(e) => setExpiryDate(e.target.value)}
-                className="w-full text-xs p-2.5 rounded-xl border border-rose-200 bg-rose-50/50 font-bold text-rose-700 outline-none focus:border-rose-500"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">
-                  Stok (Kuantitas)
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  required
-                  value={stockQty}
-                  onChange={(e) => setStockQty(Number(e.target.value))}
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-900 outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">
-                  Satuan
-                </label>
-                <input
-                  type="text"
-                  value={unit}
-                  onChange={(e) => setUnit(e.target.value)}
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 outline-none"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-800 mb-1">
-                Jenis Kemasan
-              </label>
-              <select
-                value={packagingType}
-                onChange={(e) =>
-                  setPackagingType(e.target.value as 'kemasan-berlabel' | 'kemasan-polos')
-                }
-                className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-semibold outline-none"
-              >
-                <option value="kemasan-berlabel">Kemasan Berlabel (EXP Cetak)</option>
-                <option value="kemasan-polos">Kemasan Polos (Pantau Dwell &gt;21 Hari)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-800 mb-1">
-                HPP Satuan (Rp)
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="500"
-                required
-                value={unitHpp}
-                onChange={(e) => setUnitHpp(Number(e.target.value))}
-                className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-900 outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-800 mb-1">
-                Harga Jual Normal (Rp)
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="500"
-                required
-                value={sellingPrice}
-                onChange={(e) => setSellingPrice(Number(e.target.value))}
-                className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-900 outline-none"
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-bold text-slate-800 mb-1">
-                Lokasi Rak / Penyimpanan
-              </label>
-              <input
-                type="text"
-                placeholder="misal: Rak Showcase Depan A2, Freezer 1"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-medium outline-none"
-              />
-            </div>
-          </div>
-
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#5b58eb] hover:bg-[#4a47d4] shadow-md shadow-[#5b58eb]/25 transition-all"
-            >
-              <CheckCircle2 className="w-4 h-4 text-white" />
-              <span>{initialBatch ? 'Perbarui Batch' : 'Simpan Batch FEFO'}</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+          </Field>
+          <Field label="Lokasi penyimpanan">
+            <input value={location} onChange={(e) => setLocation(e.target.value)} className="input" />
+          </Field>
+          <Field label="Catatan" className="sm:col-span-2">
+            <textarea
+              rows={2}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Opsional"
+              className="input h-auto py-2 resize-none"
+            />
+          </Field>
+        </div>
+      </form>
+    </Modal>
   );
 };

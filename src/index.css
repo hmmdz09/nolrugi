@@ -1,55 +1,161 @@
 @import "tailwindcss";
 
+/* ───────────────────────── Design tokens ───────────────────────── */
+@theme {
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Brand: emerald-forest (profit, freshness) */
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #10b981;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  --color-brand-800: #065f46;
+  --color-brand-900: #064e3b;
+  --color-brand-950: #022c22;
+
+  /* Neutral surface */
+  --color-canvas: #f6f7f9;
+  --color-ink: #0b1220;
+
+  --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.04);
+  --shadow-pop: 0 12px 32px -8px rgb(15 23 42 / 0.18), 0 4px 8px -4px rgb(15 23 42 / 0.08);
+
+  --animate-fade-in: fade-in 0.18s ease-out;
+  --animate-scale-in: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes scan {
+  from { top: 12%; }
+  to { top: 86%; }
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
-    font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
-    background-color: #edf0f5;
-    color: #1e293b;
+    @apply bg-canvas text-slate-800 font-sans antialiased;
     min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-    font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+
+  /* Numbers line up in tables & KPIs */
+  .tabular, table, input[type='number'] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  button, [role='button'] {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  ::selection {
+    background: var(--color-brand-100);
+    color: var(--color-brand-900);
   }
 }
 
-/* Custom scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* ───────────────────────── Components ───────────────────────── */
+@utility card {
+  @apply bg-white rounded-2xl border border-slate-200/80 shadow-card;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 h-10 sm:h-9 px-3.5 rounded-lg text-[13px] font-semibold whitespace-nowrap transition-colors duration-150 select-none;
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.35);
-  border-radius: 9999px;
+@utility btn-primary {
+  @apply inline-flex items-center justify-center gap-2 h-10 sm:h-9 px-3.5 rounded-lg text-[13px] font-semibold whitespace-nowrap transition-colors duration-150 select-none bg-slate-900 text-white hover:bg-slate-800 active:bg-slate-950;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.6);
+@utility btn-brand {
+  @apply inline-flex items-center justify-center gap-2 h-10 sm:h-9 px-3.5 rounded-lg text-[13px] font-semibold whitespace-nowrap transition-colors duration-150 select-none bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800;
 }
 
-/* Card glass / shadow effects matching Skillalley modern UI */
-.skillalley-card {
-  background: #ffffff;
-  border-radius: 28px;
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05), 0 2px 6px -2px rgba(0, 0, 0, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.9);
+@utility btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 h-10 sm:h-9 px-3.5 rounded-lg text-[13px] font-semibold whitespace-nowrap transition-colors duration-150 select-none bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300;
 }
 
-.skillalley-inner-card {
-  border-radius: 20px;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+@utility btn-ghost {
+  @apply inline-flex items-center justify-center gap-2 h-10 sm:h-9 px-3.5 rounded-lg text-[13px] font-semibold whitespace-nowrap transition-colors duration-150 select-none text-slate-600 hover:bg-slate-100 hover:text-slate-900;
+}
+
+@utility btn-icon {
+  @apply inline-flex items-center justify-center w-10 h-10 sm:w-9 sm:h-9 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors;
+}
+
+@utility input {
+  @apply w-full h-10 sm:h-9 px-3 rounded-lg text-[13px] bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 outline-none transition-shadow focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10;
+}
+
+@layer base {
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3E%3Cpath d='M5.3 7.3a1 1 0 0 1 1.4 0L10 10.6l3.3-3.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 0-1.4z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    background-size: 1rem;
+    padding-right: 2rem !important;
+  }
+}
+
+@utility eyebrow {
+  @apply text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500;
+}
+
+@utility chip {
+  @apply inline-flex items-center gap-1 h-6 px-2 rounded-md text-[11px] font-semibold border whitespace-nowrap;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+/* Thin, quiet scrollbars */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgb(148 163 184 / 0.35); border-radius: 9999px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: rgb(148 163 184 / 0.6); background-clip: padding-box; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Print styling for SAK-EMKM Financial Report */
 @media print {
-  header, aside, .no-print, button, .right-sidebar {
+  header, aside, .no-print, button {
     display: none !important;
   }
 

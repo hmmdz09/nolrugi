@@ -29,7 +29,7 @@ export const getInitialBatches = (): InventoryBatch[] => {
       sellingPrice: 15000,
       packagingType: 'kemasan-berlabel',
       location: 'Rak Display Roti A1',
-      notes: 'Roti basah tanpa pengawet sintetik. Segera rescue sebelum berjamur.',
+      notes: 'Roti basah tanpa pengawet sintetik. Segera jual sebelum berjamur.',
       isRescued: false,
     },
     {

@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import gsap from 'gsap';
 import { formatRupiah } from '../../utils/formatters';
 
 interface AnimatedCounterProps {
@@ -11,40 +10,51 @@ interface AnimatedCounterProps {
   suffix?: string;
 }
 
+const render = (v: number, format: AnimatedCounterProps['format']) => {
+  if (format === 'rupiah') return formatRupiah(v);
+  if (format === 'percent') return `${v.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
+  if (format === 'score') return `${Math.round(v)}`;
+  return Math.round(v).toLocaleString('id-ID');
+};
+
+/** Lightweight count-up (rAF, ease-out). Respects prefers-reduced-motion. */
 export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
   value,
   format = 'number',
-  duration = 1.2,
+  duration = 0.9,
   className = '',
   prefix = '',
   suffix = '',
 }) => {
-  const spanRef = useRef<HTMLSpanElement>(null);
-  const valRef = useRef<{ current: number }>({ current: 0 });
+  const ref = useRef<HTMLSpanElement>(null);
+  const from = useRef(0);
 
   useEffect(() => {
-    const el = spanRef.current;
+    const el = ref.current;
     if (!el) return;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const start = from.current;
+    const t0 = performance.now();
+    let raf = 0;
 
-    gsap.to(valRef.current, {
-      current: value,
-      duration,
-      ease: 'power2.out',
-      onUpdate: () => {
-        const current = valRef.current.current;
-        if (format === 'rupiah') {
-          el.innerText = `${prefix}${formatRupiah(current)}${suffix}`;
-        } else if (format === 'percent') {
-          el.innerText = `${prefix}${current.toFixed(1)}%${suffix}`;
-        } else if (format === 'score') {
-          el.innerText = `${prefix}${Math.round(current)}${suffix}`;
-        } else {
-          el.innerText = `${prefix}${Math.round(current).toLocaleString('id-ID')}${suffix}`;
-        }
-      },
-    });
+    const tick = (now: number) => {
+      const p = reduce ? 1 : Math.min(1, (now - t0) / (duration * 1000));
+      const eased = 1 - Math.pow(1 - p, 3);
+      const cur = start + (value - start) * eased;
+      el.textContent = `${prefix}${render(cur, format)}${suffix}`;
+      if (p < 1) raf = requestAnimationFrame(tick);
+      else from.current = value;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(raf);
+      from.current = value;
+    };
   }, [value, format, duration, prefix, suffix]);
 
-  return <span ref={spanRef} className={className}>0</span>;
+  return (
+    <span ref={ref} className={className}>
+      {`${prefix}${render(value, format)}${suffix}`}
+    </span>
+  );
 };
-
