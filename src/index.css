@@ -2,28 +2,40 @@
 
 /* ───────────────────────── Design tokens ───────────────────────── */
 @theme {
-  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* Brand: emerald-forest (profit, freshness) */
-  --color-brand-50: #ecfdf5;
-  --color-brand-100: #d1fae5;
-  --color-brand-200: #a7f3d0;
-  --color-brand-300: #6ee7b7;
-  --color-brand-400: #34d399;
-  --color-brand-500: #10b981;
-  --color-brand-600: #059669;
-  --color-brand-700: #047857;
-  --color-brand-800: #065f46;
-  --color-brand-900: #064e3b;
-  --color-brand-950: #022c22;
+  /* Brand: muted pine (not default emerald) */
+  --color-brand-50: #f1f6f2;
+  --color-brand-100: #dfeae2;
+  --color-brand-200: #bed5c5;
+  --color-brand-300: #93b9a0;
+  --color-brand-400: #64987a;
+  --color-brand-500: #437c5d;
+  --color-brand-600: #32664b;
+  --color-brand-700: #28523d;
+  --color-brand-800: #204231;
+  --color-brand-900: #193427;
+  --color-brand-950: #0d1d15;
 
-  /* Neutral surface */
-  --color-canvas: #f6f7f9;
-  --color-ink: #0b1220;
+  /* Warm neutral greys replace Tailwind's blue-ish slate everywhere */
+  --color-slate-50: #f8f8f6;
+  --color-slate-100: #f0efec;
+  --color-slate-200: #e4e3df;
+  --color-slate-300: #cfcdc7;
+  --color-slate-400: #a3a19a;
+  --color-slate-500: #6f6d66;
+  --color-slate-600: #57554f;
+  --color-slate-700: #3f3e39;
+  --color-slate-800: #292824;
+  --color-slate-900: #1a1a17;
+  --color-slate-950: #0f0f0d;
 
-  --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.04);
-  --shadow-pop: 0 12px 32px -8px rgb(15 23 42 / 0.18), 0 4px 8px -4px rgb(15 23 42 / 0.08);
+  --color-canvas: #f6f5f2;
+  --color-ink: #121210;
+
+  --shadow-card: 0 1px 0 0 rgb(18 18 16 / 0.03);
+  --shadow-pop: 0 16px 40px -12px rgb(18 18 16 / 0.22), 0 2px 6px -2px rgb(18 18 16 / 0.08);
 
   --animate-fade-in: fade-in 0.18s ease-out;
   --animate-scale-in: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -53,13 +65,16 @@
   body {
     @apply bg-canvas text-slate-800 font-sans antialiased;
     min-height: 100vh;
-    font-feature-settings: 'cv11', 'ss01';
+    font-feature-settings: 'ss01';
+    letter-spacing: -0.005em;
   }
 
   /* Numbers line up in tables & KPIs */
   .tabular, table, input[type='number'] {
     font-variant-numeric: tabular-nums;
   }
+
+  h1, h2, h3 { letter-spacing: -0.02em; }
 
   :focus-visible {
     outline: 2px solid var(--color-brand-500);
@@ -83,35 +98,35 @@
 
 /* ───────────────────────── Components ───────────────────────── */
 @utility card {
-  @apply bg-white rounded-2xl border border-slate-200/80 shadow-card;
+  @apply bg-white rounded-xl border border-slate-200 shadow-card;
 }
 
 @utility btn {
-  @apply inline-flex items-center justify-center gap-2 h-10 sm:h-9 px-3.5 rounded-lg text-[13px] font-semibold whitespace-nowrap transition-colors duration-150 select-none;
+  @apply inline-flex items-center justify-center gap-1.5 h-10 sm:h-8 px-3 rounded-md text-[13px] font-medium whitespace-nowrap transition-colors duration-150 select-none;
 }
 
 @utility btn-primary {
-  @apply inline-flex items-center justify-center gap-2 h-10 sm:h-9 px-3.5 rounded-lg text-[13px] font-semibold whitespace-nowrap transition-colors duration-150 select-none bg-slate-900 text-white hover:bg-slate-800 active:bg-slate-950;
+  @apply inline-flex items-center justify-center gap-1.5 h-10 sm:h-8 px-3 rounded-md text-[13px] font-medium whitespace-nowrap transition-colors duration-150 select-none bg-ink text-white hover:bg-slate-800 active:bg-slate-950;
 }
 
 @utility btn-brand {
-  @apply inline-flex items-center justify-center gap-2 h-10 sm:h-9 px-3.5 rounded-lg text-[13px] font-semibold whitespace-nowrap transition-colors duration-150 select-none bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800;
+  @apply inline-flex items-center justify-center gap-1.5 h-10 sm:h-8 px-3 rounded-md text-[13px] font-medium whitespace-nowrap transition-colors duration-150 select-none bg-ink text-white hover:bg-slate-800 active:bg-slate-950;
 }
 
 @utility btn-secondary {
-  @apply inline-flex items-center justify-center gap-2 h-10 sm:h-9 px-3.5 rounded-lg text-[13px] font-semibold whitespace-nowrap transition-colors duration-150 select-none bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300;
+  @apply inline-flex items-center justify-center gap-1.5 h-10 sm:h-8 px-3 rounded-md text-[13px] font-medium whitespace-nowrap transition-colors duration-150 select-none bg-white text-slate-800 border border-slate-200 hover:bg-slate-50 hover:border-slate-300;
 }
 
 @utility btn-ghost {
-  @apply inline-flex items-center justify-center gap-2 h-10 sm:h-9 px-3.5 rounded-lg text-[13px] font-semibold whitespace-nowrap transition-colors duration-150 select-none text-slate-600 hover:bg-slate-100 hover:text-slate-900;
+  @apply inline-flex items-center justify-center gap-1.5 h-10 sm:h-8 px-3 rounded-md text-[13px] font-medium whitespace-nowrap transition-colors duration-150 select-none text-slate-600 hover:bg-slate-100 hover:text-ink;
 }
 
 @utility btn-icon {
-  @apply inline-flex items-center justify-center w-10 h-10 sm:w-9 sm:h-9 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors;
+  @apply inline-flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 rounded-md text-slate-500 hover:bg-slate-100 hover:text-ink transition-colors;
 }
 
 @utility input {
-  @apply w-full h-10 sm:h-9 px-3 rounded-lg text-[13px] bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 outline-none transition-shadow focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10;
+  @apply w-full h-10 sm:h-9 px-3 rounded-md text-[13px] bg-white border border-slate-200 text-ink placeholder:text-slate-400 outline-none transition-shadow focus:border-slate-400 focus:ring-[3px] focus:ring-slate-900/[0.06];
 }
 
 @layer base {
@@ -126,11 +141,11 @@
 }
 
 @utility eyebrow {
-  @apply text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500;
+  @apply text-[12px] font-medium text-slate-500;
 }
 
 @utility chip {
-  @apply inline-flex items-center gap-1 h-6 px-2 rounded-md text-[11px] font-semibold border whitespace-nowrap;
+  @apply inline-flex items-center gap-1.5 h-[22px] px-2 rounded-md text-[11.5px] font-medium border whitespace-nowrap;
 }
 
 @utility no-scrollbar {
@@ -169,4 +184,9 @@
     margin: 0 !important;
     max-width: 100% !important;
   }
+}
+
+@utility num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
 }

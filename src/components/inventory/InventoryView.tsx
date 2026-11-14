@@ -105,7 +105,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
       <PageHeader
         eyebrow="Inventori"
         title="Batch & FEFO"
-        description="Pantau setiap batch berdasarkan tanggal kedaluwarsa terdekat (First-Expired, First-Out) dan lama mengendap di rak."
+        description="Urut berdasarkan kedaluwarsa terdekat (FEFO) dan lama mengendap di rak."
         actions={
           <>
             <button onClick={() => onOpenManualModal(null)} className="btn-primary order-first sm:order-last w-full sm:w-auto">
@@ -279,7 +279,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                     <StatusChip status={st.status} />
                   </td>
                   <td className="py-3 pl-3 pr-5 whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-0.5">
+                    <div className="flex items-center justify-end gap-0.5 xl:opacity-40 xl:group-hover:opacity-100 xl:focus-within:opacity-100 transition-opacity">
                       <button onClick={() => onTriggerDiscount(b)} className="btn-icon w-8 h-8" title="Diskon aman" aria-label="Diskon aman">
                         <Tag className="w-4 h-4" />
                       </button>

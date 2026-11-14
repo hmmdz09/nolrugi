@@ -1,17 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  AlertTriangle,
-  Wallet,
-  TrendingUp,
-  Activity,
   ArrowRight,
   Tag,
   PackagePlus,
   CalendarClock,
   MapPin,
   Boxes,
-  Calculator,
   Inbox,
 } from 'lucide-react';
 import {
@@ -51,7 +46,7 @@ const greeting = () => {
 };
 
 const compactRp = (v: number) =>
-  v >= 1_000_000 ? `${(v / 1_000_000).toLocaleString('id-ID', { maximumFractionDigits: 1 })} jt` : `${Math.round(v / 1000)} rb`;
+  v === 0 ? '0' : v >= 1_000_000 ? `${(v / 1_000_000).toLocaleString('id-ID', { maximumFractionDigits: 1 })} jt` : `${Math.round(v / 1000)} rb`;
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
   batches,
@@ -100,33 +95,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   const kpis = [
     {
-      label: 'Potensi rugi 14 hari',
-      value: <AnimatedCounter value={potentialLoss14} format="rupiah" />,
-      sub: `${actionable} batch perlu tindakan`,
-      icon: AlertTriangle,
-      tone: 'text-rose-600 bg-rose-50',
-      accent: true,
+      label: 'Perlu tindakan',
+      value: <>{actionable} <span className="text-[15px] text-slate-400">/ {batches.length} batch</span></>,
+      sub: `${counts.kritis} kritis · ${counts.waspada} waspada`,
+      accent: actionable > 0,
     },
     {
       label: 'Modal tertahan di stok',
       value: <AnimatedCounter value={tiedCapital} format="rupiah" />,
       sub: `${batches.length} batch aktif`,
-      icon: Wallet,
-      tone: 'text-sky-700 bg-sky-50',
     },
     {
       label: 'Margin kotor',
       value: <AnimatedCounter value={grossMargin} format="percent" />,
-      sub: grossMargin >= 30 ? 'Di atas standar sehat 30%' : 'Di bawah standar 30%',
-      icon: TrendingUp,
-      tone: 'text-emerald-700 bg-emerald-50',
+      sub: grossMargin >= 30 ? 'Sehat (≥ 30%)' : 'Di bawah 30%',
     },
     {
       label: 'Skor kesehatan FEFO',
       value: <AnimatedCounter value={fefoScore} format="score" suffix=" / 100" />,
       sub: fefoScore >= 75 ? 'Rotasi terkendali' : fefoScore >= 50 ? 'Perlu perhatian' : 'Rotasi berisiko',
-      icon: Activity,
-      tone: 'text-amber-700 bg-amber-50',
       meter: fefoScore,
     },
   ];
@@ -142,66 +129,74 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-[13px] text-slate-500">{greeting()}, Dewi 👋</p>
-          <h1 className="mt-1 text-[22px] sm:text-2xl font-bold tracking-tight text-ink">
-            {actionable > 0 ? (
+          <p className="text-[13px] text-slate-500">{greeting()}, Dewi</p>
+          <h1 className="mt-1 text-[22px] sm:text-[26px] font-semibold text-ink text-balance">
+            {potentialLoss14 > 0 ? (
               <>
-                Ada <span className="text-rose-600">{actionable} batch</span> yang perlu diselamatkan minggu ini
+                <span className="num text-rose-700">{formatRupiah(potentialLoss14)}</span> berisiko terbuang dalam 14 hari
               </>
             ) : (
               'Semua stok dalam kondisi aman'
             )}
           </h1>
+          {actionable > 0 && (
+            <p className="mt-1.5 text-[13px] text-slate-500">
+              Selamatkan {actionable} batch kritis dan waspada lewat diskon aman atau bundling.
+            </p>
+          )}
         </div>
-        <div className="grid grid-cols-2 sm:flex items-center gap-2">
-          <button onClick={() => onNavigateToTab('calculator')} className="btn-secondary">
-            <Calculator className="w-4 h-4" />
-            Hitung HPP
-          </button>
-          <button onClick={() => onNavigateToTab('inventory')} className="btn-brand">
+        <div className="flex items-center gap-2">
+          <button onClick={() => onNavigateToTab('inventory')} className="btn-secondary">
             Kelola batch
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* KPIs */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4" aria-label="Indikator utama">
-        {kpis.map((k) => {
-          const Icon = k.icon;
-          return (
-            <div key={k.label} className="card p-5 flex flex-col">
-              <div className="flex items-center justify-between">
-                <span className="text-[13px] font-medium text-slate-500">{k.label}</span>
-                <span className={cn('w-8 h-8 rounded-lg flex items-center justify-center', k.tone)}>
-                  <Icon className="w-4 h-4" />
-                </span>
-              </div>
-              <div
-                className={cn(
-                  'mt-3 text-[22px] font-bold tracking-tight tabular',
-                  k.accent ? 'text-rose-600' : 'text-ink'
-                )}
-              >
-                {k.value}
-              </div>
-              <p className="mt-1 text-[12px] text-slate-500">{k.sub}</p>
-              {k.meter !== undefined && (
-                <div className="mt-auto pt-3">
-                  <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+      {/* KPIs: one quiet strip, numbers carry the weight */}
+      <section
+        className="card grid grid-cols-2 xl:grid-cols-4 divide-slate-200 [&>*]:border-slate-200 overflow-hidden"
+        aria-label="Indikator utama"
+      >
+        {kpis.map((k, i) => (
+          <div
+            key={k.label}
+            className={cn(
+              'p-5 flex flex-col min-w-0',
+              i % 2 === 1 && 'border-l',
+              i >= 2 && 'border-t xl:border-t-0',
+              i === 2 && 'xl:border-l'
+            )}
+          >
+            <span className="text-[12.5px] text-slate-500 truncate">{k.label}</span>
+            <div
+              className={cn(
+                'mt-2 num text-[20px] sm:text-[24px] font-semibold leading-none',
+                k.accent ? 'text-rose-700' : 'text-ink'
+              )}
+            >
+              {k.value}
+            </div>
+            <div className="mt-auto pt-3">
+              {k.meter !== undefined ? (
+                <div className="flex flex-col gap-1.5">
+                  <div className="h-1 rounded-full bg-slate-100 overflow-hidden">
                     <div
                       className={cn(
                         'h-full rounded-full transition-all duration-700',
-                        k.meter >= 75 ? 'bg-emerald-500' : k.meter >= 50 ? 'bg-amber-500' : 'bg-rose-500'
+                        k.meter >= 75 ? 'bg-brand-500' : k.meter >= 50 ? 'bg-amber-500' : 'bg-rose-500'
                       )}
                       style={{ width: `${k.meter}%` }}
                     />
                   </div>
+                  <span className="text-[12px] text-slate-500 truncate">{k.sub}</span>
                 </div>
+              ) : (
+                <p className="text-[12px] text-slate-500 truncate">{k.sub}</p>
               )}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </section>
 
       {/* Radar + detail */}
@@ -209,13 +204,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="card xl:col-span-2 flex flex-col min-w-0">
           <CardHeader
             title="Radar kedaluwarsa"
-            description="Diurutkan dari risiko tertinggi. Klik baris untuk melihat detail."
-            actions={
-              <button onClick={() => onNavigateToTab('inventory')} className="btn-ghost h-8 px-2.5 hidden sm:inline-flex">
-                Lihat semua
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            }
+            description="Risiko tertinggi di atas. Pilih baris untuk detail."
           />
           <div className="px-5 pb-3 overflow-x-auto no-scrollbar">
             <Segmented<RiskFilter>
@@ -225,11 +214,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 { value: 'all', label: 'Semua', count: batches.length },
                 { value: 'kritis', label: 'Kritis', count: counts.kritis },
                 { value: 'waspada', label: 'Waspada', count: counts.waspada },
-                { value: 'dwell-alert', label: 'Dwell > 21 hari', count: counts['dwell-alert'] },
+                { value: 'dwell-alert', label: 'Dwell', count: counts['dwell-alert'] },
               ]}
             />
           </div>
 
+          <div className="hidden md:flex items-center gap-4 px-5 h-8 border-t border-slate-100 bg-slate-50/60 text-[11.5px] text-slate-500">
+            <span className="w-11 shrink-0">Sisa</span>
+            <span className="flex-1">Produk</span>
+            <span className="w-32 shrink-0">Stok tersisa</span>
+            <span className="w-[84px] shrink-0">Status</span>
+          </div>
           <ul className="border-t border-slate-100 divide-y divide-slate-100 flex-1">
             {list.length === 0 && (
               <li className="py-14 flex flex-col items-center text-center text-slate-500">
@@ -252,27 +247,27 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     aria-pressed={active}
                     className={cn(
                       'relative w-full text-left px-5 py-3.5 flex items-center gap-4 transition-colors',
-                      active ? 'bg-brand-50/60' : 'hover:bg-slate-50'
+                      active ? 'bg-slate-50' : 'hover:bg-slate-50/70'
                     )}
                   >
-                    {active && <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-brand-600" />}
+                    {active && <span className="absolute left-0 top-0 bottom-0 w-[2px] bg-ink" />}
 
                     {/* Days-left tile */}
                     <div
                       className={cn(
-                        'w-12 h-12 rounded-xl border flex flex-col items-center justify-center shrink-0 tabular',
-                        s.chip
+                        'w-11 h-11 rounded-lg border border-slate-200 bg-white flex flex-col items-center justify-center shrink-0',
+                        s.text
                       )}
                     >
-                      <span className="text-[15px] font-bold leading-none">
+                      <span className="num text-[15px] font-semibold leading-none">
                         {st.daysLeft <= 0 ? '0' : st.daysLeft}
                       </span>
-                      <span className="text-[10px] font-semibold mt-0.5 opacity-90">hari</span>
+                      <span className="text-[10px] mt-0.5 text-slate-500">hari</span>
                     </div>
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-[14px] font-semibold text-ink truncate">{batch.productName}</span>
+                        <span className="text-[14px] font-medium text-ink truncate">{batch.productName}</span>
                         {batch.isRescued && (
                           <span className="chip h-5 bg-brand-50 text-brand-700 border-brand-200 hidden sm:inline-flex">
                             Diselamatkan
@@ -288,17 +283,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       </div>
                     </div>
 
-                    <div className="hidden md:block w-28 shrink-0">
-                      <div className="flex justify-between text-[11px] text-slate-500 mb-1 tabular">
-                        <span>Sisa stok</span>
-                        <span>{Math.round((batch.stockQty / Math.max(1, batch.initialQty)) * 100)}%</span>
+                    <div className="hidden md:flex w-32 shrink-0 items-center gap-2" title="Sisa stok">
+                      <div className="flex-1 h-1 rounded-full bg-slate-100 overflow-hidden">
+                        <div className="h-full rounded-full bg-slate-400" style={{ width: `${shelfPct}%` }} />
                       </div>
-                      <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                        <div className={cn('h-full rounded-full', s.bar)} style={{ width: `${shelfPct}%` }} />
-                      </div>
+                      <span className="num w-9 text-right text-[12px] text-slate-500">
+                        {Math.round((batch.stockQty / Math.max(1, batch.initialQty)) * 100)}%
+                      </span>
                     </div>
 
-                    <div className="hidden sm:flex w-[88px] shrink-0 justify-end">
+                    <div className="hidden sm:flex w-[84px] shrink-0">
                       <StatusChip status={st.status} />
                     </div>
                   </button>
@@ -324,7 +318,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className="eyebrow">Batch terpilih</span>
                 <StatusChip status={selected.st.status} label={selected.st.label} />
               </div>
-              <h3 className="mt-3 text-[17px] font-bold leading-snug text-ink">{selected.batch.productName}</h3>
+              <h3 className="mt-3 text-[17px] font-semibold leading-snug text-ink">{selected.batch.productName}</h3>
               <p className="mt-1 text-[12px] text-slate-500">
                 <span className="font-mono">{selected.batch.batchCode}</span> · {selected.batch.category}
               </p>
@@ -350,10 +344,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <dd className="text-[12px] text-slate-500">Masuk {selected.st.dwellDays} hari lalu</dd>
               </div>
               <div>
-                <dt className="text-slate-500 text-[12px]">Modal tertahan</dt>
-                <dd className="mt-1 font-semibold text-ink tabular">
-                  {formatRupiah(selected.batch.unitHpp * selected.batch.stockQty)}
-                </dd>
+                <dt className="text-slate-500 text-[12px]">HPP / unit</dt>
+                <dd className="mt-1 font-semibold text-ink tabular">{formatRupiah(selected.batch.unitHpp)}</dd>
               </div>
               <div>
                 <dt className="text-slate-500 text-[12px]">Harga jual</dt>
@@ -379,8 +371,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               )}
             </dl>
 
-            <div className="p-5 pt-1 grid grid-cols-2 gap-2">
-              <button onClick={() => onTriggerDiscount(selected.batch)} className="btn-brand">
+            <div className="mx-5 mb-4 flex items-baseline justify-between rounded-lg bg-rose-50/60 border border-rose-100 px-3 py-2.5">
+              <span className="text-[12.5px] text-rose-800">Rugi jika tidak terjual</span>
+              <span className="num text-[15px] font-semibold text-rose-700">
+                {formatRupiah(selected.batch.unitHpp * selected.batch.stockQty)}
+              </span>
+            </div>
+            <div className="p-5 pt-0 grid grid-cols-2 gap-2">
+              <button onClick={() => onTriggerDiscount(selected.batch)} className="btn-primary">
                 <Tag className="w-4 h-4" />
                 Diskon aman
               </button>
@@ -402,10 +400,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             actions={
               <div className="hidden sm:flex items-center gap-4 text-[12px] text-slate-500">
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-sm bg-slate-800" /> Omzet
+                  <span className="w-2 h-2 rounded-full bg-ink" /> Omzet
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-sm bg-brand-500" /> Terselamatkan
+                  <span className="w-2 h-2 rounded-full bg-brand-500" /> Terselamatkan
                 </span>
               </div>
             }
@@ -415,25 +413,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <AreaChart data={sampleHistoricalRevenue} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="gOmzet" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#1e293b" stopOpacity={0.14} />
-                    <stop offset="100%" stopColor="#1e293b" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#1a1a17" stopOpacity={0.08} />
+                    <stop offset="100%" stopColor="#1a1a17" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="gRescue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#437c5d" stopOpacity={0.22} />
+                    <stop offset="100%" stopColor="#437c5d" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid vertical={false} stroke="#eef0f3" />
+                <CartesianGrid vertical={false} stroke="#ecebe7" />
                 <XAxis
                   dataKey="month"
                   tickFormatter={(m: string) => m.split(' ')[0]}
-                  tick={{ fontSize: 11, fill: '#94a3b8' }}
+                  tick={{ fontSize: 11, fill: '#a3a19a' }}
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
                   tickFormatter={(v: number) => compactRp(v)}
-                  tick={{ fontSize: 11, fill: '#94a3b8' }}
+                  tick={{ fontSize: 11, fill: '#a3a19a' }}
                   tickLine={false}
                   axisLine={false}
                   width={52}
@@ -442,7 +440,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   formatter={(val: any, name: any) => [formatRupiah(Number(val)), name]}
                   cursor={{ stroke: '#cbd5e1', strokeDasharray: '3 3' }}
                   contentStyle={{
-                    background: '#0f172a',
+                    background: '#121210',
                     border: 'none',
                     borderRadius: 10,
                     fontSize: 12,
@@ -452,13 +450,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   itemStyle={{ color: '#e2e8f0' }}
                   labelStyle={{ color: '#94a3b8', marginBottom: 4 }}
                 />
-                <Area type="monotone" dataKey="omzet" name="Omzet" stroke="#1e293b" strokeWidth={2} fill="url(#gOmzet)" />
+                <Area type="monotone" dataKey="omzet" name="Omzet" stroke="#1a1a17" strokeWidth={1.75} fill="url(#gOmzet)" />
                 <Area
                   type="monotone"
                   dataKey="rescuedValue"
                   name="Terselamatkan"
-                  stroke="#10b981"
-                  strokeWidth={2}
+                  stroke="#437c5d"
+                  strokeWidth={1.75}
                   fill="url(#gRescue)"
                 />
               </AreaChart>
@@ -471,8 +469,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="mt-3">
             <div className="text-[13px] text-slate-500">Omzet</div>
             <div className="mt-0.5 flex items-baseline gap-2">
-              <span className="text-[22px] font-bold tracking-tight text-ink tabular">{formatRupiah(lastMonth.omzet)}</span>
-              <span className="chip h-5 bg-emerald-50 text-emerald-700 border-emerald-200 tabular">
+              <span className="num text-[24px] font-medium text-ink">{formatRupiah(lastMonth.omzet)}</span>
+              <span className="chip h-5 bg-brand-50 text-brand-700 border-brand-200 tabular">
                 +{omzetGrowth.toLocaleString('id-ID', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%
               </span>
             </div>
@@ -509,7 +507,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 ) : null
               )}
             </div>
-            <div className="mt-3 grid grid-cols-2 gap-2 text-[12px]">
+            <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-[12px]">
               {(['kritis', 'waspada', 'dwell-alert', 'aman'] as StockStatus[]).map((k) => (
                 <div key={k} className="flex items-center gap-2 text-slate-600">
                   <span className={cn('w-2 h-2 rounded-full', STATUS_STYLES[k].dot)} />

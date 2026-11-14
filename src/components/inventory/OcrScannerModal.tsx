@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ScanLine, RefreshCw, Check } from 'lucide-react';
 import { InventoryBatch, ProductCategory } from '../../types';
 import { Field, Modal, cn } from '../common/ui';
-import confetti from 'canvas-confetti';
 
 interface OcrScannerModalProps {
   isOpen: boolean;
@@ -45,7 +44,7 @@ const PRESETS: SamplePreset[] = [
     id: 'p2', name: 'Sambal Cumi Asin Cabe Ijo Jar 180g', short: 'Sambal cumi', category: 'Sambal & Bumbu', unit: 'jar',
     unitHpp: 21000, sellingPrice: 36000, packagingType: 'kemasan-berlabel',
     detectedText: 'BEST BEFORE: {d} LOT: SC-26-9A', expiryOffset: 10, extractedBatch: 'SC-2026-9A', confidence: 97.4,
-    tint: 'from-emerald-900/80 to-slate-950',
+    tint: 'from-brand-900/80 to-slate-950',
   },
   {
     id: 'p3', name: 'Keripik Tempe Sagu Renyah 250g', short: 'Keripik tempe', category: 'Keripik & Camilan', unit: 'pouch',
@@ -57,7 +56,7 @@ const PRESETS: SamplePreset[] = [
     id: 'p4', name: 'Dimsum Ayam Jamur Frozen (Isi 12)', short: 'Dimsum frozen', category: 'Frozen Food', unit: 'pack',
     unitHpp: 22000, sellingPrice: 38000, packagingType: 'kemasan-berlabel',
     detectedText: 'EXP DATE: {d} -18C BATCH: DJ-202', expiryOffset: 3, extractedBatch: 'DJ-2026-202', confidence: 96.8,
-    tint: 'from-sky-900/80 to-slate-950',
+    tint: 'from-slate-800/80 to-slate-950',
   },
 ];
 
@@ -113,7 +112,6 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({ isOpen, onClos
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 }, colors: ['#10b981', '#0f172a', '#34d399'] });
     onBatchScanned({
       productName,
       category,

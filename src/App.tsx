@@ -25,8 +25,8 @@ const ReportsView = lazy(() =>
 const ViewFallback = () => (
   <div className="space-y-4" aria-busy="true">
     <div className="h-8 w-64 rounded-lg bg-slate-200/70 animate-pulse" />
-    <div className="h-40 rounded-2xl bg-slate-200/50 animate-pulse" />
-    <div className="h-72 rounded-2xl bg-slate-200/40 animate-pulse" />
+    <div className="h-40 rounded-xl bg-slate-200/50 animate-pulse" />
+    <div className="h-72 rounded-xl bg-slate-200/40 animate-pulse" />
   </div>
 );
 
@@ -152,7 +152,7 @@ export function App() {
         pdpConsent={pdpConsent}
       />
 
-      <div className="lg:pl-[248px] min-w-0">
+      <div className="lg:pl-[232px] min-w-0">
         <Topbar
           activeTab={activeTab}
           onOpenMenu={() => setIsMobileMenuOpen(true)}

@@ -4,7 +4,6 @@ import { InventoryBatch, CreditReadinessComponent } from '../../types';
 import { formatRupiah } from '../../utils/formatters';
 import { AnimatedCounter } from '../common/AnimatedCounter';
 import { CardHeader, Modal, PageHeader, cn } from '../common/ui';
-import confetti from 'canvas-confetti';
 
 interface ReportsViewProps {
   batches: InventoryBatch[];
@@ -57,7 +56,6 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ batches, pdpConsent, o
   const fmtSigned = (v: number) => (v < 0 ? `(${formatRupiah(-v)})` : formatRupiah(v));
 
   const handleExport = () => {
-    confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 }, colors: ['#10b981', '#0f172a', '#34d399'] });
     const dossier = {
       namaUsaha: BUSINESS.name,
       nib: BUSINESS.nib,
@@ -164,7 +162,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ batches, pdpConsent, o
               <div className="text-[13px] font-semibold">Laba bersih setelah pajak</div>
               <div className="text-[12px] text-brand-200">Margin bersih {netMargin.toLocaleString('id-ID', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%</div>
             </div>
-            <div className="text-xl sm:text-2xl font-bold tabular">
+            <div className="text-xl sm:text-2xl font-semibold tabular">
               <AnimatedCounter value={netProfit} format="rupiah" />
             </div>
           </div>
@@ -193,14 +191,14 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ batches, pdpConsent, o
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-3xl font-bold text-ink tabular">
+                    <span className="text-3xl font-semibold text-ink tabular">
                       <AnimatedCounter value={creditScore} format="score" />
                     </span>
                     <span className="text-[11px] text-slate-500">dari 100</span>
                   </div>
                 </div>
                 <div>
-                  <span className="chip bg-emerald-50 text-emerald-700 border-emerald-200">{scoreCategory}</span>
+                  <span className="chip bg-brand-50 text-brand-700 border-brand-200">{scoreCategory}</span>
                   <p className="mt-2 text-[12px] text-slate-500 leading-relaxed">
                     Skor tertimbang dari 4 indikator pencatatan dan kinerja keuangan.
                   </p>
@@ -293,7 +291,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ batches, pdpConsent, o
           <div className="rounded-xl border border-slate-200 p-6 sm:p-8 text-ink">
             <div className="text-center pb-5 border-b border-slate-200">
               <div className="eyebrow">Laporan Keuangan SAK-EMKM</div>
-              <h2 className="mt-1 text-lg font-bold">{BUSINESS.name}</h2>
+              <h2 className="mt-1 text-lg font-semibold">{BUSINESS.name}</h2>
               <p className="text-[12px] text-slate-500 mt-0.5">
                 NIB {BUSINESS.nib} · Periode {BUSINESS.period}
               </p>
@@ -309,7 +307,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ batches, pdpConsent, o
                     </td>
                   </tr>
                 ))}
-                <tr className="border-t-2 border-ink font-bold">
+                <tr className="border-t-2 border-ink font-semibold">
                   <td className="py-3">Laba bersih setelah pajak</td>
                   <td className="py-3 text-right">{formatRupiah(netProfit)}</td>
                 </tr>

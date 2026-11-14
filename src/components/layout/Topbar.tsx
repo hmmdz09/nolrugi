@@ -18,8 +18,8 @@ export const Topbar: React.FC<TopbarProps> = ({ activeTab, onOpenMenu, onSelectT
   const current = NAV_ITEMS.find((n) => n.id === activeTab);
 
   return (
-    <header className="sticky top-0 z-20 bg-canvas/85 backdrop-blur-md border-b border-slate-200/70">
-      <div className="h-16 px-4 sm:px-6 lg:px-8 flex items-center gap-3">
+    <header className="sticky top-0 z-20 bg-canvas/90 backdrop-blur-md border-b border-slate-200">
+      <div className="h-14 px-4 sm:px-6 lg:px-8 flex items-center gap-3">
         <button onClick={onOpenMenu} className="btn-icon lg:hidden -ml-1.5" aria-label="Buka menu">
           <Menu className="w-5 h-5" />
         </button>
@@ -28,17 +28,18 @@ export const Topbar: React.FC<TopbarProps> = ({ activeTab, onOpenMenu, onSelectT
         <div className="hidden lg:flex items-center gap-2 text-[13px]">
           <span className="text-slate-500">Dapur Berkah Nusantara</span>
           <span className="text-slate-300">/</span>
-          <span className="font-semibold text-ink">{current?.label}</span>
+          <span className="font-medium text-ink">{current?.label}</span>
         </div>
 
         <div className="flex-1" />
 
         <button
           onClick={() => onSelectTab('inventory')}
-          className="hidden md:flex items-center gap-2 h-9 w-64 px-3 rounded-lg bg-white border border-slate-200 text-[13px] text-slate-400 hover:border-slate-300 transition-colors"
+          className="hidden md:flex items-center gap-2 h-8 w-60 px-2.5 rounded-md bg-white border border-slate-200 text-[13px] text-slate-500 hover:border-slate-300 transition-colors"
         >
-          <Search className="w-4 h-4" />
-          <span className="flex-1 text-left">Cari produk atau batch…</span>
+          <Search className="w-3.5 h-3.5 text-slate-400" />
+          <span className="flex-1 text-left">Cari produk atau batch</span>
+          <kbd className="num text-[11px] text-slate-400 border border-slate-200 rounded px-1">/</kbd>
         </button>
 
         <span className="hidden xl:block text-[12px] text-slate-500 capitalize">{todayLabel()}</span>
@@ -54,7 +55,7 @@ export const Topbar: React.FC<TopbarProps> = ({ activeTab, onOpenMenu, onSelectT
           )}
         </button>
 
-        <button onClick={onQuickAdd} className="btn-primary hidden sm:inline-flex">
+        <button onClick={onQuickAdd} className={cn('btn-primary hidden', activeTab !== 'inventory' && 'sm:inline-flex')}>
           <Plus className="w-4 h-4" />
           Batch baru
         </button>
@@ -70,8 +71,8 @@ export const Topbar: React.FC<TopbarProps> = ({ activeTab, onOpenMenu, onSelectT
               key={n.id}
               onClick={() => onSelectTab(n.id)}
               className={cn(
-                'flex flex-1 sm:flex-none justify-center items-center gap-1.5 h-8 px-2.5 rounded-lg text-[12px] font-semibold whitespace-nowrap transition-colors',
-                active ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-white'
+                'flex flex-1 sm:flex-none justify-center items-center gap-1.5 h-8 px-2.5 rounded-md text-[12.5px] font-medium whitespace-nowrap transition-colors',
+                active ? 'bg-white text-ink shadow-[0_0_0_1px_var(--color-slate-200)]' : 'text-slate-600 hover:bg-white'
               )}
             >
               <Icon className="w-3.5 h-3.5" />

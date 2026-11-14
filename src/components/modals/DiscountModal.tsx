@@ -3,7 +3,6 @@ import { Tag, ShieldCheck, Check } from 'lucide-react';
 import { InventoryBatch } from '../../types';
 import { formatRupiah, getDaysRemaining } from '../../utils/formatters';
 import { Modal, cn } from '../common/ui';
-import confetti from 'canvas-confetti';
 
 interface DiscountModalProps {
   batch: InventoryBatch | null;
@@ -30,7 +29,7 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({ batch, isOpen, onC
       window: 'H-7 s/d H-5',
       price: Math.max(hpp, round500(normal * 0.85)),
       note: 'Jaga perputaran, margin tetap sehat',
-      tone: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+      tone: 'text-brand-700 bg-brand-50 border-brand-200',
     },
     {
       tier: 2,
@@ -54,7 +53,6 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({ batch, isOpen, onC
   const protectedCapital = hpp * batch.stockQty;
 
   const handleApply = () => {
-    confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 }, colors: ['#10b981', '#0f172a', '#34d399'] });
     onApplyDiscount(batch.id, current.price, current.name);
   };
 

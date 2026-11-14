@@ -4,7 +4,6 @@ import { InventoryBatch } from '../../types';
 import { formatRupiah, getBatchStatus } from '../../utils/formatters';
 import { AnimatedCounter } from '../common/AnimatedCounter';
 import { CardHeader, Field, PageHeader, Segmented, StatusChip, cn } from '../common/ui';
-import confetti from 'canvas-confetti';
 
 interface HppCalculatorViewProps {
   batches: InventoryBatch[];
@@ -63,7 +62,7 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({ batches, o
   const costParts = [
     { label: 'Bahan baku', value: rawMaterialCost, color: 'bg-slate-800' },
     { label: 'Kemasan', value: packagingCost, color: 'bg-brand-500' },
-    { label: 'Tenaga kerja', value: laborCost, color: 'bg-sky-500' },
+    { label: 'Tenaga kerja', value: laborCost, color: 'bg-slate-400' },
     { label: 'Overhead', value: overheadCost, color: 'bg-amber-400' },
   ];
 
@@ -81,7 +80,6 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({ batches, o
 
   const applyClearance = (price: number) => {
     if (!selected) return;
-    confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 }, colors: ['#10b981', '#0f172a', '#34d399'] });
     onApplyClearancePrice(selected.id, price);
   };
 
@@ -131,7 +129,7 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({ batches, o
                   max={50}
                   value={targetMarginPct}
                   onChange={(e) => setTargetMarginPct(Number(e.target.value))}
-                  className="w-full accent-emerald-600"
+                  className="w-full accent-brand-600"
                   aria-label="Target margin"
                 />
                 <div className="flex justify-between text-[11px] text-slate-500 mt-1">
@@ -147,7 +145,7 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({ batches, o
             <div className="card overflow-hidden">
               <div className="p-5 bg-brand-950 text-white">
                 <div className="text-[12px] text-brand-200">Harga jual disarankan</div>
-                <div className="mt-1 text-[32px] font-bold tracking-tight tabular">
+                <div className="mt-1 text-[32px] font-semibold tabular">
                   <AnimatedCounter value={recommendedPrice} format="rupiah" />
                 </div>
                 <div className="mt-1 text-[12px] text-brand-200/90 tabular">
@@ -257,8 +255,8 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({ batches, o
                       </div>
                       <div className="mt-2 text-[15px] font-semibold text-ink">{t.level}</div>
                       <div className="text-[12px] text-slate-500">{t.window} · {t.note}</div>
-                      <div className="mt-4 text-2xl font-bold text-ink tabular">{formatRupiah(t.price)}</div>
-                      <div className="text-[12px] text-emerald-600 font-medium tabular">
+                      <div className="mt-4 text-2xl font-semibold text-ink tabular">{formatRupiah(t.price)}</div>
+                      <div className="text-[12px] text-brand-600 font-medium tabular">
                         Laba/unit +{formatRupiah(Math.max(0, t.price - floor))}
                       </div>
                       <button onClick={() => applyClearance(t.price)} className={cn('mt-4', isCurrent ? 'btn-secondary' : 'btn-primary')}>

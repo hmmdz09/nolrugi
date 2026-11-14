@@ -3,7 +3,6 @@ import { PackagePlus, Check, Plus } from 'lucide-react';
 import { InventoryBatch } from '../../types';
 import { formatRupiah } from '../../utils/formatters';
 import { Field, Modal } from '../common/ui';
-import confetti from 'canvas-confetti';
 
 interface BundleModalProps {
   expiringBatch: InventoryBatch | null;
@@ -57,7 +56,6 @@ export const BundleModal: React.FC<BundleModalProps> = ({
   const title = `Paket Hemat: ${expiringBatch.productName.split(' ')[0]} + ${partner.productName.split(' ')[0]}`;
 
   const handleCreate = () => {
-    confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 }, colors: ['#10b981', '#0f172a', '#34d399'] });
     onCreateBundle(title, partner.productName, bundlePrice, marginPct);
   };
 
@@ -109,7 +107,7 @@ export const BundleModal: React.FC<BundleModalProps> = ({
             max={35}
             value={discountPct}
             onChange={(e) => setDiscountPct(Number(e.target.value))}
-            className="w-full accent-emerald-600"
+            className="w-full accent-brand-600"
             aria-label="Diskon paket"
           />
           <div className="flex justify-between text-[11px] text-slate-500 mt-1">
@@ -131,11 +129,11 @@ export const BundleModal: React.FC<BundleModalProps> = ({
           <div className="flex items-end justify-between px-4 py-3">
             <div>
               <div className="text-[12px] text-slate-500">Harga paket</div>
-              <div className="text-xl font-bold text-ink">{formatRupiah(bundlePrice)}</div>
+              <div className="text-xl font-semibold text-ink">{formatRupiah(bundlePrice)}</div>
             </div>
             <div className="text-right">
               <div className="text-[12px] text-slate-500">Laba</div>
-              <div className="font-semibold text-emerald-600">
+              <div className="font-semibold text-brand-600">
                 +{formatRupiah(profit)} ({marginPct.toLocaleString('id-ID', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%)
               </div>
             </div>

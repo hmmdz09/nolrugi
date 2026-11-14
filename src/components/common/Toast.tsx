@@ -8,10 +8,10 @@ interface ToastProps {
 }
 
 const ICONS = {
-  success: <CheckCircle2 className="w-[18px] h-[18px] text-emerald-400" />,
+  success: <CheckCircle2 className="w-[18px] h-[18px] text-brand-400" />,
   warning: <AlertTriangle className="w-[18px] h-[18px] text-amber-400" />,
   danger: <AlertCircle className="w-[18px] h-[18px] text-rose-400" />,
-  info: <Info className="w-[18px] h-[18px] text-sky-400" />,
+  info: <Info className="w-[18px] h-[18px] text-slate-300" />,
 };
 
 export const ToastContainer: React.FC<ToastProps> = ({ toasts, onDismiss }) => (
