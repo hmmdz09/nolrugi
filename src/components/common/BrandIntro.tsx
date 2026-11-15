@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import { Sparkles, ShieldCheck, ArrowRight, Play } from 'lucide-react';
+import { Sparkles, ShieldCheck, ArrowRight } from 'lucide-react';
 
 interface BrandIntroProps {
   onComplete: () => void;
@@ -411,17 +411,6 @@ export const BrandIntro: React.FC<BrandIntroProps> = ({ onComplete, durationMs =
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             <span>FEFO Radar</span>
           </span>
-        </div>
-
-        {/* Action button to continue immediately */}
-        <div className="mt-7">
-          <button
-            onClick={handleFinish}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-bold text-white bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-600 shadow-[0_10px_24px_-6px_rgba(118,86,209,0.65)] hover:shadow-[0_14px_30px_-6px_rgba(118,86,209,0.8)] transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
-          >
-            <span>Mulai Sekarang</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
         </div>
       </div>
     </div>
