@@ -37,7 +37,7 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
   return (
     <div
       role="status"
-      className={`pointer-events-auto flex items-start gap-3 p-3.5 pr-2.5 rounded-xl bg-slate-900 text-white shadow-pop ring-1 ring-white/10 transition-all duration-150 animate-scale-in ${
+      className={`pointer-events-auto flex items-start gap-3 p-3.5 pr-2.5 rounded-[20px] bg-[rgb(28_22_48/0.82)] backdrop-blur-2xl text-white shadow-pop ring-1 ring-white/15 transition-all duration-150 animate-scale-in ${
         leaving ? 'opacity-0 translate-y-1' : ''
       }`}
     >

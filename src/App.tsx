@@ -24,16 +24,16 @@ const ReportsView = lazy(() =>
 
 const ViewFallback = () => (
   <div className="space-y-4" aria-busy="true">
-    <div className="h-8 w-64 rounded-lg bg-slate-200/70 animate-pulse" />
-    <div className="h-40 rounded-xl bg-slate-200/50 animate-pulse" />
-    <div className="h-72 rounded-xl bg-slate-200/40 animate-pulse" />
+    <div className="h-8 w-64 rounded-full bg-white/50 animate-pulse" />
+    <div className="h-40 rounded-[28px] bg-white/40 animate-pulse" />
+    <div className="h-72 rounded-[28px] bg-white/30 animate-pulse" />
   </div>
 );
 
 const Page: React.FC<{ id: string; children: React.ReactNode }> = ({ id, children }) => (
   <motion.div
     key={id}
-    initial={{ opacity: 0, y: 8 }}
+    initial={{ opacity: 0, y: 12 }}
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0 }}
     transition={{ duration: 0.22, ease: 'easeOut' }}
@@ -141,7 +141,8 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative isolate">
+      <div className="app-bg" aria-hidden />
       <Sidebar
         activeTab={activeTab}
         onSelectTab={setActiveTab}
@@ -152,16 +153,18 @@ export function App() {
         pdpConsent={pdpConsent}
       />
 
-      <div className="lg:pl-[232px] min-w-0">
+      <div className="min-w-0">
         <Topbar
           activeTab={activeTab}
           onOpenMenu={() => setIsMobileMenuOpen(true)}
           onSelectTab={setActiveTab}
           onQuickAdd={() => setManualModal({ open: true, batch: null })}
           alertCount={alertCount}
+          onResetData={handleResetData}
+          pdpConsent={pdpConsent}
         />
 
-        <main className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-[1440px] mx-auto pb-16">
+        <main className="px-3 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-[1400px] mx-auto pb-20">
           <Suspense fallback={<ViewFallback />}>
             <AnimatePresence mode="wait">
               {activeTab === 'dashboard' && (

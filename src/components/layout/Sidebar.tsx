@@ -24,19 +24,15 @@ export const NAV_ITEMS: Array<{ id: ActiveTab; label: string; short: string; ico
 
 export const BrandMark: React.FC<{ className?: string }> = ({ className }) => (
   <div className={cn('flex items-center gap-2.5', className)}>
-    <div className="w-7 h-7 rounded-md bg-ink flex items-center justify-center">
-      <svg viewBox="0 0 32 32" className="w-5 h-5" aria-hidden>
-        <path
-          d="M8 21 14 15l3.5 3.5L24 11"
-          fill="none"
-          stroke="#93b9a0"
-          strokeWidth="3.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center shadow-[0_6px_16px_-6px_rgb(139_111_224/0.9)]">
+      <svg viewBox="0 0 32 32" className="w-6 h-6" aria-hidden>
+        <circle cx="16" cy="16" r="9" fill="none" stroke="white" strokeWidth="2.6" />
+        <circle cx="16" cy="16" r="3.2" fill="white" />
+        <path d="M4 22C10 19 22 13 28 9" stroke="#8b6fe0" strokeWidth="3.4" strokeLinecap="round" />
+        <path d="M4 22C10 19 22 13 28 9" stroke="white" strokeWidth="1.4" strokeLinecap="round" opacity="0.9" />
       </svg>
     </div>
-    <span className="text-[15px] font-semibold tracking-[-0.02em] text-ink">
+    <span className="hidden sm:inline text-[17px] font-bold tracking-[-0.02em] text-ink">
       NolRugi
     </span>
   </div>
@@ -67,7 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }).length;
 
   const content = (
-    <div className="flex flex-col h-full bg-canvas">
+    <div className="flex flex-col h-full bg-white/85 backdrop-blur-2xl">
       <div className="h-14 px-4 flex items-center justify-between">
         <BrandMark />
         <button onClick={onCloseMobile} className="btn-icon lg:hidden" aria-label="Tutup menu">
@@ -105,7 +101,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   className={cn(
                     'group relative w-full flex items-center gap-2.5 h-8 px-2.5 rounded-md text-[13px] font-medium transition-colors',
                     active
-                      ? 'bg-white text-ink shadow-[0_0_0_1px_var(--color-slate-200)]'
+                      ? 'bg-brand-50 text-brand-800'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-ink'
                   )}
                 >
@@ -166,10 +162,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      <aside className="hidden lg:block fixed inset-y-0 left-0 w-[232px] border-r border-slate-200 z-30">
-        {content}
-      </aside>
-
+      
       {isMobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-slate-950/40 animate-fade-in" onClick={onCloseMobile} />

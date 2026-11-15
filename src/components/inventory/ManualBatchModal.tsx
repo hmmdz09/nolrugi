@@ -128,7 +128,7 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({ isOpen, onCl
           </Field>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-5 border-t border-slate-100">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-5 border-t border-white/80">
           <Field label="Jumlah stok">
             <input type="number" min={0} required value={stockQty} onChange={(e) => setStockQty(Number(e.target.value))} className="input" />
           </Field>
@@ -146,9 +146,9 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({ isOpen, onCl
           </Field>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-5 border-t border-slate-100">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-5 border-t border-white/80">
           <Field label="Jenis kemasan" hint="Kemasan polos dipantau dwell-time > 21 hari">
-            <div className="grid grid-cols-2 gap-1 p-0.5 rounded-lg bg-slate-100 border border-slate-200/70">
+            <div className="grid grid-cols-2 gap-1 p-0.5 rounded-2xl bg-white/70 border border-white/80">
               {(['kemasan-berlabel', 'kemasan-polos'] as const).map((p) => (
                 <button
                   type="button"

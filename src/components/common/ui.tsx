@@ -13,28 +13,28 @@ export const STATUS_STYLES: Record<
 > = {
   kritis: {
     label: 'Kritis',
-    chip: 'bg-rose-50 text-rose-700 border-transparent',
+    chip: 'bg-rose-500/10 text-rose-600 border-transparent',
     dot: 'bg-rose-500',
     bar: 'bg-rose-500',
     text: 'text-rose-700',
   },
   waspada: {
     label: 'Waspada',
-    chip: 'bg-amber-50 text-amber-800 border-transparent',
+    chip: 'bg-amber-500/12 text-amber-700 border-transparent',
     dot: 'bg-amber-500',
     bar: 'bg-amber-500',
     text: 'text-amber-700',
   },
   'dwell-alert': {
     label: 'Dwell',
-    chip: 'bg-slate-100 text-slate-700 border-transparent',
+    chip: 'bg-slate-500/10 text-slate-600 border-transparent',
     dot: 'bg-slate-400',
     bar: 'bg-slate-400',
     text: 'text-slate-600',
   },
   aman: {
     label: 'Aman',
-    chip: 'bg-brand-50 text-brand-700 border-transparent',
+    chip: 'bg-brand-500/12 text-brand-700 border-transparent',
     dot: 'bg-brand-500',
     bar: 'bg-brand-500',
     text: 'text-brand-600',
@@ -66,7 +66,7 @@ export const PageHeader: React.FC<{
   <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
     <div className="min-w-0">
       {eyebrow && <div className="eyebrow mb-1.5">{eyebrow}</div>}
-      <h1 className="text-[22px] sm:text-[26px] font-semibold text-ink">{title}</h1>
+      <h1 className="text-[26px] sm:text-[32px] font-bold text-ink leading-tight">{title}</h1>
       {description && (
         <p className="mt-1 text-sm text-slate-500 max-w-3xl leading-relaxed text-pretty">{description}</p>
       )}
@@ -82,15 +82,15 @@ export const CardHeader: React.FC<{
   actions?: React.ReactNode;
   className?: string;
 }> = ({ title, description, icon, actions, className }) => (
-  <div className={cn('flex items-start justify-between gap-3 px-5 pt-5 pb-4', className)}>
+  <div className={cn('flex items-start justify-between gap-3 px-5 sm:px-6 pt-5 sm:pt-6 pb-4', className)}>
     <div className="flex items-start gap-3 min-w-0">
       {icon && (
-        <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+        <div className="icon-orb w-10 h-10 shrink-0">
           {icon}
         </div>
       )}
       <div className="min-w-0">
-        <h2 className="text-[14.5px] font-semibold text-ink leading-tight">{title}</h2>
+        <h2 className="text-[17px] font-bold text-ink leading-tight">{title}</h2>
         {description && <p className="mt-0.5 text-[13px] text-slate-500">{description}</p>}
       </div>
     </div>
@@ -111,7 +111,7 @@ export const Segmented = <T extends string>({
 }) => (
   <div
     role="tablist"
-    className={cn('inline-flex items-center gap-0.5 p-[3px] rounded-lg bg-slate-100 shrink-0', className)}
+    className={cn('inline-flex items-center gap-1 p-1 rounded-full bg-white/50 border border-white/80 shrink-0', className)}
   >
     {options.map((o) => {
       const active = o.value === value;
@@ -122,8 +122,8 @@ export const Segmented = <T extends string>({
           aria-selected={active}
           onClick={() => onChange(o.value)}
           className={cn(
-            'inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12.5px] font-medium transition-all',
-            active ? 'bg-white text-ink shadow-[0_1px_2px_rgb(18_18_16/0.08)]' : 'text-slate-500 hover:text-ink'
+            'inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full text-[12.5px] font-semibold transition-all duration-300',
+            active ? 'bg-white text-ink shadow-[0_4px_14px_-6px_rgb(70_50_140/0.35)]' : 'text-slate-500 hover:text-ink hover:bg-white/60'
           )}
         >
           {o.label}
@@ -169,25 +169,25 @@ export const Modal: React.FC<{
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
-      <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px] animate-fade-in" onClick={onClose} />
+      <div className="absolute inset-0 bg-[rgb(40_30_70/0.25)] backdrop-blur-md animate-fade-in" onClick={onClose} />
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
         className={cn(
-          'relative w-full bg-white sm:rounded-xl rounded-t-2xl shadow-pop border border-slate-200 flex flex-col max-h-[92dvh] sm:max-h-[88dvh] animate-scale-in',
+          'relative w-full bg-white/80 backdrop-blur-2xl backdrop-saturate-150 sm:rounded-[28px] rounded-t-[28px] shadow-pop border border-white flex flex-col max-h-[92dvh] sm:max-h-[88dvh] animate-scale-in',
           width
         )}
       >
-        <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-slate-100">
+        <div className="flex items-start justify-between gap-3 px-6 py-5 border-b border-white/80">
           <div className="flex items-start gap-3 min-w-0">
             {icon && (
-              <div className="w-9 h-9 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 flex items-center justify-center shrink-0">
+              <div className="icon-orb w-10 h-10 shrink-0 text-brand-600">
                 {icon}
               </div>
             )}
             <div className="min-w-0">
-              <h3 className="text-[15px] font-semibold text-ink leading-tight">{title}</h3>
+              <h3 className="text-[17px] font-bold text-ink leading-tight">{title}</h3>
               {description && <p className="text-[13px] text-slate-500 mt-0.5">{description}</p>}
             </div>
           </div>
@@ -195,9 +195,9 @@ export const Modal: React.FC<{
             <X className="w-4 h-4" />
           </button>
         </div>
-        <div className="px-5 py-4 overflow-y-auto flex-1">{children}</div>
+        <div className="px-6 py-5 overflow-y-auto flex-1">{children}</div>
         {footer && (
-          <div className="px-5 py-3.5 border-t border-slate-100 bg-slate-50/60 sm:rounded-b-xl flex items-center justify-end gap-2">
+          <div className="px-6 py-4 border-t border-white/80 bg-white/40 sm:rounded-b-[28px] flex items-center justify-end gap-2">
             {footer}
           </div>
         )}
@@ -215,6 +215,6 @@ export const Field: React.FC<{ label: string; hint?: string; children: React.Rea
   <label className={cn('block', className)}>
     <span className="block text-[12.5px] font-medium text-slate-700 mb-1.5">{label}</span>
     {children}
-    {hint && <span className="block text-[11px] text-slate-500 mt-1">{hint}</span>}
+    {hint && <span className="block text-[11.5px] text-slate-600 mt-1">{hint}</span>}
   </label>
 );

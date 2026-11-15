@@ -13,7 +13,7 @@ interface BundleModalProps {
 }
 
 const Item = ({ b, label, tone }: { b: InventoryBatch; label: string; tone: string }) => (
-  <div className="rounded-xl border border-slate-200 p-3 min-w-0 flex-1">
+  <div className="rounded-[20px] border border-white/80 p-3 min-w-0 flex-1">
     <div className={`text-[11px] font-semibold ${tone}`}>{label}</div>
     <div className="mt-1 text-[13px] font-semibold text-ink line-clamp-2 leading-snug">{b.productName}</div>
     <div className="mt-1.5 text-[12px] text-slate-500 tabular">
@@ -117,7 +117,7 @@ export const BundleModal: React.FC<BundleModalProps> = ({
           </div>
         </div>
 
-        <div className="rounded-xl bg-slate-50 border border-slate-100 divide-y divide-slate-100 text-[13px] tabular">
+        <div className="rounded-[20px] bg-white/55 border border-white/80 divide-y divide-white/70 text-[13px] tabular">
           <div className="flex justify-between px-4 py-2.5">
             <span className="text-slate-500">Harga normal 2 produk</span>
             <span className="text-slate-400 line-through">{formatRupiah(originalTotal)}</span>

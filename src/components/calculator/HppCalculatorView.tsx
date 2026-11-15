@@ -22,7 +22,7 @@ const MoneyInput: React.FC<{
 }> = ({ label, hint, value, onChange, step = 1000, suffix = 'Rp' }) => (
   <Field label={label} hint={hint}>
     <div className="relative">
-      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] font-medium text-slate-500">{suffix}</span>
+      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-slate-600 pointer-events-none">{suffix}</span>
       <input
         type="number"
         inputMode="numeric"
@@ -60,10 +60,10 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({ batches, o
   const bepRupiah = bepUnits * recommendedPrice;
 
   const costParts = [
-    { label: 'Bahan baku', value: rawMaterialCost, color: 'bg-slate-800' },
-    { label: 'Kemasan', value: packagingCost, color: 'bg-brand-500' },
-    { label: 'Tenaga kerja', value: laborCost, color: 'bg-slate-400' },
-    { label: 'Overhead', value: overheadCost, color: 'bg-amber-400' },
+    { label: 'Bahan baku', value: rawMaterialCost, color: 'bg-brand-700' },
+    { label: 'Kemasan', value: packagingCost, color: 'bg-brand-400' },
+    { label: 'Tenaga kerja', value: laborCost, color: 'bg-brand-300' },
+    { label: 'Overhead', value: overheadCost, color: 'bg-rose-300' },
   ];
 
   const selected = batches.find((b) => b.id === selectedBatchId) || batches[0];
@@ -103,7 +103,7 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({ batches, o
 
       {mode === 'standard' ? (
         <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
-          <div className="card xl:col-span-3">
+          <div className="card card-hover rise xl:col-span-3">
             <CardHeader title="Komponen biaya per batch" description="Isi biaya untuk satu kali produksi." icon={<Coins className="w-4 h-4" />} />
             <div className="px-5 pb-5 space-y-5">
               <Field label="Nama produk / resep">
@@ -118,10 +118,10 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({ batches, o
                 <MoneyInput label="Biaya tetap bulanan" hint="Sewa, internet, dsb. (untuk BEP)" value={monthlyFixedCost} onChange={setMonthlyFixedCost} step={100000} />
               </div>
 
-              <div className="pt-5 border-t border-slate-100">
+              <div className="pt-5 border-t border-white/80">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[12px] font-semibold text-slate-700">Target margin</span>
-                  <span className="chip bg-slate-900 text-white border-slate-900 tabular">{targetMarginPct}%</span>
+                  <span className="chip bg-brand-700 text-white border-slate-900 tabular">{targetMarginPct}%</span>
                 </div>
                 <input
                   type="range"
@@ -142,7 +142,7 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({ batches, o
           </div>
 
           <div className="xl:col-span-2 space-y-4">
-            <div className="card overflow-hidden">
+            <div className="card rise overflow-hidden">
               <div className="p-5 bg-brand-950 text-white">
                 <div className="text-[12px] text-brand-200">Harga jual disarankan</div>
                 <div className="mt-1 text-[32px] font-semibold tabular">
@@ -152,7 +152,7 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({ batches, o
                   Laba {formatRupiah(unitProfit)} / unit · margin riil {realMargin.toLocaleString('id-ID', { maximumFractionDigits: 1 })}%
                 </div>
               </div>
-              <dl className="divide-y divide-slate-100 text-[13px] tabular">
+              <dl className="divide-y divide-white/70 text-[13px] tabular">
                 <div className="flex justify-between px-5 py-3">
                   <dt className="text-slate-500">HPP per unit</dt>
                   <dd className="font-semibold text-ink">{formatRupiah(hppPerUnit)}</dd>
@@ -172,9 +172,9 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({ batches, o
               </dl>
             </div>
 
-            <div className="card p-5">
+            <div className="card card-hover rise p-5">
               <div className="text-[13px] font-semibold text-ink">Struktur biaya</div>
-              <div className="mt-3 flex h-2.5 rounded-full overflow-hidden bg-slate-100">
+              <div className="mt-3 flex h-2.5 rounded-full overflow-hidden bg-white/70">
                 {costParts.map((p) =>
                   p.value > 0 ? (
                     <div key={p.label} className={p.color} style={{ width: `${(p.value / Math.max(1, totalVariable)) * 100}%` }} />
@@ -194,10 +194,10 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({ batches, o
               </ul>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-4 flex gap-3 text-[12px] text-slate-600 leading-relaxed">
-              <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+            <div className="card rounded-[24px] p-4 flex gap-3 text-[12px] text-slate-600 leading-relaxed">
+              <Info className="w-4 h-4 text-brand-500 shrink-0 mt-0.5" />
               <p>
-                Rumus: <code className="font-mono text-[11px] bg-slate-100 px-1.5 py-0.5 rounded text-ink">Harga = HPP ÷ (1 − margin)</code>.
+                Rumus: <code className="font-mono text-[11px] bg-white/70 px-1.5 py-0.5 rounded text-ink">Harga = HPP ÷ (1 − margin)</code>.
                 Margin dihitung dari harga jual (bukan markup dari HPP) dan dibulatkan ke atas per Rp 500, jadi margin riil tidak pernah di bawah target.
               </p>
             </div>
@@ -233,7 +233,7 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({ batches, o
                   { k: 'Sisa masa simpan', v: st.daysLeft <= 0 ? 'Hari ini' : `${st.daysLeft} hari`, chip: true },
                   { k: 'Modal berisiko', v: formatRupiah(floor * selected.stockQty), danger: true },
                 ].map((x) => (
-                  <div key={x.k} className="rounded-xl bg-slate-50 border border-slate-100 p-3.5">
+                  <div key={x.k} className="rounded-[20px] bg-white/55 border border-white/80 p-3.5">
                     <div className="text-[12px] text-slate-500">{x.k}</div>
                     <div className={cn('mt-1 font-semibold tabular flex items-center gap-2', x.danger ? 'text-rose-600' : 'text-ink')}>
                       {x.v}
@@ -248,7 +248,7 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({ batches, o
                   const pct = Math.round(((selected.sellingPrice - t.price) / selected.sellingPrice) * 100);
                   const isCurrent = selected.discountPrice === t.price;
                   return (
-                    <div key={t.level} className={cn('rounded-xl border p-4 flex flex-col', isCurrent ? 'border-brand-500 ring-4 ring-brand-500/10' : 'border-slate-200')}>
+                    <div key={t.level} className={cn('rounded-[20px] border p-4 flex flex-col', isCurrent ? 'border-brand-500 ring-4 ring-brand-500/10' : 'border-white/80')}>
                       <div className="flex items-center justify-between">
                         <span className="text-[12px] font-semibold text-slate-500">Tahap {i + 1}</span>
                         <span className="chip h-5 bg-rose-50 text-rose-700 border-rose-200 tabular">-{pct}%</span>

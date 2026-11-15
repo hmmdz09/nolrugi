@@ -1,28 +1,21 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
+  ArrowUpRight,
   ArrowRight,
   Tag,
   PackagePlus,
-  CalendarClock,
-  MapPin,
-  Boxes,
   Inbox,
+  ShieldAlert,
+  Layers,
+  Wallet,
+  Percent,
+  CalendarDays,
 } from 'lucide-react';
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from 'recharts';
 import { InventoryBatch, StockStatus } from '../../types';
 import { formatRupiah, formatDateIndo, getBatchStatus } from '../../utils/formatters';
 import { sampleHistoricalRevenue } from '../../data/initialData';
-import { AnimatedCounter } from '../common/AnimatedCounter';
-import { CardHeader, Segmented, StatusChip, STATUS_STYLES, cn } from '../common/ui';
+import { Segmented, StatusChip, STATUS_STYLES, cn } from '../common/ui';
 
 interface DashboardViewProps {
   batches: InventoryBatch[];
@@ -48,6 +41,78 @@ const greeting = () => {
 const compactRp = (v: number) =>
   v === 0 ? '0' : v >= 1_000_000 ? `${(v / 1_000_000).toLocaleString('id-ID', { maximumFractionDigits: 1 })} jt` : `${Math.round(v / 1000)} rb`;
 
+const pct = (v: number) => v.toLocaleString('id-ID', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+
+/** "Rp" rendered quiet, digits loud — mirrors the faded ".00" in the reference */
+const Money: React.FC<{ value: number; className?: string }> = ({ value, className }) => (
+  <span className={cn('num', className)}>
+    <span className="text-[0.62em] font-semibold text-slate-400 mr-1 align-[0.18em]">Rp</span>
+    {Math.round(value).toLocaleString('id-ID')}
+  </span>
+);
+
+const DeltaBadge: React.FC<{ value: number; invert?: boolean }> = ({ value, invert }) => {
+  const good = invert ? value <= 0 : value >= 0;
+  return (
+    <span
+      className={cn(
+        'num inline-flex items-center h-6 px-2 rounded-full text-[11.5px] font-bold',
+        good ? 'bg-brand-500/12 text-brand-700 bg-[rgb(139_111_224/0.12)]' : 'bg-rose-500/10 text-rose-600'
+      )}
+    >
+      {value >= 0 ? '+' : ''}
+      {pct(value)}%
+    </span>
+  );
+};
+
+const CornerLink: React.FC<{ onClick: () => void; label: string }> = ({ onClick, label }) => (
+  <button
+    onClick={onClick}
+    aria-label={label}
+    title={label}
+    className="btn-icon w-9 h-9 shrink-0 group/corner"
+  >
+    <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover/corner:translate-x-0.5 group-hover/corner:-translate-y-0.5" />
+  </button>
+);
+
+/* ───────────── Semicircle dash gauge ───────────── */
+const DashGauge: React.FC<{ value: number }> = ({ value }) => {
+  const N = 24;
+  const filled = Math.round((Math.max(0, Math.min(100, value)) / 100) * N);
+  const cx = 110;
+  const cy = 108;
+  const r1 = 74;
+  const r2 = 98;
+  return (
+    <svg viewBox="0 0 220 120" className="w-full max-w-[260px] mx-auto" role="img" aria-label={`Skor ${value} dari 100`}>
+      {Array.from({ length: N }).map((_, i) => {
+        const a = Math.PI - (i / (N - 1)) * Math.PI;
+        const x1 = cx + r1 * Math.cos(a);
+        const y1 = cy - r1 * Math.sin(a);
+        const x2 = cx + r2 * Math.cos(a);
+        const y2 = cy - r2 * Math.sin(a);
+        const on = i < filled;
+        return (
+          <line
+            key={i}
+            x1={x1}
+            y1={y1}
+            x2={x2}
+            y2={y2}
+            strokeWidth={9}
+            strokeLinecap="round"
+            className="gauge-seg"
+            style={{ animationDelay: `${i * 22}ms` }}
+            stroke={on ? (i / N < 0.5 ? '#a68ded' : '#8b6fe0') : 'rgb(255 255 255 / 0.9)'}
+          />
+        );
+      })}
+    </svg>
+  );
+};
+
 export const DashboardView: React.FC<DashboardViewProps> = ({
   batches,
   selectedBatchId,
@@ -57,6 +122,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onNavigateToTab,
 }) => {
   const [filter, setFilter] = useState<RiskFilter>('all');
+  const [hoverMonth, setHoverMonth] = useState<number | null>(null);
 
   const enriched = useMemo(
     () =>
@@ -83,447 +149,442 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     Math.min(100, Math.round(100 - counts.kritis * 14 - counts.waspada * 6 - counts['dwell-alert'] * 4))
   );
   const rescuedCount = batches.filter((b) => b.isRescued).length;
+  const actionable = counts.kritis + counts.waspada;
 
-  const lastMonth = sampleHistoricalRevenue[sampleHistoricalRevenue.length - 1];
-  const prevMonth = sampleHistoricalRevenue[sampleHistoricalRevenue.length - 2];
+  const months = sampleHistoricalRevenue;
+  const lastIdx = months.length - 1;
+  const lastMonth = months[lastIdx];
+  const prevMonth = months[lastIdx - 1];
   const omzetGrowth = ((lastMonth.omzet - prevMonth.omzet) / prevMonth.omzet) * 100;
+  const rescueGrowth = ((lastMonth.rescuedValue - prevMonth.rescuedValue) / prevMonth.rescuedValue) * 100;
+  const maxOmzet = Math.max(...months.map((m) => m.omzet));
+  const axisMax = Math.ceil(maxOmzet / 10_000_000) * 10_000_000;
+  const ticks = [0, 0.25, 0.5, 0.75, 1].map((t) => t * axisMax);
+  const focusIdx = hoverMonth ?? lastIdx;
 
   const list = enriched.filter(({ st }) => (filter === 'all' ? true : st.status === filter));
   const selected = enriched.find((e) => e.batch.id === selectedBatchId) ?? enriched[0];
+  const selShelf = selected
+    ? (() => {
+        const total = Math.max(
+          1,
+          (new Date(selected.batch.expiryDate).getTime() - new Date(selected.batch.entryDate).getTime()) / 86_400_000
+        );
+        return Math.max(4, Math.min(100, (selected.st.dwellDays / total) * 100));
+      })()
+    : 0;
 
-  const actionable = counts.kritis + counts.waspada;
-
-  const kpis = [
+  const stats = [
     {
-      label: 'Perlu tindakan',
-      value: <>{actionable} <span className="text-[15px] text-slate-400">/ {batches.length} batch</span></>,
-      sub: `${counts.kritis} kritis · ${counts.waspada} waspada`,
-      accent: actionable > 0,
+      icon: ShieldAlert,
+      value: <Money value={potentialLoss14} />,
+      label: 'Potensi rugi dalam 14 hari ke depan',
+      tone: potentialLoss14 > 0 ? 'text-rose-600' : 'text-ink',
+      onClick: () => onNavigateToTab('inventory'),
     },
     {
-      label: 'Modal tertahan di stok',
-      value: <AnimatedCounter value={tiedCapital} format="rupiah" />,
-      sub: `${batches.length} batch aktif`,
+      icon: Layers,
+      value: <span className="num">{actionable}</span>,
+      label: `Batch perlu tindakan dari ${batches.length} aktif`,
+      onClick: () => onNavigateToTab('inventory'),
     },
     {
-      label: 'Margin kotor',
-      value: <AnimatedCounter value={grossMargin} format="percent" />,
-      sub: grossMargin >= 30 ? 'Sehat (≥ 30%)' : 'Di bawah 30%',
+      icon: Wallet,
+      value: <Money value={tiedCapital} />,
+      label: 'Modal tertahan di stok gudang',
+      onClick: () => onNavigateToTab('inventory'),
     },
     {
-      label: 'Skor kesehatan FEFO',
-      value: <AnimatedCounter value={fefoScore} format="score" suffix=" / 100" />,
-      sub: fefoScore >= 75 ? 'Rotasi terkendali' : fefoScore >= 50 ? 'Perlu perhatian' : 'Rotasi berisiko',
-      meter: fefoScore,
+      icon: Percent,
+      value: <span className="num">{pct(grossMargin)}%</span>,
+      label: grossMargin >= 30 ? 'Margin kotor, di atas standar 30%' : 'Margin kotor, di bawah standar 30%',
+      onClick: () => onNavigateToTab('calculator'),
     },
   ];
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25, ease: 'easeOut' }}
-      className="space-y-6"
+      className="space-y-5"
     >
-      {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      {/* Greeting */}
+      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between rise">
         <div>
-          <p className="text-[13px] text-slate-500">{greeting()}, Dewi</p>
-          <h1 className="mt-1 text-[22px] sm:text-[26px] font-semibold text-ink text-balance">
-            {potentialLoss14 > 0 ? (
-              <>
-                <span className="num text-rose-700">{formatRupiah(potentialLoss14)}</span> berisiko terbuang dalam 14 hari
-              </>
-            ) : (
-              'Semua stok dalam kondisi aman'
-            )}
-          </h1>
-          {actionable > 0 && (
-            <p className="mt-1.5 text-[13px] text-slate-500">
-              Selamatkan {actionable} batch kritis dan waspada lewat diskon aman atau bundling.
-            </p>
-          )}
+          <h1 className="text-[28px] sm:text-[34px] font-bold text-ink leading-tight">{greeting()}, Dewi!</h1>
+          <p className="mt-1 text-[14px] text-slate-500">
+            {actionable > 0
+              ? `${actionable} batch kritis & waspada menunggu diselamatkan minggu ini.`
+              : 'Semua stok dalam kondisi aman.'}
+          </p>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => onNavigateToTab('inventory')} className="btn-secondary">
-            Kelola batch
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
+        <button onClick={() => onNavigateToTab('inventory')} className="btn-primary self-start md:self-auto">
+          Kelola batch
+          <ArrowRight className="w-4 h-4" />
+        </button>
       </div>
 
-      {/* KPIs: one quiet strip, numbers carry the weight */}
-      <section
-        className="card grid grid-cols-2 xl:grid-cols-4 divide-slate-200 [&>*]:border-slate-200 overflow-hidden"
-        aria-label="Indikator utama"
-      >
-        {kpis.map((k, i) => (
-          <div
-            key={k.label}
-            className={cn(
-              'p-5 flex flex-col min-w-0',
-              i % 2 === 1 && 'border-l',
-              i >= 2 && 'border-t xl:border-t-0',
-              i === 2 && 'xl:border-l'
-            )}
-          >
-            <span className="text-[12.5px] text-slate-500 truncate">{k.label}</span>
-            <div
-              className={cn(
-                'mt-2 num text-[20px] sm:text-[24px] font-semibold leading-none',
-                k.accent ? 'text-rose-700' : 'text-ink'
-              )}
-            >
-              {k.value}
-            </div>
-            <div className="mt-auto pt-3">
-              {k.meter !== undefined ? (
-                <div className="flex flex-col gap-1.5">
-                  <div className="h-1 rounded-full bg-slate-100 overflow-hidden">
-                    <div
-                      className={cn(
-                        'h-full rounded-full transition-all duration-700',
-                        k.meter >= 75 ? 'bg-brand-500' : k.meter >= 50 ? 'bg-amber-500' : 'bg-rose-500'
-                      )}
-                      style={{ width: `${k.meter}%` }}
-                    />
-                  </div>
-                  <span className="text-[12px] text-slate-500 truncate">{k.sub}</span>
-                </div>
-              ) : (
-                <p className="text-[12px] text-slate-500 truncate">{k.sub}</p>
-              )}
-            </div>
-          </div>
-        ))}
-      </section>
-
-      {/* Radar + detail */}
-      <section className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-        <div className="card xl:col-span-2 flex flex-col min-w-0">
-          <CardHeader
-            title="Radar kedaluwarsa"
-            description="Risiko tertinggi di atas. Pilih baris untuk detail."
-          />
-          <div className="px-5 pb-3 overflow-x-auto no-scrollbar">
-            <Segmented<RiskFilter>
-              value={filter}
-              onChange={setFilter}
-              options={[
-                { value: 'all', label: 'Semua', count: batches.length },
-                { value: 'kritis', label: 'Kritis', count: counts.kritis },
-                { value: 'waspada', label: 'Waspada', count: counts.waspada },
-                { value: 'dwell-alert', label: 'Dwell', count: counts['dwell-alert'] },
-              ]}
-            />
-          </div>
-
-          <div className="hidden md:flex items-center gap-4 px-5 h-8 border-t border-slate-100 bg-slate-50/60 text-[11.5px] text-slate-500">
-            <span className="w-11 shrink-0">Sisa</span>
-            <span className="flex-1">Produk</span>
-            <span className="w-32 shrink-0">Stok tersisa</span>
-            <span className="w-[84px] shrink-0">Status</span>
-          </div>
-          <ul className="border-t border-slate-100 divide-y divide-slate-100 flex-1">
-            {list.length === 0 && (
-              <li className="py-14 flex flex-col items-center text-center text-slate-500">
-                <Inbox className="w-8 h-8 text-slate-300 mb-2" />
-                <p className="text-sm font-medium text-slate-600">Tidak ada batch di kategori ini</p>
-                <p className="text-[12px]">Stok kamu aman untuk filter ini.</p>
-              </li>
-            )}
-            {list.slice(0, 6).map(({ batch, st }) => {
-              const active = selected?.batch.id === batch.id;
-              const s = STATUS_STYLES[st.status];
-              const shelfPct = Math.max(
-                4,
-                Math.min(100, (batch.stockQty / Math.max(1, batch.initialQty)) * 100)
-              );
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
+        {/* ───────── Left / main ───────── */}
+        <div className="xl:col-span-8 2xl:col-span-9 space-y-5 min-w-0">
+          {/* Stat cards */}
+          <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" aria-label="Indikator utama">
+            {stats.map((s, i) => {
+              const Icon = s.icon;
               return (
-                <li key={batch.id}>
-                  <button
-                    onClick={() => onSelectBatchId(batch.id)}
-                    aria-pressed={active}
-                    className={cn(
-                      'relative w-full text-left px-5 py-3.5 flex items-center gap-4 transition-colors',
-                      active ? 'bg-slate-50' : 'hover:bg-slate-50/70'
-                    )}
-                  >
-                    {active && <span className="absolute left-0 top-0 bottom-0 w-[2px] bg-ink" />}
-
-                    {/* Days-left tile */}
-                    <div
-                      className={cn(
-                        'w-11 h-11 rounded-lg border border-slate-200 bg-white flex flex-col items-center justify-center shrink-0',
-                        s.text
-                      )}
-                    >
-                      <span className="num text-[15px] font-semibold leading-none">
-                        {st.daysLeft <= 0 ? '0' : st.daysLeft}
-                      </span>
-                      <span className="text-[10px] mt-0.5 text-slate-500">hari</span>
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-[14px] font-medium text-ink truncate">{batch.productName}</span>
-                        {batch.isRescued && (
-                          <span className="chip h-5 bg-brand-50 text-brand-700 border-brand-200 hidden sm:inline-flex">
-                            Diselamatkan
-                          </span>
-                        )}
-                      </div>
-                      <div className="mt-1 flex items-center gap-x-3 gap-y-1 flex-wrap text-[12px] text-slate-500">
-                        <span className="font-mono text-[11px] text-slate-600">{batch.batchCode}</span>
-                        <span className="hidden sm:inline">{batch.category}</span>
-                        <span className="tabular">
-                          {batch.stockQty} {batch.unit} · HPP {formatRupiah(batch.unitHpp)}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="hidden md:flex w-32 shrink-0 items-center gap-2" title="Sisa stok">
-                      <div className="flex-1 h-1 rounded-full bg-slate-100 overflow-hidden">
-                        <div className="h-full rounded-full bg-slate-400" style={{ width: `${shelfPct}%` }} />
-                      </div>
-                      <span className="num w-9 text-right text-[12px] text-slate-500">
-                        {Math.round((batch.stockQty / Math.max(1, batch.initialQty)) * 100)}%
-                      </span>
-                    </div>
-
-                    <div className="hidden sm:flex w-[84px] shrink-0">
-                      <StatusChip status={st.status} />
-                    </div>
-                  </button>
-                </li>
+                <button
+                  key={s.label}
+                  onClick={s.onClick}
+                  className="card card-hover rise text-left p-4 sm:p-5 flex flex-col min-w-0 group"
+                  style={{ animationDelay: `${60 + i * 60}ms` }}
+                >
+                  <span className="icon-orb transition-transform duration-300 group-hover:scale-110 group-hover:text-brand-600">
+                    <Icon className="w-[18px] h-[18px]" strokeWidth={1.8} />
+                  </span>
+                  <div className={cn('mt-6 sm:mt-8 text-[20px] sm:text-[26px] font-bold leading-none truncate', s.tone ?? 'text-ink')}>
+                    {s.value}
+                  </div>
+                  <p className="mt-2 text-[12.5px] leading-snug text-slate-500 line-clamp-2">{s.label}</p>
+                </button>
               );
             })}
-          </ul>
-          {list.length > 6 && (
-            <button
-              onClick={() => onNavigateToTab('inventory')}
-              className="border-t border-slate-100 h-11 text-[13px] font-semibold text-slate-600 hover:text-ink hover:bg-slate-50 rounded-b-2xl"
-            >
-              +{list.length - 6} batch lainnya
-            </button>
-          )}
+          </section>
+
+          {/* Bar chart */}
+          <section className="card p-5 sm:p-6 rise" style={{ animationDelay: '280ms' }}>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-[18px] font-bold text-ink">Omzet & stok terselamatkan</h2>
+                <p className="mt-0.5 text-[13px] text-slate-500">Ringkasan 6 bulan terakhir dari semua batch</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="hidden sm:inline-flex items-center gap-2 h-9 px-3.5 rounded-full bg-white/70 border border-white text-[12.5px] font-semibold text-slate-700">
+                  <CalendarDays className="w-4 h-4 text-slate-500" />
+                  6 bulan
+                </span>
+                <CornerLink onClick={() => onNavigateToTab('reports')} label="Buka laporan" />
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-x-10 gap-y-3">
+              <div>
+                <div className="flex items-center gap-2 text-[12.5px] text-slate-500">
+                  <span className="w-2.5 h-2.5 rounded-full bg-brand-300" /> Omzet bulan ini
+                </div>
+                <div className="mt-1 flex items-center gap-2.5">
+                  <Money value={lastMonth.omzet} className="text-[22px] sm:text-[26px] font-bold text-ink" />
+                  <DeltaBadge value={omzetGrowth} />
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 text-[12.5px] text-slate-500">
+                  <span className="w-2.5 h-2.5 rounded-full bg-brand-600" /> Nilai terselamatkan
+                </div>
+                <div className="mt-1 flex items-center gap-2.5">
+                  <Money value={lastMonth.rescuedValue} className="text-[22px] sm:text-[26px] font-bold text-ink" />
+                  <DeltaBadge value={rescueGrowth} />
+                </div>
+              </div>
+            </div>
+
+            {/* Chart body */}
+            <div className="mt-6 flex gap-3">
+              <div className="flex flex-col-reverse justify-between h-56 pb-7 text-[11px] text-slate-400 num w-11 shrink-0 text-right">
+                {ticks.map((t) => (
+                  <span key={t} className="leading-none -mb-[5px]">
+                    {compactRp(t)}
+                  </span>
+                ))}
+              </div>
+              <div className="relative flex-1 min-w-0" onMouseLeave={() => setHoverMonth(null)}>
+                {/* grid */}
+                <div className="absolute inset-x-0 top-0 h-56 -translate-y-0 pb-7 flex flex-col justify-between pointer-events-none">
+                  {ticks.map((t) => (
+                    <div key={t} className="border-t border-dashed border-slate-300/60" />
+                  ))}
+                </div>
+                <div className="relative h-56 flex items-end justify-around gap-2 sm:gap-4 pb-7">
+                  {months.map((m, i) => {
+                    const focus = i === focusIdx;
+                    const hOmzet = (m.omzet / axisMax) * 100;
+                    const rescueShare = m.rescuedValue / m.omzet;
+                    return (
+                      <div
+                        key={m.month}
+                        className="group/bar relative h-full flex-1 max-w-[56px] flex flex-col justify-end items-center cursor-pointer outline-none"
+                        onMouseEnter={() => setHoverMonth(i)}
+                        onFocus={() => setHoverMonth(i)}
+                        tabIndex={0}
+                        aria-label={`${m.month}: omzet ${formatRupiah(m.omzet)}, terselamatkan ${formatRupiah(m.rescuedValue)}`}
+                      >
+                        {focus && (
+                          <div
+                            className={cn(
+                              'absolute z-10 bottom-[calc(var(--h)+18px)] whitespace-nowrap rounded-2xl bg-white/90 backdrop-blur-xl border border-white shadow-pop px-3 py-2 text-[12px] animate-fade-in',
+                              i >= months.length - 2 ? 'right-0' : i <= 1 ? 'left-0' : 'left-1/2 -translate-x-1/2'
+                            )}
+                            style={{ ['--h' as string]: `${(hOmzet / 100) * (224 - 28)}px` }}
+                          >
+                            <div className="flex items-center gap-2 font-semibold text-ink num">
+                              <span className="w-2 h-2 rounded-full bg-brand-300" />
+                              {formatRupiah(m.omzet)}
+                            </div>
+                            <div className="flex items-center gap-2 font-semibold text-ink num mt-0.5">
+                              <span className="w-2 h-2 rounded-full bg-brand-600" />
+                              {formatRupiah(m.rescuedValue)}
+                            </div>
+                          </div>
+                        )}
+                        <div
+                          className="bar-grow relative w-full flex flex-col justify-end gap-[2px] origin-bottom"
+                          style={{ height: `${hOmzet}%`, animationDelay: `${300 + i * 70}ms` }}
+                        >
+                          {focus && (
+                            <span className="absolute -top-3 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-white border-2 border-brand-500" />
+                          )}
+                          <div
+                            className={cn(
+                              'w-full rounded-[10px] transition-all duration-300',
+                              focus ? 'bg-brand-700' : 'bg-brand-200/90 group-hover/bar:bg-brand-300'
+                            )}
+                            style={{ flexGrow: 1 - rescueShare }}
+                          />
+                          <div
+                            className={cn(
+                              'w-full rounded-[10px] transition-all duration-300',
+                              focus ? 'bg-brand-400 stripes' : 'bg-brand-300/60 group-hover/bar:bg-brand-300'
+                            )}
+                            style={{ flexGrow: rescueShare, minHeight: 10 }}
+                          />
+                        </div>
+                        <span
+                          className={cn(
+                            'absolute -bottom-7 text-[12px] font-semibold transition-colors',
+                            focus ? 'text-brand-600' : 'text-slate-400'
+                          )}
+                        >
+                          {m.month.split(' ')[0]}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Radar table */}
+          <section className="card rise" style={{ animationDelay: '360ms' }}>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-5 sm:p-6 pb-3 sm:pb-4">
+              <div>
+                <h2 className="text-[18px] font-bold text-ink">Radar kedaluwarsa</h2>
+                <p className="mt-0.5 text-[13px] text-slate-500">Risiko tertinggi di atas. Pilih baris untuk detail.</p>
+              </div>
+              <div className="overflow-x-auto no-scrollbar -mx-1 px-1 pr-6 sm:pr-1 fade-right sm:[mask-image:none]">
+                <Segmented<RiskFilter>
+                  value={filter}
+                  onChange={setFilter}
+                  options={[
+                    { value: 'all', label: 'Semua', count: batches.length },
+                    { value: 'kritis', label: 'Kritis', count: counts.kritis },
+                    { value: 'waspada', label: 'Waspada', count: counts.waspada },
+                    { value: 'dwell-alert', label: 'Dwell', count: counts['dwell-alert'] },
+                  ]}
+                />
+              </div>
+            </div>
+
+            <ul className="px-2 sm:px-3 pb-3 space-y-1.5">
+              {list.length === 0 && (
+                <li className="py-12 flex flex-col items-center text-center text-slate-500">
+                  <Inbox className="w-8 h-8 text-slate-300 mb-2" />
+                  <p className="text-sm font-semibold text-slate-600">Tidak ada batch di kategori ini</p>
+                  <p className="text-[12px]">Stok kamu aman untuk filter ini.</p>
+                </li>
+              )}
+              {list.slice(0, 6).map(({ batch, st }) => {
+                const active = selected?.batch.id === batch.id;
+                const s = STATUS_STYLES[st.status];
+                return (
+                  <li key={batch.id}>
+                    <button
+                      onClick={() => onSelectBatchId(batch.id)}
+                      aria-pressed={active}
+                      className={cn(
+                        'w-full text-left px-3 py-2.5 rounded-[20px] flex items-center gap-3 sm:gap-4 border transition-all duration-300',
+                        active
+                          ? 'bg-white/85 border-white shadow-[0_8px_24px_-14px_rgb(70_50_140/0.45)]'
+                          : 'border-transparent hover:bg-white/55 hover:border-white/80 hover:translate-x-0.5'
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          'w-11 h-11 rounded-full bg-white border border-white shadow-sm flex flex-col items-center justify-center shrink-0',
+                          s.text
+                        )}
+                      >
+                        <span className="num text-[14px] font-bold leading-none">{st.daysLeft <= 0 ? '0' : st.daysLeft}</span>
+                        <span className="text-[9.5px] text-slate-400 font-semibold mt-0.5">hari</span>
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[14px] font-semibold text-ink truncate">{batch.productName}</span>
+                        <span className="block text-[12px] text-slate-500 truncate">
+                          <span className="font-mono text-[11px]">{batch.batchCode}</span> · {batch.category}
+                        </span>
+                      </span>
+                      <span className="hidden md:block w-28 text-[12.5px] text-slate-600 num">
+                        {batch.stockQty} {batch.unit}
+                        <span className="block text-[11.5px] text-slate-400">stok</span>
+                      </span>
+                      <span className="hidden sm:block w-[92px] shrink-0">
+                        <StatusChip status={st.status} />
+                      </span>
+                      <span className="hidden lg:block w-24 text-right text-[12.5px] font-semibold text-slate-600 num">
+                        {formatRupiah(batch.unitHpp * batch.stockQty)}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+            {list.length > 6 && (
+              <div className="px-5 pb-5">
+                <button onClick={() => onNavigateToTab('inventory')} className="btn-secondary w-full">
+                  +{list.length - 6} batch lainnya
+                </button>
+              </div>
+            )}
+          </section>
         </div>
 
-        {/* Detail panel */}
-        {selected && (
-          <aside className="card flex flex-col xl:self-start xl:sticky xl:top-24" aria-label="Detail batch terpilih">
-            <div className="px-5 pt-5 pb-4 border-b border-slate-100">
-              <div className="flex items-center justify-between">
-                <span className="eyebrow">Batch terpilih</span>
+        {/* ───────── Right column ───────── */}
+        <aside className="xl:col-span-4 2xl:col-span-3 space-y-5 min-w-0 xl:self-start xl:sticky xl:top-28">
+          {selected && (
+            <section className="card card-hover p-5 sm:p-6 rise" style={{ animationDelay: '200ms' }} aria-label="Detail batch terpilih">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="text-[17px] font-bold text-ink">Batch terpilih</h2>
+                  <p className="mt-0.5 text-[13px] text-slate-500 truncate">{selected.batch.productName}</p>
+                </div>
+                <CornerLink onClick={() => onNavigateToTab('inventory')} label="Buka di Batch & FEFO" />
+              </div>
+
+              <div className="mt-5 flex items-center justify-between text-[13px]">
+                <span className="font-semibold text-ink">Umur simpan terpakai</span>
                 <StatusChip status={selected.st.status} label={selected.st.label} />
               </div>
-              <h3 className="mt-3 text-[17px] font-semibold leading-snug text-ink">{selected.batch.productName}</h3>
-              <p className="mt-1 text-[12px] text-slate-500">
-                <span className="font-mono">{selected.batch.batchCode}</span> · {selected.batch.category}
-              </p>
+              <div className="mt-2.5 h-9 rounded-full bg-white/80 border border-white p-1 overflow-hidden">
+                <div
+                  className={cn(
+                    'h-full rounded-full stripes transition-[width] duration-700',
+                    selected.st.status === 'kritis' ? 'bg-rose-400' : selected.st.status === 'waspada' ? 'bg-amber-400' : 'bg-brand-400'
+                  )}
+                  style={{ width: `${selShelf}%` }}
+                />
+              </div>
+
+              <dl className="mt-5 grid grid-cols-2 gap-4 text-[13px]">
+                <div>
+                  <dt className="text-slate-500 text-[12px]">Kedaluwarsa</dt>
+                  <dd className="mt-0.5 font-semibold text-ink">{formatDateIndo(selected.batch.expiryDate)}</dd>
+                  <dd className={cn('text-[12px] font-semibold', STATUS_STYLES[selected.st.status].text)}>
+                    {selected.st.daysLeft <= 0 ? 'Hari ini' : `${selected.st.daysLeft} hari lagi`}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-slate-500 text-[12px]">Stok</dt>
+                  <dd className="mt-0.5 font-semibold text-ink num">
+                    {selected.batch.stockQty} / {selected.batch.initialQty} {selected.batch.unit}
+                  </dd>
+                  <dd className="text-[12px] text-slate-500">{selected.batch.location}</dd>
+                </div>
+              </dl>
+
+              <div className="mt-4 rounded-[18px] bg-white/70 border border-white px-4 py-3 flex items-baseline justify-between">
+                <span className="text-[12.5px] text-slate-600">Rugi jika tidak terjual</span>
+                <Money value={selected.batch.unitHpp * selected.batch.stockQty} className="text-[16px] font-bold text-rose-600" />
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <button onClick={() => onTriggerDiscount(selected.batch)} className="btn-brand">
+                  <Tag className="w-4 h-4" />
+                  Diskon aman
+                </button>
+                <button onClick={() => onTriggerBundle(selected.batch)} className="btn-secondary">
+                  <PackagePlus className="w-4 h-4" />
+                  Bundling
+                </button>
+              </div>
+            </section>
+          )}
+
+          <section className="card card-hover p-5 sm:p-6 rise" style={{ animationDelay: '300ms' }}>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-[17px] font-bold text-ink">Skor kesehatan FEFO</h2>
+                <p className="mt-0.5 text-[13px] text-slate-500">Seberapa terkendali rotasi stokmu</p>
+              </div>
+              <CornerLink onClick={() => onNavigateToTab('inventory')} label="Lihat batch" />
             </div>
 
-            <dl className="px-5 py-4 grid grid-cols-2 gap-x-4 gap-y-4 text-[13px]">
-              <div>
-                <dt className="text-slate-500 flex items-center gap-1.5 text-[12px]">
-                  <CalendarClock className="w-3.5 h-3.5" /> Kedaluwarsa
-                </dt>
-                <dd className="mt-1 font-semibold text-ink">{formatDateIndo(selected.batch.expiryDate)}</dd>
-                <dd className={cn('text-[12px] font-medium', STATUS_STYLES[selected.st.status].text)}>
-                  {selected.st.daysLeft <= 0 ? 'Hari ini' : `${selected.st.daysLeft} hari lagi`}
-                </dd>
+            <div className="relative mt-4">
+              <DashGauge value={fefoScore} />
+              <div className="absolute inset-x-0 bottom-0 text-center">
+                <div className="num text-[34px] font-bold text-ink leading-none">{fefoScore}</div>
+                <div className="mt-1 text-[12px] font-semibold text-slate-500">dari 100</div>
               </div>
-              <div>
-                <dt className="text-slate-500 flex items-center gap-1.5 text-[12px]">
-                  <Boxes className="w-3.5 h-3.5" /> Stok
-                </dt>
-                <dd className="mt-1 font-semibold text-ink tabular">
-                  {selected.batch.stockQty} / {selected.batch.initialQty} {selected.batch.unit}
-                </dd>
-                <dd className="text-[12px] text-slate-500">Masuk {selected.st.dwellDays} hari lalu</dd>
+            </div>
+
+            <p className="mt-4 text-center text-[13px] leading-relaxed text-slate-600 text-balance">
+              {fefoScore >= 75
+                ? 'Rotasi terkendali. Pertahankan urutan FEFO di rak.'
+                : fefoScore >= 50
+                  ? `Perlu perhatian: ${counts.kritis} kritis dan ${counts.waspada} waspada bisa diselamatkan hari ini.`
+                  : 'Rotasi berisiko. Prioritaskan diskon pada batch kritis.'}
+            </p>
+
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <div className="rounded-[18px] bg-white/70 border border-white px-4 py-3">
+                <div className="text-[12px] text-slate-500">Diberi aksi</div>
+                <div className="num mt-0.5 text-[18px] font-bold text-ink">
+                  {rescuedCount}
+                  <span className="text-[13px] text-slate-400 font-semibold"> / {batches.length}</span>
+                </div>
               </div>
-              <div>
-                <dt className="text-slate-500 text-[12px]">HPP / unit</dt>
-                <dd className="mt-1 font-semibold text-ink tabular">{formatRupiah(selected.batch.unitHpp)}</dd>
+              <div className="rounded-[18px] bg-white/70 border border-white px-4 py-3">
+                <div className="text-[12px] text-slate-500">Food waste</div>
+                <div className="num mt-0.5 text-[18px] font-bold text-ink">{compactRp(lastMonth.wasteLoss)}</div>
               </div>
-              <div>
-                <dt className="text-slate-500 text-[12px]">Harga jual</dt>
-                <dd className="mt-1 font-semibold text-ink tabular">
-                  {formatRupiah(selected.batch.discountPrice || selected.batch.sellingPrice)}
-                </dd>
-                {selected.batch.discountPrice && (
-                  <dd className="text-[12px] text-slate-400 line-through tabular">
-                    {formatRupiah(selected.batch.sellingPrice)}
-                  </dd>
+            </div>
+
+            <div className="mt-4">
+              <div className="flex h-2 rounded-full overflow-hidden bg-white/80 gap-0.5">
+                {(['kritis', 'waspada', 'dwell-alert', 'aman'] as StockStatus[]).map((k) =>
+                  counts[k] > 0 ? (
+                    <div
+                      key={k}
+                      className={cn('rounded-full', STATUS_STYLES[k].bar)}
+                      style={{ width: `${(counts[k] / Math.max(1, batches.length)) * 100}%` }}
+                      title={`${STATUS_STYLES[k].label}: ${counts[k]}`}
+                    />
+                  ) : null
                 )}
               </div>
-              <div className="col-span-2">
-                <dt className="text-slate-500 flex items-center gap-1.5 text-[12px]">
-                  <MapPin className="w-3.5 h-3.5" /> Lokasi
-                </dt>
-                <dd className="mt-1 font-medium text-ink">{selected.batch.location}</dd>
+              <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-1.5 text-[12px]">
+                {(['kritis', 'waspada', 'dwell-alert', 'aman'] as StockStatus[]).map((k) => (
+                  <div key={k} className="flex items-center gap-2 text-slate-600">
+                    <span className={cn('w-2 h-2 rounded-full', STATUS_STYLES[k].dot)} />
+                    {STATUS_STYLES[k].label}
+                    <span className="ml-auto font-bold text-ink num">{counts[k]}</span>
+                  </div>
+                ))}
               </div>
-              {selected.batch.notes && (
-                <div className="col-span-2 rounded-lg bg-slate-50 border border-slate-100 p-3 text-[12px] text-slate-600 leading-relaxed">
-                  {selected.batch.notes}
-                </div>
-              )}
-            </dl>
-
-            <div className="mx-5 mb-4 flex items-baseline justify-between rounded-lg bg-rose-50/60 border border-rose-100 px-3 py-2.5">
-              <span className="text-[12.5px] text-rose-800">Rugi jika tidak terjual</span>
-              <span className="num text-[15px] font-semibold text-rose-700">
-                {formatRupiah(selected.batch.unitHpp * selected.batch.stockQty)}
-              </span>
             </div>
-            <div className="p-5 pt-0 grid grid-cols-2 gap-2">
-              <button onClick={() => onTriggerDiscount(selected.batch)} className="btn-primary">
-                <Tag className="w-4 h-4" />
-                Diskon aman
-              </button>
-              <button onClick={() => onTriggerBundle(selected.batch)} className="btn-secondary">
-                <PackagePlus className="w-4 h-4" />
-                Bundling
-              </button>
-            </div>
-          </aside>
-        )}
-      </section>
-
-      {/* Trend + summary */}
-      <section className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-        <div className="card xl:col-span-2 min-w-0">
-          <CardHeader
-            title="Omzet vs nilai stok terselamatkan"
-            description="6 bulan terakhir"
-            actions={
-              <div className="hidden sm:flex items-center gap-4 text-[12px] text-slate-500">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-ink" /> Omzet
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-brand-500" /> Terselamatkan
-                </span>
-              </div>
-            }
-          />
-          <div className="h-64 px-2 pb-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={sampleHistoricalRevenue} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="gOmzet" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#1a1a17" stopOpacity={0.08} />
-                    <stop offset="100%" stopColor="#1a1a17" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="gRescue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#437c5d" stopOpacity={0.22} />
-                    <stop offset="100%" stopColor="#437c5d" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid vertical={false} stroke="#ecebe7" />
-                <XAxis
-                  dataKey="month"
-                  tickFormatter={(m: string) => m.split(' ')[0]}
-                  tick={{ fontSize: 11, fill: '#a3a19a' }}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  tickFormatter={(v: number) => compactRp(v)}
-                  tick={{ fontSize: 11, fill: '#a3a19a' }}
-                  tickLine={false}
-                  axisLine={false}
-                  width={52}
-                />
-                <Tooltip
-                  formatter={(val: any, name: any) => [formatRupiah(Number(val)), name]}
-                  cursor={{ stroke: '#cbd5e1', strokeDasharray: '3 3' }}
-                  contentStyle={{
-                    background: '#121210',
-                    border: 'none',
-                    borderRadius: 10,
-                    fontSize: 12,
-                    color: '#fff',
-                    padding: '8px 12px',
-                  }}
-                  itemStyle={{ color: '#e2e8f0' }}
-                  labelStyle={{ color: '#94a3b8', marginBottom: 4 }}
-                />
-                <Area type="monotone" dataKey="omzet" name="Omzet" stroke="#1a1a17" strokeWidth={1.75} fill="url(#gOmzet)" />
-                <Area
-                  type="monotone"
-                  dataKey="rescuedValue"
-                  name="Terselamatkan"
-                  stroke="#437c5d"
-                  strokeWidth={1.75}
-                  fill="url(#gRescue)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="card p-5 flex flex-col">
-          <span className="eyebrow">Bulan berjalan</span>
-          <div className="mt-3">
-            <div className="text-[13px] text-slate-500">Omzet</div>
-            <div className="mt-0.5 flex items-baseline gap-2">
-              <span className="num text-[24px] font-medium text-ink">{formatRupiah(lastMonth.omzet)}</span>
-              <span className="chip h-5 bg-brand-50 text-brand-700 border-brand-200 tabular">
-                +{omzetGrowth.toLocaleString('id-ID', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%
-              </span>
-            </div>
-          </div>
-
-          <div className="mt-5 space-y-3 text-[13px]">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-500">Nilai stok terselamatkan</span>
-              <span className="font-semibold text-brand-700 tabular">{formatRupiah(lastMonth.rescuedValue)}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-slate-500">Kerugian food waste</span>
-              <span className="font-semibold text-rose-600 tabular">{formatRupiah(lastMonth.wasteLoss)}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-slate-500">Batch diberi aksi</span>
-              <span className="font-semibold text-ink tabular">
-                {rescuedCount} / {batches.length}
-              </span>
-            </div>
-          </div>
-
-          <div className="mt-5 pt-5 border-t border-slate-100">
-            <div className="text-[12px] font-semibold text-slate-700 mb-2">Komposisi status stok</div>
-            <div className="flex h-2 rounded-full overflow-hidden bg-slate-100">
-              {(['kritis', 'waspada', 'dwell-alert', 'aman'] as StockStatus[]).map((k) =>
-                counts[k] > 0 ? (
-                  <div
-                    key={k}
-                    className={STATUS_STYLES[k].bar}
-                    style={{ width: `${(counts[k] / Math.max(1, batches.length)) * 100}%` }}
-                    title={`${STATUS_STYLES[k].label}: ${counts[k]}`}
-                  />
-                ) : null
-              )}
-            </div>
-            <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-[12px]">
-              {(['kritis', 'waspada', 'dwell-alert', 'aman'] as StockStatus[]).map((k) => (
-                <div key={k} className="flex items-center gap-2 text-slate-600">
-                  <span className={cn('w-2 h-2 rounded-full', STATUS_STYLES[k].dot)} />
-                  {STATUS_STYLES[k].label}
-                  <span className="ml-auto font-semibold text-ink tabular">{counts[k]}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <button onClick={() => onNavigateToTab('reports')} className="btn-secondary mt-5 w-full">
-            Buka laporan SAK-EMKM
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-      </section>
+          </section>
+        </aside>
+      </div>
     </motion.div>
   );
 };

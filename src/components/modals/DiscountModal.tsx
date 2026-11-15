@@ -75,7 +75,7 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({ batch, isOpen, onC
       }
     >
       <div className="space-y-4">
-        <div className="rounded-xl border border-slate-200 p-4 flex items-start justify-between gap-4">
+        <div className="rounded-[20px] border border-white/80 p-4 flex items-start justify-between gap-4">
           <div className="min-w-0">
             <div className="text-[12px] text-slate-500">
               <span className="font-mono">{batch.batchCode}</span> · {batch.category}
@@ -92,13 +92,13 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({ batch, isOpen, onC
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-xl bg-slate-50 border border-slate-100 p-3">
+          <div className="rounded-[20px] bg-white/55 border border-white/80 p-3">
             <div className="text-[11px] text-slate-500 flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5" /> Batas bawah (HPP)
             </div>
             <div className="mt-0.5 font-semibold text-ink tabular">{formatRupiah(hpp)}</div>
           </div>
-          <div className="rounded-xl bg-brand-50/70 border border-brand-100 p-3">
+          <div className="rounded-[20px] bg-brand-50/70 border border-brand-100 p-3">
             <div className="text-[11px] text-brand-700">Modal terlindungi</div>
             <div className="mt-0.5 font-semibold text-brand-800 tabular">{formatRupiah(protectedCapital)}</div>
           </div>
@@ -115,8 +115,8 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({ batch, isOpen, onC
                 aria-checked={active}
                 onClick={() => setSelectedTier(t.tier)}
                 className={cn(
-                  'w-full text-left rounded-xl border p-3.5 flex items-center gap-3 transition-all',
-                  active ? 'border-brand-500 ring-4 ring-brand-500/10 bg-white' : 'border-slate-200 hover:border-slate-300'
+                  'w-full text-left rounded-[20px] border p-3.5 flex items-center gap-3 transition-all',
+                  active ? 'border-brand-500 ring-4 ring-brand-500/10 bg-white' : 'border-white/80 hover:border-slate-300'
                 )}
               >
                 <span

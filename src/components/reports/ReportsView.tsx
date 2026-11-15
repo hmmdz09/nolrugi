@@ -120,20 +120,20 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ batches, pdpConsent, o
 
       <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
         {/* P&L */}
-        <div className="card xl:col-span-3 overflow-hidden xl:self-start">
+        <div className="card card-hover rise xl:col-span-3 overflow-hidden xl:self-start">
           <CardHeader
             title="Laporan laba rugi"
             description={`${BUSINESS.name} · ${BUSINESS.period}`}
             icon={<FileText className="w-4 h-4" />}
           />
-          <table className="w-full text-[13px] tabular">
+          <table className="glass-table w-full text-[13px] tabular">
             <tbody>
               {lines.map((l) => (
                 <tr
                   key={l.label}
                   className={cn(
-                    'border-t border-slate-100',
-                    l.kind === 'total' && 'bg-slate-50/80',
+                    'border-t border-white/80',
+                    l.kind === 'total' && 'bg-white/55',
                     l.kind === 'gain' && 'bg-brand-50/40'
                   )}
                 >
@@ -214,7 +214,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ batches, pdpConsent, o
                       </span>
                       <span className="font-semibold text-ink tabular">{c.score}</span>
                     </div>
-                    <div className="mt-1.5 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                    <div className="mt-1.5 h-1.5 rounded-full bg-white/70 overflow-hidden">
                       <div
                         className={cn('h-full rounded-full', c.status === 'optimal' ? 'bg-brand-500' : 'bg-amber-500')}
                         style={{ width: `${c.score}%` }}
@@ -228,9 +228,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ batches, pdpConsent, o
           </div>
 
           {/* PDP */}
-          <div className="card p-5">
+          <div className="card card-hover rise p-5">
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-2xl bg-white/70 text-slate-600 flex items-center justify-center shrink-0">
                 <ShieldCheck className="w-4 h-4" />
               </div>
               <div className="min-w-0 flex-1">
@@ -241,7 +241,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ batches, pdpConsent, o
                 </p>
               </div>
             </div>
-            <label className="mt-4 flex items-center justify-between gap-4 rounded-xl border border-slate-200 p-3.5 cursor-pointer hover:bg-slate-50/60">
+            <label className="mt-4 flex items-center justify-between gap-4 rounded-[20px] border border-white/80 p-3.5 cursor-pointer hover:bg-white/55">
               <span>
                 <span className="block text-[13px] font-semibold text-ink">Izinkan berbagi ke bank mitra</span>
                 <span className="block text-[12px] text-slate-500">Untuk verifikasi skor saat pengajuan KUR.</span>
@@ -288,18 +288,18 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ batches, pdpConsent, o
             </>
           }
         >
-          <div className="rounded-xl border border-slate-200 p-6 sm:p-8 text-ink">
-            <div className="text-center pb-5 border-b border-slate-200">
+          <div className="rounded-[20px] border border-white/80 p-6 sm:p-8 text-ink">
+            <div className="text-center pb-5 border-b border-white/80">
               <div className="eyebrow">Laporan Keuangan SAK-EMKM</div>
               <h2 className="mt-1 text-lg font-semibold">{BUSINESS.name}</h2>
               <p className="text-[12px] text-slate-500 mt-0.5">
                 NIB {BUSINESS.nib} · Periode {BUSINESS.period}
               </p>
             </div>
-            <table className="w-full mt-5 text-[13px] tabular">
+            <table className="glass-table w-full mt-5 text-[13px] tabular">
               <tbody>
                 {lines.map((l) => (
-                  <tr key={l.label} className={cn('border-b border-slate-100', l.kind === 'total' && 'font-semibold')}>
+                  <tr key={l.label} className={cn('border-b border-white/80', l.kind === 'total' && 'font-semibold')}>
                     <td className="py-2">{l.label}</td>
                     <td className="py-2 text-right">
                       {l.kind === 'gain' ? '+' : ''}
@@ -313,7 +313,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ batches, pdpConsent, o
                 </tr>
               </tbody>
             </table>
-            <div className="mt-5 rounded-lg bg-slate-50 p-4 flex items-center justify-between text-[12px]">
+            <div className="mt-5 rounded-2xl bg-white/55 p-4 flex items-center justify-between text-[12px]">
               <span>
                 Skor kesiapan kredit: <strong>{creditScore}/100</strong> ({scoreCategory})
               </span>

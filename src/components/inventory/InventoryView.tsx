@@ -124,12 +124,12 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
         }
       />
 
-      <div className="card overflow-hidden">
+      <div className="card rise overflow-hidden">
         {/* Toolbar */}
-        <div className="p-4 flex flex-col gap-3 border-b border-slate-100">
+        <div className="p-4 flex flex-col gap-3 border-b border-white/80">
           <div className="flex flex-col lg:flex-row lg:items-center gap-3">
             <div className="relative flex-1 lg:max-w-sm">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none" />
               <input
                 type="search"
                 placeholder="Cari produk atau kode batch…"
@@ -202,9 +202,9 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
 
         {/* Desktop table */}
         <div className="relative hidden md:block overflow-x-auto">
-          <table className="w-full text-left text-[13px]">
+          <table className="glass-table w-full text-left text-[13px]">
             <thead>
-              <tr className="bg-slate-50/80 text-[11px] font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-100">
+              <tr className="bg-white/55 text-[11px] font-semibold uppercase tracking-wider text-slate-500 border-b border-white/80">
                 <th className="py-3 pl-9 pr-3 font-semibold">Produk</th>
                 <th className="py-3 px-3 font-semibold">Kedaluwarsa</th>
                 <th className="hidden lg:table-cell py-3 px-3 font-semibold">Masuk</th>
@@ -215,9 +215,9 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                 <th className="py-3 pl-3 pr-5 font-semibold text-right">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-white/70">
               {visible.map(({ b, st }) => (
-                <tr key={b.id} className="group hover:bg-slate-50/70 transition-colors">
+                <tr key={b.id} className="group hover:bg-white/55 transition-colors">
                   <td className="py-3 pl-5 pr-3 min-w-[240px] max-w-[340px]">
                     <div className="flex items-center gap-3">
                       <span className={cn('w-1 self-stretch rounded-full shrink-0', STATUS_STYLES[st.status].bar)} />
@@ -242,10 +242,10 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                     <div className="text-[12px] text-slate-500">{st.dwellDays} hari di rak</div>
                   </td>
                   <td className="py-3 px-3 text-center whitespace-nowrap">
-                    <div className="inline-flex items-center rounded-lg border border-slate-200 bg-white">
+                    <div className="inline-flex items-center rounded-2xl border border-white/80 bg-white">
                       <button
                         onClick={() => onUpdateStock(b.id, -1)}
-                        className="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-ink hover:bg-slate-50 rounded-l-lg"
+                        className="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-ink hover:bg-white/55 rounded-l-lg"
                         aria-label={`Kurangi stok ${b.productName}`}
                       >
                         <Minus className="w-3 h-3" />
@@ -255,7 +255,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                       </span>
                       <button
                         onClick={() => onUpdateStock(b.id, 1)}
-                        className="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-ink hover:bg-slate-50 rounded-r-lg"
+                        className="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-ink hover:bg-white/55 rounded-r-lg"
                         aria-label={`Tambah stok ${b.productName}`}
                       >
                         <Plus className="w-3 h-3" />
@@ -279,14 +279,14 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                     <StatusChip status={st.status} />
                   </td>
                   <td className="py-3 pl-3 pr-5 whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-0.5 xl:opacity-40 xl:group-hover:opacity-100 xl:focus-within:opacity-100 transition-opacity">
-                      <button onClick={() => onTriggerDiscount(b)} className="btn-icon w-8 h-8" title="Diskon aman" aria-label="Diskon aman">
+                    <div className="flex items-center justify-end gap-0.5 xl:opacity-70 xl:group-hover:opacity-100 xl:focus-within:opacity-100 transition-opacity">
+                      <button onClick={() => onTriggerDiscount(b)} className="btn-icon w-8 h-8 text-slate-600" title="Diskon aman" aria-label="Diskon aman">
                         <Tag className="w-4 h-4" />
                       </button>
-                      <button onClick={() => onTriggerBundle(b)} className="btn-icon w-8 h-8" title="Bundling" aria-label="Bundling">
+                      <button onClick={() => onTriggerBundle(b)} className="btn-icon w-8 h-8 text-slate-600" title="Bundling" aria-label="Bundling">
                         <PackagePlus className="w-4 h-4" />
                       </button>
-                      <button onClick={() => onOpenManualModal(b)} className="btn-icon w-8 h-8" title="Edit" aria-label="Edit batch">
+                      <button onClick={() => onOpenManualModal(b)} className="btn-icon w-8 h-8 text-slate-600" title="Edit" aria-label="Edit batch">
                         <Pencil className="w-4 h-4" />
                       </button>
                       <span className="w-px h-5 bg-slate-200 mx-1" aria-hidden />
@@ -321,7 +321,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
         </div>
 
         {/* Mobile cards */}
-        <ul className="md:hidden divide-y divide-slate-100">
+        <ul className="md:hidden divide-y divide-white/70">
           {visible.map(({ b, st }) => (
             <li key={b.id} className="p-4">
               <div className="flex items-start justify-between gap-3">
@@ -358,7 +358,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                 <button onClick={() => onTriggerBundle(b)} className="btn-secondary flex-1">
                   <PackagePlus className="w-3.5 h-3.5" /> Bundling
                 </button>
-                <button onClick={() => onOpenManualModal(b)} className="btn-icon w-9 h-9 border border-slate-200" aria-label="Edit batch">
+                <button onClick={() => onOpenManualModal(b)} className="btn-icon w-9 h-9 border border-white/80" aria-label="Edit batch">
                   <Pencil className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -368,7 +368,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
 
         {visible.length === 0 && (
           <div className="py-16 flex flex-col items-center text-center px-4">
-            <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mb-3">
+            <div className="w-12 h-12 rounded-[20px] bg-white/70 flex items-center justify-center mb-3">
               <Boxes className="w-6 h-6 text-slate-400" />
             </div>
             <p className="text-sm font-semibold text-ink">Tidak ada batch yang cocok</p>

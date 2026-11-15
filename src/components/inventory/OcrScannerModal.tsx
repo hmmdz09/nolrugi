@@ -157,8 +157,8 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({ isOpen, onClos
               type="button"
               onClick={() => rescan(i)}
               className={cn(
-                'rounded-lg border px-3 py-2 text-left transition-all',
-                i === presetIdx ? 'border-brand-500 ring-4 ring-brand-500/10' : 'border-slate-200 hover:border-slate-300'
+                'rounded-2xl border px-3 py-2 text-left transition-all',
+                i === presetIdx ? 'border-brand-500 ring-4 ring-brand-500/10' : 'border-white/80 hover:border-slate-300'
               )}
             >
               <div className="text-[12px] font-semibold text-ink truncate">{p.short}</div>
@@ -168,7 +168,7 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({ isOpen, onClos
         </div>
 
         {/* Viewport */}
-        <div className={cn('relative h-44 rounded-xl overflow-hidden bg-gradient-to-br', preset.tint)}>
+        <div className={cn('relative h-44 rounded-[20px] overflow-hidden bg-gradient-to-br', preset.tint)}>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.08),transparent_60%)]" />
           {['top-3 left-3 border-t-2 border-l-2', 'top-3 right-3 border-t-2 border-r-2', 'bottom-3 left-3 border-b-2 border-l-2', 'bottom-3 right-3 border-b-2 border-r-2'].map(
             (c) => (
@@ -182,7 +182,7 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({ isOpen, onClos
             />
           )}
           <div className="absolute inset-0 flex items-center justify-center px-6">
-            <div className="rounded-lg bg-black/60 backdrop-blur px-4 py-2.5 text-center ring-1 ring-white/10">
+            <div className="rounded-2xl bg-black/60 backdrop-blur px-4 py-2.5 text-center ring-1 ring-white/10">
               <div className="font-mono text-[10px] tracking-widest text-brand-300 uppercase">
                 {scanning ? 'Membaca teks…' : 'Teks terdeteksi'}
               </div>
