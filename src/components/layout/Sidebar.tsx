@@ -7,8 +7,6 @@ import {
   RotateCcw,
   X,
   Store,
-  ScanLine,
-  Plus,
 } from 'lucide-react';
 import { InventoryBatch } from '../../types';
 import { getBatchStatus } from '../../utils/formatters';
@@ -67,7 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }).length;
 
   const content = (
-    <div className="flex flex-col h-full bg-white/85 backdrop-blur-2xl">
+    <div className="flex flex-col h-full bg-white/60 backdrop-blur-2xl backdrop-saturate-[1.8] border-r border-white/70">
       <div className="h-14 px-4 flex items-center justify-between">
         <BrandMark />
         <button onClick={onCloseMobile} className="btn-icon lg:hidden" aria-label="Tutup menu">
@@ -77,12 +75,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Workspace */}
       <div className="px-3 pt-1">
-        <div className="flex items-center gap-2.5 p-2 rounded-lg border border-slate-200 bg-white">
-          <div className="w-7 h-7 rounded-md bg-slate-100 flex items-center justify-center text-slate-600">
+        <div className="flex items-center gap-2.5 p-2 rounded-xl border border-white/70 bg-white/50 shadow-xs">
+          <div className="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-slate-700 shadow-xs">
             <Store className="w-4 h-4" />
           </div>
           <div className="min-w-0">
-            <div className="text-[13px] font-medium text-ink truncate">Dapur Berkah Nusantara</div>
+            <div className="text-[13px] font-semibold text-ink truncate">Dapur Berkah Nusantara</div>
             <div className="text-[11px] text-slate-500">UMKM Pangan Kemasan</div>
           </div>
         </div>
@@ -90,7 +88,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       <nav className="px-3 pt-3 flex-1" aria-label="Navigasi utama">
         <div className="eyebrow px-2.5 mb-2">Menu Utama</div>
-        <ul className="space-y-1">
+        <ul className="space-y-1.5">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const active = activeTab === item.id;
@@ -103,10 +101,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'group relative w-full flex items-center gap-2.5 h-8.5 px-2.5 rounded-lg text-[13px] font-medium transition-colors',
+                    'group relative w-full flex items-center gap-2.5 h-10 px-3 rounded-full text-[13px] font-semibold transition-all duration-200 border',
                     active
-                      ? 'bg-brand-50 text-brand-800'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-ink'
+                      ? 'bg-white text-ink shadow-[0_4px_14px_-6px_rgb(70_50_140/0.35)] border-white'
+                      : 'bg-white/30 text-slate-700 hover:text-ink hover:bg-white/80 border-white/50 shadow-xs'
                   )}
                 >
                   <Icon
@@ -114,7 +112,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   />
                   <span className="flex-1 text-left">{item.label}</span>
                   {item.id === 'inventory' && atRisk > 0 && (
-                    <span className="num min-w-5 h-5 px-1.5 rounded bg-rose-50 text-rose-700 text-[11px] font-medium inline-flex items-center justify-center">
+                    <span className="num min-w-5 h-5 px-1.5 rounded-full bg-rose-500 text-white text-[10.5px] font-bold inline-flex items-center justify-center">
                       {atRisk}
                     </span>
                   )}
@@ -123,8 +121,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             );
           })}
 
-          <li className="pt-2">
-            <div className="h-[1px] bg-slate-200/80 my-1 mx-1" />
+          <li className="pt-1">
+            <div className="h-[1px] bg-slate-200/60 my-1 mx-2" />
           </li>
 
           <li>
@@ -133,9 +131,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onOpenManualModal();
                 onCloseMobile();
               }}
-              className="group relative w-full flex items-center gap-2.5 h-8.5 px-2.5 rounded-lg text-[13px] font-semibold text-slate-700 hover:bg-slate-100 hover:text-ink transition-colors"
+              className="w-full flex items-center gap-2.5 h-10 px-3 rounded-full text-[13px] font-semibold text-slate-700 hover:text-ink bg-white/30 hover:bg-white/90 border border-white/50 shadow-xs transition-all duration-200"
             >
-              <Plus className="w-4 h-4 text-brand-600" />
               <span className="flex-1 text-left">Tambah Batch</span>
             </button>
           </li>
@@ -146,9 +143,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onOpenOcrModal();
                 onCloseMobile();
               }}
-              className="group relative w-full flex items-center gap-2.5 h-8.5 px-2.5 rounded-lg text-[13px] font-semibold text-brand-700 hover:bg-brand-50 transition-colors"
+              className="w-full flex items-center gap-2.5 h-10 px-3 rounded-full text-[13px] font-semibold text-slate-700 hover:text-ink bg-white/30 hover:bg-white/90 border border-white/50 shadow-xs transition-all duration-200"
             >
-              <ScanLine className="w-4 h-4 text-brand-600" />
               <span className="flex-1 text-left">Scan Tanggal (AI OCR)</span>
             </button>
           </li>

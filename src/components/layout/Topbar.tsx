@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Menu, Search, Bell, Plus, ChevronDown, RotateCcw, ShieldCheck, ScanLine } from 'lucide-react';
+import { Menu, Search, Bell, ChevronDown, RotateCcw, ShieldCheck } from 'lucide-react';
 import { ActiveTab, BrandMark, NAV_ITEMS } from './Sidebar';
 import { cn } from '../common/ui';
 
@@ -52,7 +52,7 @@ export const Topbar: React.FC<TopbarProps> = ({
 
           {/* Nav pill: Ringkasan, Batch & FEFO, Kalkulator HPP, Tambah Batch, Scan Tanggal */}
           <nav
-            className="hidden lg:flex items-center gap-1 p-1 mx-auto rounded-full bg-white/40 border border-white/70"
+            className="hidden lg:flex items-center gap-1.5 p-1.5 mx-auto rounded-full bg-white/40 backdrop-blur-2xl border border-white/70 shadow-sm"
             aria-label="Navigasi utama"
           >
             {NAV_ITEMS.map((item) => {
@@ -63,15 +63,15 @@ export const Topbar: React.FC<TopbarProps> = ({
                   onClick={() => onSelectTab(item.id)}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'relative h-10 px-4 rounded-full text-[13.5px] font-semibold transition-all duration-300',
+                    'relative h-10 px-4.5 rounded-full text-[13.5px] font-semibold transition-all duration-200 border',
                     active
-                      ? 'bg-white text-ink shadow-[0_4px_14px_-6px_rgb(70_50_140/0.35)]'
-                      : 'text-slate-600 hover:text-ink hover:bg-white/60'
+                      ? 'bg-white text-ink shadow-[0_4px_14px_-6px_rgb(70_50_140/0.35)] border-white'
+                      : 'bg-white/40 text-slate-700 hover:text-ink hover:bg-white/80 border-white/60 shadow-xs hover:shadow-[0_4px_14px_-6px_rgb(70_50_140/0.25)]'
                   )}
                 >
                   {item.label}
                   {item.id === 'inventory' && alertCount > 0 && (
-                    <span className="ml-1.5 num inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-rose-500/90 text-white text-[10.5px] font-bold align-[1px]">
+                    <span className="ml-1.5 num inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-rose-500 text-white text-[10.5px] font-bold align-[1px]">
                       {alertCount}
                     </span>
                   )}
@@ -79,26 +79,22 @@ export const Topbar: React.FC<TopbarProps> = ({
               );
             })}
 
-            <div className="w-[1px] h-5 bg-slate-300/70 mx-1" aria-hidden="true" />
-
             <button
               type="button"
               onClick={onQuickAdd}
-              className="flex items-center gap-1.5 h-10 px-3.5 rounded-full text-[13px] font-semibold text-slate-700 hover:text-ink hover:bg-white/75 active:scale-[0.98] transition-all duration-200"
+              className="h-10 px-4.5 rounded-full text-[13.5px] font-semibold text-slate-700 hover:text-ink bg-white/40 hover:bg-white/90 border border-white/60 hover:border-white shadow-xs hover:shadow-[0_4px_14px_-6px_rgb(70_50_140/0.35)] active:scale-[0.98] transition-all duration-200"
               title="Tambah batch baru"
             >
-              <Plus className="w-4 h-4 text-brand-600" />
-              <span>Tambah Batch</span>
+              Tambah Batch
             </button>
 
             <button
               type="button"
               onClick={onOpenOcrModal}
-              className="flex items-center gap-1.5 h-10 px-3.5 rounded-full text-[13px] font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100/90 border border-brand-200/60 active:scale-[0.98] transition-all duration-200"
+              className="h-10 px-4.5 rounded-full text-[13.5px] font-semibold text-slate-700 hover:text-ink bg-white/40 hover:bg-white/90 border border-white/60 hover:border-white shadow-xs hover:shadow-[0_4px_14px_-6px_rgb(70_50_140/0.35)] active:scale-[0.98] transition-all duration-200"
               title="Scan Tanggal Kedaluwarsa (AI OCR)"
             >
-              <ScanLine className="w-4 h-4 text-brand-600" />
-              <span>Scan Tanggal</span>
+              Scan Tanggal
             </button>
           </nav>
 
