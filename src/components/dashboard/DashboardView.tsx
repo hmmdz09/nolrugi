@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { InventoryBatch, StockStatus } from '../../types';
 import { formatRupiah, formatDateIndo, getBatchStatus } from '../../utils/formatters';
+import { ProductThumbnail, getProductImageUrl } from '../../utils/productImages';
 import { sampleHistoricalRevenue } from '../../data/initialData';
 import { Segmented, StatusChip, STATUS_STYLES, cn } from '../common/ui';
 
@@ -419,19 +420,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           : 'border-transparent hover:bg-white/55 hover:border-white/80 hover:translate-x-0.5'
                       )}
                     >
-                      <span
-                        className={cn(
-                          'w-11 h-11 rounded-full bg-white border border-white shadow-sm flex flex-col items-center justify-center shrink-0',
-                          s.text
-                        )}
-                      >
-                        <span className="num text-[14px] font-bold leading-none">{st.daysLeft <= 0 ? '0' : st.daysLeft}</span>
-                        <span className="text-[9.5px] text-slate-400 font-semibold mt-0.5">hari</span>
-                      </span>
+                      <div className="relative shrink-0">
+                        <ProductThumbnail batch={batch} size="md" className="rounded-xl shadow-xs" />
+                        <span
+                          className={cn(
+                            'absolute -top-1.5 -right-1.5 h-4 px-1 rounded-full border border-white text-[9.5px] font-bold num shadow-xs flex items-center justify-center',
+                            st.daysLeft <= 3 ? 'bg-rose-500 text-white' : st.daysLeft <= 7 ? 'bg-amber-500 text-white' : 'bg-brand-500 text-white'
+                          )}
+                        >
+                          {st.daysLeft <= 0 ? '0h' : `H-${st.daysLeft}`}
+                        </span>
+                      </div>
                       <span className="min-w-0 flex-1">
                         <span className="block text-[14px] font-semibold text-ink truncate">{batch.productName}</span>
                         <span className="block text-[12px] text-slate-500 truncate">
-                          <span className="font-mono text-[11px]">{batch.batchCode}</span> · {batch.category}
+                          <span className="font-mono text-[11px] font-medium">{batch.batchCode}</span> · {batch.category}
                         </span>
                       </span>
                       <span className="hidden md:block w-28 text-[12.5px] text-slate-600 num">
@@ -469,6 +472,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <p className="mt-0.5 text-[13px] text-slate-500 truncate">{selected.batch.productName}</p>
                 </div>
                 <CornerLink onClick={() => onNavigateToTab('inventory')} label="Buka di Batch & FEFO" />
+              </div>
+
+              {/* Product Photo Banner */}
+              <div className="relative mt-4 overflow-hidden rounded-2xl border border-white shadow-sm h-32">
+                <img
+                  src={getProductImageUrl(selected.batch)}
+                  alt={selected.batch.productName}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-3">
+                  <div className="text-white">
+                    <div className="text-[11px] font-mono opacity-80">{selected.batch.batchCode} · {selected.batch.location}</div>
+                    <div className="text-[14px] font-bold leading-tight drop-shadow-sm truncate">{selected.batch.productName}</div>
+                  </div>
+                </div>
               </div>
 
               <div className="mt-5 flex items-center justify-between text-[13px]">

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { PlusCircle, Pencil, RefreshCw, Check } from 'lucide-react';
 import { InventoryBatch, ProductCategory } from '../../types';
+import { ProductThumbnail } from '../../utils/productImages';
 import { Field, Modal, cn } from '../common/ui';
 
 interface ManualBatchModalProps {
@@ -35,6 +36,7 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({ isOpen, onCl
   );
   const [location, setLocation] = useState(initialBatch?.location || 'Rak A');
   const [notes, setNotes] = useState(initialBatch?.notes || '');
+  const [imageUrl, setImageUrl] = useState(initialBatch?.imageUrl || '');
 
   if (!isOpen) return null;
 
@@ -62,6 +64,7 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({ isOpen, onCl
       packagingType,
       location,
       notes,
+      imageUrl: imageUrl.trim() || undefined,
     };
     if (initialBatch) onSaveBatch({ ...initialBatch, ...base });
     else onSaveBatch({ ...base, initialQty: stockQty, isRescued: false });
@@ -87,6 +90,26 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({ isOpen, onCl
       }
     >
       <form id="batch-form" onSubmit={handleSubmit} className="space-y-5">
+        {/* Photo Preview & Product Details */}
+        <div className="p-3 rounded-2xl bg-white/60 border border-white flex items-center gap-3.5">
+          <ProductThumbnail
+            batch={{ productName, category, imageUrl }}
+            size="lg"
+            className="rounded-2xl"
+          />
+          <div className="min-w-0 flex-1">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+              Pratinjau Foto Produk
+            </span>
+            <div className="text-[14px] font-bold text-ink truncate mt-0.5">
+              {productName || 'Nama produk kemasan'}
+            </div>
+            <div className="text-[12px] text-brand-600 font-medium">
+              Kategori: {category}
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Nama produk" className="sm:col-span-2">
             <input
@@ -96,6 +119,15 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({ isOpen, onCl
               onChange={(e) => setProductName(e.target.value)}
               placeholder="mis. Keripik Singkong Balado 250g"
               className="input"
+            />
+          </Field>
+          <Field label="URL Foto Produk (opsional)" hint="Otomatis menggunakan foto sesuai kategori jika kosong" className="sm:col-span-2">
+            <input
+              type="url"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://images.unsplash.com/..."
+              className="input text-[12px]"
             />
           </Field>
           <Field label="Kategori">

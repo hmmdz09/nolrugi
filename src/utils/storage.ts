@@ -1,5 +1,6 @@
 import { InventoryBatch } from '../types';
 import { getInitialBatches } from '../data/initialData';
+import { getProductImageUrl } from './productImages';
 
 const STORAGE_KEY = 'nolrugi_inventory_batches_v1';
 const CONSENT_KEY = 'nolrugi_uupdp_consent';
@@ -12,7 +13,12 @@ export const loadBatches = (): InventoryBatch[] => {
       saveBatches(initial);
       return initial;
     }
-    return JSON.parse(raw);
+    const list: InventoryBatch[] = JSON.parse(raw);
+    const withImages = list.map((b) => ({
+      ...b,
+      imageUrl: b.imageUrl || getProductImageUrl(b),
+    }));
+    return withImages;
   } catch (e) {
     console.error('Failed to load batches from localStorage', e);
     return getInitialBatches();

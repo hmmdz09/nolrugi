@@ -1,4 +1,5 @@
 import { InventoryBatch } from '../types';
+import { PRODUCT_IMAGE_PRESETS } from '../utils/productImages';
 
 /**
  * Generates initial realistic Indonesian F&B Packaged MSME data.
@@ -31,6 +32,7 @@ export const getInitialBatches = (): InventoryBatch[] => {
       location: 'Rak Display Roti A1',
       notes: 'Roti basah tanpa pengawet sintetik. Segera jual sebelum berjamur.',
       isRescued: false,
+      imageUrl: PRODUCT_IMAGE_PRESETS['batch-001'],
     },
     {
       id: 'batch-002',
@@ -48,6 +50,7 @@ export const getInitialBatches = (): InventoryBatch[] => {
       location: 'Freezer Showcase 1',
       notes: 'Wajib suhu -18C. Sisa 3 hari masa simpan optimal.',
       isRescued: false,
+      imageUrl: PRODUCT_IMAGE_PRESETS['batch-002'],
     },
     {
       id: 'batch-003',
@@ -65,6 +68,7 @@ export const getInitialBatches = (): InventoryBatch[] => {
       location: 'Rak Bumbu Kaca Tengah',
       notes: 'Segel aluminium foil aman. Cocok dibundling dengan Keripik.',
       isRescued: false,
+      imageUrl: PRODUCT_IMAGE_PRESETS['batch-003'],
     },
     {
       id: 'batch-004',
@@ -82,6 +86,7 @@ export const getInitialBatches = (): InventoryBatch[] => {
       location: 'Chiller Depan Kasir',
       notes: 'Mengandung susu pasteurisasi segar.',
       isRescued: false,
+      imageUrl: PRODUCT_IMAGE_PRESETS['batch-004'],
     },
     {
       id: 'batch-005',
@@ -99,6 +104,7 @@ export const getInitialBatches = (): InventoryBatch[] => {
       location: 'Rak Gondola Depan B2',
       notes: 'Kemasan polos standing pouch transparan. Berisiko tengik/alot jika mengendap lama.',
       isRescued: false,
+      imageUrl: PRODUCT_IMAGE_PRESETS['batch-005'],
     },
     {
       id: 'batch-006',
@@ -116,6 +122,7 @@ export const getInitialBatches = (): InventoryBatch[] => {
       location: 'Rak Gudang Bahan Siap Jual',
       notes: 'Bumbu sangrai tradisional kemasan pouch polos.',
       isRescued: false,
+      imageUrl: PRODUCT_IMAGE_PRESETS['batch-006'],
     },
     {
       id: 'batch-007',
@@ -133,6 +140,7 @@ export const getInitialBatches = (): InventoryBatch[] => {
       location: 'Rak Camilan Utama',
       notes: 'Perputaran stok tinggi, fast-moving favorit pelanggan.',
       isRescued: false,
+      imageUrl: PRODUCT_IMAGE_PRESETS['batch-007'],
     },
     {
       id: 'batch-008',
@@ -150,6 +158,7 @@ export const getInitialBatches = (): InventoryBatch[] => {
       location: 'Etalase Kaca Depan',
       notes: 'Kue kering premium mentega Wijsman, segel toples kedap udara.',
       isRescued: false,
+      imageUrl: PRODUCT_IMAGE_PRESETS['batch-008'],
     },
   ];
 };

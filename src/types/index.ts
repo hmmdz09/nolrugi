@@ -19,6 +19,7 @@ export interface InventoryBatch {
   location: string; // Rak A, Freezer 2, etc.
   notes?: string;
   isRescued?: boolean;
+  imageUrl?: string; // Product photo URL
 }
 
 export interface HppInputs {

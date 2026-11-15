@@ -151,6 +151,7 @@ export function App() {
         onCloseMobile={() => setIsMobileMenuOpen(false)}
         onResetData={handleResetData}
         pdpConsent={pdpConsent}
+        onOpenOcrModal={() => setIsOcrOpen(true)}
       />
 
       <div className="min-w-0">

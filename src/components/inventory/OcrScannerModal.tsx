@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ScanLine, RefreshCw, Check } from 'lucide-react';
 import { InventoryBatch, ProductCategory } from '../../types';
+import { getProductImageUrl } from '../../utils/productImages';
 import { Field, Modal, cn } from '../common/ui';
 
 interface OcrScannerModalProps {
@@ -127,6 +128,7 @@ export const OcrScannerModal: React.FC<OcrScannerModalProps> = ({ isOpen, onClos
       location: 'Etalase Depan',
       notes: `Diinput via scan OCR (akurasi ${preset.confidence}%).`,
       isRescued: false,
+      imageUrl: getProductImageUrl({ productName, category }),
     });
   };
 

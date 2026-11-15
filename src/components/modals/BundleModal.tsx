@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { PackagePlus, Check, Plus } from 'lucide-react';
 import { InventoryBatch } from '../../types';
 import { formatRupiah } from '../../utils/formatters';
+import { ProductThumbnail } from '../../utils/productImages';
 import { Field, Modal } from '../common/ui';
 
 interface BundleModalProps {
@@ -13,11 +14,14 @@ interface BundleModalProps {
 }
 
 const Item = ({ b, label, tone }: { b: InventoryBatch; label: string; tone: string }) => (
-  <div className="rounded-[20px] border border-white/80 p-3 min-w-0 flex-1">
-    <div className={`text-[11px] font-semibold ${tone}`}>{label}</div>
-    <div className="mt-1 text-[13px] font-semibold text-ink line-clamp-2 leading-snug">{b.productName}</div>
-    <div className="mt-1.5 text-[12px] text-slate-500 tabular">
-      HPP {formatRupiah(b.unitHpp)} · {formatRupiah(b.sellingPrice)}
+  <div className="rounded-[20px] border border-white/80 p-3 min-w-0 flex-1 flex items-start gap-2.5">
+    <ProductThumbnail batch={b} size="md" className="rounded-xl shadow-xs" />
+    <div className="min-w-0">
+      <div className={`text-[11px] font-semibold ${tone}`}>{label}</div>
+      <div className="mt-0.5 text-[13px] font-semibold text-ink line-clamp-1 leading-snug">{b.productName}</div>
+      <div className="mt-1 text-[12px] text-slate-500 tabular">
+        HPP {formatRupiah(b.unitHpp)} · {formatRupiah(b.sellingPrice)}
+      </div>
     </div>
   </div>
 );

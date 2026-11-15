@@ -8,6 +8,7 @@ import {
   RotateCcw,
   X,
   Store,
+  ScanLine,
 } from 'lucide-react';
 import { InventoryBatch } from '../../types';
 import { getBatchStatus } from '../../utils/formatters';
@@ -46,6 +47,7 @@ interface SidebarProps {
   onCloseMobile: () => void;
   onResetData: () => void;
   pdpConsent: boolean;
+  onOpenOcrModal: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -56,6 +58,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onCloseMobile,
   onResetData,
   pdpConsent,
+  onOpenOcrModal,
 }) => {
   const atRisk = batches.filter((b) => {
     const s = getBatchStatus(b.expiryDate, b.entryDate, b.packagingType).status;
@@ -84,7 +87,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
-      <nav className="px-3 pt-5 flex-1" aria-label="Navigasi utama">
+      {/* Scan Barang CTA button at top of Sidebar */}
+      <div className="px-3 pt-3">
+        <button
+          onClick={() => {
+            onOpenOcrModal();
+            onCloseMobile();
+          }}
+          className="w-full group relative overflow-hidden rounded-xl bg-gradient-to-r from-brand-600 via-brand-500 to-brand-700 p-2.5 text-white shadow-[0_6px_16px_-4px_rgb(118_86_209/0.65)] hover:shadow-lift transition-all duration-300 active:scale-[0.98]"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/30 group-hover:scale-110 transition-transform">
+              <ScanLine className="w-4 h-4 text-white" />
+            </div>
+            <div className="min-w-0 text-left">
+              <div className="text-[13px] font-bold leading-tight flex items-center gap-1.5">
+                <span>Scan Barang</span>
+                <span className="text-[9.5px] uppercase font-black px-1.5 py-0.5 rounded-full bg-white/25 text-white tracking-wider">
+                  AI OCR
+                </span>
+              </div>
+              <p className="text-[11px] text-white/80 mt-0.5 leading-snug truncate">
+                Pindai expired &amp; batch
+              </p>
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <nav className="px-3 pt-4 flex-1" aria-label="Navigasi utama">
         <div className="eyebrow px-2.5 mb-2">Menu</div>
         <ul className="space-y-0.5">
           {NAV_ITEMS.map((item) => {

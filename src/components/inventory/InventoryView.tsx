@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { InventoryBatch, StockStatus } from '../../types';
 import { formatRupiah, formatDateIndo, getBatchStatus } from '../../utils/formatters';
+import { ProductThumbnail } from '../../utils/productImages';
 import { PageHeader, Segmented, StatusChip, STATUS_STYLES, cn } from '../common/ui';
 
 interface InventoryViewProps {
@@ -218,13 +219,19 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
             <tbody className="divide-y divide-white/70">
               {visible.map(({ b, st }) => (
                 <tr key={b.id} className="group hover:bg-white/55 transition-colors">
-                  <td className="py-3 pl-5 pr-3 min-w-[240px] max-w-[340px]">
+                  <td className="py-3 pl-5 pr-3 min-w-[260px] max-w-[360px]">
                     <div className="flex items-center gap-3">
-                      <span className={cn('w-1 self-stretch rounded-full shrink-0', STATUS_STYLES[st.status].bar)} />
+                      <div className="relative shrink-0">
+                        <ProductThumbnail batch={b} size="md" className="rounded-xl shadow-xs" />
+                        <span
+                          className={cn('absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white', STATUS_STYLES[st.status].dot)}
+                          title={st.label}
+                        />
+                      </div>
                       <div className="min-w-0">
                         <div className="font-semibold text-ink line-clamp-2 leading-snug" title={b.productName}>{b.productName}</div>
                         <div className="mt-0.5 flex items-center gap-2 text-[12px] text-slate-500">
-                          <span className="font-mono text-[11px] text-slate-600">{b.batchCode}</span>
+                          <span className="font-mono text-[11px] text-slate-600 font-semibold">{b.batchCode}</span>
                           <span className="text-slate-300">·</span>
                           <span className="truncate">{b.category}</span>
                         </div>
@@ -325,10 +332,18 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
           {visible.map(({ b, st }) => (
             <li key={b.id} className="p-4">
               <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="font-semibold text-ink text-[14px]">{b.productName}</div>
-                  <div className="mt-0.5 text-[12px] text-slate-500">
-                    <span className="font-mono">{b.batchCode}</span> · {b.category}
+                <div className="flex items-start gap-3 min-w-0">
+                  <div className="relative shrink-0">
+                    <ProductThumbnail batch={b} size="md" className="rounded-xl shadow-xs" />
+                    <span
+                      className={cn('absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white', STATUS_STYLES[st.status].dot)}
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-semibold text-ink text-[14px] line-clamp-2 leading-snug">{b.productName}</div>
+                    <div className="mt-0.5 text-[12px] text-slate-500">
+                      <span className="font-mono text-[11px] font-semibold">{b.batchCode}</span> · {b.category}
+                    </div>
                   </div>
                 </div>
                 <StatusChip status={st.status} />

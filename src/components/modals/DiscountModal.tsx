@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Tag, ShieldCheck, Check } from 'lucide-react';
 import { InventoryBatch } from '../../types';
 import { formatRupiah, getDaysRemaining } from '../../utils/formatters';
+import { ProductThumbnail } from '../../utils/productImages';
 import { Modal, cn } from '../common/ui';
 
 interface DiscountModalProps {
@@ -76,13 +77,16 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({ batch, isOpen, onC
     >
       <div className="space-y-4">
         <div className="rounded-[20px] border border-white/80 p-4 flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <div className="text-[12px] text-slate-500">
-              <span className="font-mono">{batch.batchCode}</span> · {batch.category}
-            </div>
-            <div className="mt-0.5 font-semibold text-ink">{batch.productName}</div>
-            <div className="mt-1 text-[12px] text-slate-500 tabular">
-              {batch.stockQty} {batch.unit} · {daysLeft <= 0 ? 'kedaluwarsa hari ini' : `${daysLeft} hari lagi`}
+          <div className="flex items-center gap-3.5 min-w-0">
+            <ProductThumbnail batch={batch} size="lg" className="rounded-2xl" />
+            <div className="min-w-0">
+              <div className="text-[12px] text-slate-500">
+                <span className="font-mono">{batch.batchCode}</span> · {batch.category}
+              </div>
+              <div className="mt-0.5 font-semibold text-ink leading-tight">{batch.productName}</div>
+              <div className="mt-1 text-[12px] text-slate-500 tabular">
+                {batch.stockQty} {batch.unit} · {daysLeft <= 0 ? 'kedaluwarsa hari ini' : `${daysLeft} hari lagi`}
+              </div>
             </div>
           </div>
           <div className="text-right shrink-0 tabular">
