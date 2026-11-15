@@ -57,7 +57,7 @@ const DeltaBadge: React.FC<{ value: number; invert?: boolean }> = ({ value, inve
     <span
       className={cn(
         'num inline-flex items-center h-6 px-2 rounded-full text-[11.5px] font-bold',
-        good ? 'bg-brand-500/12 text-brand-700 bg-[rgb(139_111_224/0.12)]' : 'bg-rose-500/10 text-rose-600'
+        good ? 'bg-brand-500/12 text-brand-700' : 'bg-rose-500/10 text-rose-600'
       )}
     >
       {value >= 0 ? '+' : ''}
