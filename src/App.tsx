@@ -149,6 +149,7 @@ export function App() {
         onResetData={handleResetData}
         pdpConsent={pdpConsent}
         onOpenOcrModal={() => setIsOcrOpen(true)}
+        onOpenManualModal={() => setManualModal({ open: true, batch: null })}
       />
 
       <div className="min-w-0">
@@ -157,6 +158,7 @@ export function App() {
           onOpenMenu={() => setIsMobileMenuOpen(true)}
           onSelectTab={setActiveTab}
           onQuickAdd={() => setManualModal({ open: true, batch: null })}
+          onOpenOcrModal={() => setIsOcrOpen(true)}
           alertCount={alertCount}
           onResetData={handleResetData}
           pdpConsent={pdpConsent}

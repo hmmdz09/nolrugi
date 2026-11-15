@@ -8,6 +8,7 @@ import {
   X,
   Store,
   ScanLine,
+  Plus,
 } from 'lucide-react';
 import { InventoryBatch } from '../../types';
 import { getBatchStatus } from '../../utils/formatters';
@@ -46,6 +47,7 @@ interface SidebarProps {
   onResetData: () => void;
   pdpConsent: boolean;
   onOpenOcrModal: () => void;
+  onOpenManualModal: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -57,6 +59,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onResetData,
   pdpConsent,
   onOpenOcrModal,
+  onOpenManualModal,
 }) => {
   const atRisk = batches.filter((b) => {
     const s = getBatchStatus(b.expiryDate, b.entryDate, b.packagingType).status;
@@ -85,37 +88,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
-      {/* Scan Barang CTA button at top of Sidebar */}
-      <div className="px-3 pt-3">
-        <button
-          onClick={() => {
-            onOpenOcrModal();
-            onCloseMobile();
-          }}
-          className="w-full group relative overflow-hidden rounded-xl bg-gradient-to-r from-brand-600 via-brand-500 to-brand-700 p-2.5 text-white shadow-[0_6px_16px_-4px_rgb(118_86_209/0.65)] hover:shadow-lift transition-all duration-300 active:scale-[0.98]"
-        >
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/30 group-hover:scale-110 transition-transform">
-              <ScanLine className="w-4 h-4 text-white" />
-            </div>
-            <div className="min-w-0 text-left">
-              <div className="text-[13px] font-bold leading-tight flex items-center gap-1.5">
-                <span>Scan Barang</span>
-                <span className="text-[9.5px] uppercase font-black px-1.5 py-0.5 rounded-full bg-white/25 text-white tracking-wider">
-                  AI OCR
-                </span>
-              </div>
-              <p className="text-[11px] text-white/80 mt-0.5 leading-snug truncate">
-                Pindai expired &amp; batch
-              </p>
-            </div>
-          </div>
-        </button>
-      </div>
-
-      <nav className="px-3 pt-4 flex-1" aria-label="Navigasi utama">
-        <div className="eyebrow px-2.5 mb-2">Menu</div>
-        <ul className="space-y-0.5">
+      <nav className="px-3 pt-3 flex-1" aria-label="Navigasi utama">
+        <div className="eyebrow px-2.5 mb-2">Menu Utama</div>
+        <ul className="space-y-1">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const active = activeTab === item.id;
@@ -128,7 +103,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'group relative w-full flex items-center gap-2.5 h-8 px-2.5 rounded-md text-[13px] font-medium transition-colors',
+                    'group relative w-full flex items-center gap-2.5 h-8.5 px-2.5 rounded-lg text-[13px] font-medium transition-colors',
                     active
                       ? 'bg-brand-50 text-brand-800'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-ink'
@@ -147,8 +122,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </li>
             );
           })}
-        </ul>
 
+          <li className="pt-2">
+            <div className="h-[1px] bg-slate-200/80 my-1 mx-1" />
+          </li>
+
+          <li>
+            <button
+              onClick={() => {
+                onOpenManualModal();
+                onCloseMobile();
+              }}
+              className="group relative w-full flex items-center gap-2.5 h-8.5 px-2.5 rounded-lg text-[13px] font-semibold text-slate-700 hover:bg-slate-100 hover:text-ink transition-colors"
+            >
+              <Plus className="w-4 h-4 text-brand-600" />
+              <span className="flex-1 text-left">Tambah Batch</span>
+            </button>
+          </li>
+
+          <li>
+            <button
+              onClick={() => {
+                onOpenOcrModal();
+                onCloseMobile();
+              }}
+              className="group relative w-full flex items-center gap-2.5 h-8.5 px-2.5 rounded-lg text-[13px] font-semibold text-brand-700 hover:bg-brand-50 transition-colors"
+            >
+              <ScanLine className="w-4 h-4 text-brand-600" />
+              <span className="flex-1 text-left">Scan Tanggal (AI OCR)</span>
+            </button>
+          </li>
+        </ul>
       </nav>
 
       <div className="px-3 pb-2">
@@ -185,7 +189,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      
+
       {isMobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-slate-950/40 animate-fade-in" onClick={onCloseMobile} />

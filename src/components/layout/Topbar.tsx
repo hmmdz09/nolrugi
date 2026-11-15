@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Menu, Search, Bell, Plus, ChevronDown, RotateCcw, ShieldCheck } from 'lucide-react';
+import { Menu, Search, Bell, Plus, ChevronDown, RotateCcw, ShieldCheck, ScanLine } from 'lucide-react';
 import { ActiveTab, BrandMark, NAV_ITEMS } from './Sidebar';
 import { cn } from '../common/ui';
 
@@ -8,6 +8,7 @@ interface TopbarProps {
   onOpenMenu: () => void;
   onSelectTab: (tab: ActiveTab) => void;
   onQuickAdd: () => void;
+  onOpenOcrModal: () => void;
   alertCount: number;
   onResetData?: () => void;
   pdpConsent?: boolean;
@@ -18,6 +19,7 @@ export const Topbar: React.FC<TopbarProps> = ({
   onOpenMenu,
   onSelectTab,
   onQuickAdd,
+  onOpenOcrModal,
   alertCount,
   onResetData,
   pdpConsent,
@@ -48,7 +50,7 @@ export const Topbar: React.FC<TopbarProps> = ({
           </button>
           <BrandMark className="pl-1 sm:pl-2" />
 
-          {/* Nav pill */}
+          {/* Nav pill: Ringkasan, Batch & FEFO, Kalkulator HPP, Tambah Batch, Scan Tanggal */}
           <nav
             className="hidden lg:flex items-center gap-1 p-1 mx-auto rounded-full bg-white/40 border border-white/70"
             aria-label="Navigasi utama"
@@ -61,7 +63,7 @@ export const Topbar: React.FC<TopbarProps> = ({
                   onClick={() => onSelectTab(item.id)}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'relative h-10 px-5 rounded-full text-[13.5px] font-semibold transition-all duration-300',
+                    'relative h-10 px-4 rounded-full text-[13.5px] font-semibold transition-all duration-300',
                     active
                       ? 'bg-white text-ink shadow-[0_4px_14px_-6px_rgb(70_50_140/0.35)]'
                       : 'text-slate-600 hover:text-ink hover:bg-white/60'
@@ -76,6 +78,28 @@ export const Topbar: React.FC<TopbarProps> = ({
                 </button>
               );
             })}
+
+            <div className="w-[1px] h-5 bg-slate-300/70 mx-1" aria-hidden="true" />
+
+            <button
+              type="button"
+              onClick={onQuickAdd}
+              className="flex items-center gap-1.5 h-10 px-3.5 rounded-full text-[13px] font-semibold text-slate-700 hover:text-ink hover:bg-white/75 active:scale-[0.98] transition-all duration-200"
+              title="Tambah batch baru"
+            >
+              <Plus className="w-4 h-4 text-brand-600" />
+              <span>Tambah Batch</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onOpenOcrModal}
+              className="flex items-center gap-1.5 h-10 px-3.5 rounded-full text-[13px] font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100/90 border border-brand-200/60 active:scale-[0.98] transition-all duration-200"
+              title="Scan Tanggal Kedaluwarsa (AI OCR)"
+            >
+              <ScanLine className="w-4 h-4 text-brand-600" />
+              <span>Scan Tanggal</span>
+            </button>
           </nav>
 
           <div className="flex-1 lg:hidden" />
@@ -88,14 +112,6 @@ export const Topbar: React.FC<TopbarProps> = ({
               title="Cari produk atau batch"
             >
               <Search className="w-[18px] h-[18px]" />
-            </button>
-            <button
-              onClick={onQuickAdd}
-              className="btn-icon hidden sm:inline-flex"
-              aria-label="Tambah batch baru"
-              title="Batch baru"
-            >
-              <Plus className="w-[18px] h-[18px]" />
             </button>
             <button
               onClick={() => onSelectTab('inventory')}

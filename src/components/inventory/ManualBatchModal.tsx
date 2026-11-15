@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { PlusCircle, Pencil, RefreshCw, Check } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { PlusCircle, Pencil, RefreshCw, Check, Upload, Trash2 } from 'lucide-react';
 import { InventoryBatch, ProductCategory } from '../../types';
-import { ProductThumbnail } from '../../utils/productImages';
 import { Field, Modal, cn } from '../common/ui';
 
 interface ManualBatchModalProps {
@@ -37,6 +36,7 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({ isOpen, onCl
   const [location, setLocation] = useState(initialBatch?.location || 'Rak A');
   const [notes, setNotes] = useState(initialBatch?.notes || '');
   const [imageUrl, setImageUrl] = useState(initialBatch?.imageUrl || '');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
 
@@ -46,6 +46,22 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({ isOpen, onCl
   const generateBatchCode = () => {
     const prefix = category.substring(0, 2).toUpperCase();
     setBatchCode(`${prefix}-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Ukuran foto maksimal 5MB');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (typeof event.target?.result === 'string') {
+        setImageUrl(event.target.result);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -90,26 +106,6 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({ isOpen, onCl
       }
     >
       <form id="batch-form" onSubmit={handleSubmit} className="space-y-5">
-        {/* Photo Preview & Product Details */}
-        <div className="p-3 rounded-2xl bg-white/60 border border-white flex items-center gap-3.5">
-          <ProductThumbnail
-            batch={{ productName, category, imageUrl }}
-            size="lg"
-            className="rounded-2xl"
-          />
-          <div className="min-w-0 flex-1">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-              Pratinjau Foto Produk
-            </span>
-            <div className="text-[14px] font-bold text-ink truncate mt-0.5">
-              {productName || 'Nama produk kemasan'}
-            </div>
-            <div className="text-[12px] text-brand-600 font-medium">
-              Kategori: {category}
-            </div>
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Nama produk" className="sm:col-span-2">
             <input
@@ -121,15 +117,80 @@ export const ManualBatchModal: React.FC<ManualBatchModalProps> = ({ isOpen, onCl
               className="input"
             />
           </Field>
-          <Field label="URL Foto Produk (opsional)" hint="Otomatis menggunakan foto sesuai kategori jika kosong" className="sm:col-span-2">
+
+          {/* Foto produk dengan tombol upload */}
+          <Field label="Foto produk (opsional)" className="sm:col-span-2">
             <input
-              type="url"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://images.unsplash.com/..."
-              className="input text-[12px]"
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/jpg"
+              className="hidden"
+              onChange={handleFileUpload}
             />
+
+            {imageUrl ? (
+              <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/80 border border-slate-200">
+                <img
+                  src={imageUrl}
+                  alt={productName || 'Preview'}
+                  className="w-12 h-12 rounded-lg object-cover border border-slate-200 shrink-0"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="text-[12.5px] font-semibold text-ink truncate">
+                    {productName || 'Foto produk terpilih'}
+                  </div>
+                  <div className="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
+                    <Check className="w-3 h-3" />
+                    Foto siap digunakan
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="btn-secondary h-8 px-2.5 text-[12px]"
+                >
+                  Ganti
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImageUrl('');
+                    if (fileInputRef.current) fileInputRef.current.value = '';
+                  }}
+                  className="btn-ghost text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-8 px-2.5 text-[12px]"
+                  title="Hapus foto"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline ml-1">Hapus</span>
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="btn-secondary h-9 px-3.5 inline-flex items-center gap-2 text-[13px] font-semibold bg-white hover:bg-slate-50 border-slate-300 text-slate-800 shadow-sm"
+                  >
+                    <Upload className="w-4 h-4 text-brand-600" />
+                    <span>Upload Foto</span>
+                  </button>
+                  <span className="text-[11px] text-slate-400">atau</span>
+                  <input
+                    type="url"
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    placeholder="Tempel link URL foto..."
+                    className="input flex-1 min-w-[200px] text-[12px] h-9"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-400">
+                  Format JPG, PNG, atau WebP (maks. 5MB). Otomatis memakai foto bawaan {category} jika kosong.
+                </p>
+              </div>
+            )}
           </Field>
+
           <Field label="Kategori">
             <select value={category} onChange={(e) => setCategory(e.target.value as ProductCategory)} className="input">
               {CATEGORIES.map((c) => (
