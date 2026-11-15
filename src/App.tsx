@@ -11,12 +11,19 @@ import { ManualBatchModal } from './components/inventory/ManualBatchModal';
 import { InventoryBatch, ToastMessage } from './types';
 import { loadBatches, saveBatches, resetToDefaults, loadConsent, saveConsent } from './utils/storage';
 import { formatRupiah, getBatchStatus } from './utils/formatters';
+import { BrandIntro } from './components/common/BrandIntro';
 
 const InventoryView = lazy(() =>
   import('./components/inventory/InventoryView').then((m) => ({ default: m.InventoryView }))
 );
 const HppCalculatorView = lazy(() =>
   import('./components/calculator/HppCalculatorView').then((m) => ({ default: m.HppCalculatorView }))
+);
+const AddBatchView = lazy(() =>
+  import('./components/inventory/AddBatchView').then((m) => ({ default: m.AddBatchView }))
+);
+const ScanDateView = lazy(() =>
+  import('./components/inventory/ScanDateView').then((m) => ({ default: m.ScanDateView }))
 );
 
 const ViewFallback = () => (
@@ -40,6 +47,7 @@ const Page: React.FC<{ id: string; children: React.ReactNode }> = ({ id, childre
 );
 
 export function App() {
+  const [showIntro, setShowIntro] = useState(true);
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -139,6 +147,7 @@ export function App() {
 
   return (
     <div className="min-h-screen relative isolate">
+      {showIntro && <BrandIntro onComplete={() => setShowIntro(false)} />}
       <div className="app-bg" aria-hidden />
       <Sidebar
         activeTab={activeTab}
@@ -148,8 +157,8 @@ export function App() {
         onCloseMobile={() => setIsMobileMenuOpen(false)}
         onResetData={handleResetData}
         pdpConsent={pdpConsent}
-        onOpenOcrModal={() => setIsOcrOpen(true)}
-        onOpenManualModal={() => setManualModal({ open: true, batch: null })}
+        onOpenOcrModal={() => setActiveTab('scan-date')}
+        onOpenManualModal={() => setActiveTab('add-batch')}
       />
 
       <div className="min-w-0">
@@ -157,11 +166,14 @@ export function App() {
           activeTab={activeTab}
           onOpenMenu={() => setIsMobileMenuOpen(true)}
           onSelectTab={setActiveTab}
-          onQuickAdd={() => setManualModal({ open: true, batch: null })}
-          onOpenOcrModal={() => setIsOcrOpen(true)}
+          onQuickAdd={() => setActiveTab('add-batch')}
+          onOpenOcrModal={() => setActiveTab('scan-date')}
           alertCount={alertCount}
           onResetData={handleResetData}
           pdpConsent={pdpConsent}
+          batches={batches}
+          onSelectBatchId={setSelectedBatchId}
+          onTriggerDiscount={setDiscountBatch}
         />
 
         <main className="px-3 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-[1400px] mx-auto pb-20">
@@ -183,8 +195,11 @@ export function App() {
                 <Page id="inventory" key="inventory">
                   <InventoryView
                     batches={batches}
-                    onOpenOcrModal={() => setIsOcrOpen(true)}
-                    onOpenManualModal={(batch) => setManualModal({ open: true, batch: batch || null })}
+                    onOpenOcrModal={() => setActiveTab('scan-date')}
+                    onOpenManualModal={(batch) => {
+                      if (batch) setManualModal({ open: true, batch });
+                      else setActiveTab('add-batch');
+                    }}
                     onDeleteBatch={handleDeleteBatch}
                     onUpdateStock={handleUpdateStock}
                     onTriggerDiscount={setDiscountBatch}
@@ -196,6 +211,46 @@ export function App() {
               {activeTab === 'calculator' && (
                 <Page id="calculator" key="calculator">
                   <HppCalculatorView batches={batches} onApplyClearancePrice={handleApplyClearancePrice} />
+                </Page>
+              )}
+
+              {activeTab === 'add-batch' && (
+                <Page id="add-batch" key="add-batch">
+                  <AddBatchView
+                    onSaveBatch={(batchData) => {
+                      const id = `batch-${Date.now()}`;
+                      const newBatch: InventoryBatch = {
+                        ...batchData,
+                        id,
+                        initialQty: batchData.stockQty,
+                        isRescued: false,
+                      };
+                      setBatches((prev) => [newBatch, ...prev]);
+                      setSelectedBatchId(newBatch.id);
+                      setActiveTab('inventory');
+                      addToast('Batch berhasil disimpan', `${newBatch.productName} telah masuk ke sistem FEFO.`);
+                    }}
+                    onNavigateToScan={() => setActiveTab('scan-date')}
+                  />
+                </Page>
+              )}
+
+              {activeTab === 'scan-date' && (
+                <Page id="scan-date" key="scan-date">
+                  <ScanDateView
+                    onBatchScanned={(scanned) => {
+                      const nb: InventoryBatch = {
+                        ...scanned,
+                        id: `batch-${Date.now()}`,
+                        initialQty: scanned.stockQty,
+                        isRescued: false,
+                      };
+                      setBatches((prev) => [nb, ...prev]);
+                      setSelectedBatchId(nb.id);
+                      setActiveTab('inventory');
+                      addToast('Hasil scan disimpan', `Batch ${nb.batchCode} masuk antrean FEFO.`);
+                    }}
+                  />
                 </Page>
               )}
             </AnimatePresence>

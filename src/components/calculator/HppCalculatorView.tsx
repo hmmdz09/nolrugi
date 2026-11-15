@@ -72,10 +72,10 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({ batches, o
 
   const schedule = selected
     ? [
-        { level: 'Waspada', window: 'H-7 s/d H-5', price: Math.max(floor, round500(selected.sellingPrice * 0.8)), note: 'Perputaran tetap untung' },
-        { level: 'Kritis', window: 'H-4 s/d H-2', price: Math.max(floor, round500(selected.sellingPrice * 0.65)), note: 'Prioritaskan likuiditas kas' },
-        { level: 'Harga modal', window: 'H-1 / H-0', price: floor, note: '0% rugi kas, modal kembali utuh' },
-      ]
+      { level: 'Waspada', window: 'H-7 s/d H-5', price: Math.max(floor, round500(selected.sellingPrice * 0.8)) },
+      { level: 'Kritis', window: 'H-4 s/d H-2', price: Math.max(floor, round500(selected.sellingPrice * 0.65)) },
+      { level: 'Harga modal', window: 'H-1 / H-0', price: floor },
+    ]
     : [];
 
   const applyClearance = (price: number) => {
@@ -247,17 +247,26 @@ export const HppCalculatorView: React.FC<HppCalculatorViewProps> = ({ batches, o
                 {schedule.map((t, i) => {
                   const pct = Math.round(((selected.sellingPrice - t.price) / selected.sellingPrice) * 100);
                   const isCurrent = selected.discountPrice === t.price;
+                  const unitProfit = Math.max(0, t.price - floor);
+                  const totalProfit = unitProfit * selected.stockQty;
+                  const marginPct = t.price > 0 ? (unitProfit / t.price) * 100 : 0;
+
                   return (
-                    <div key={t.level} className={cn('rounded-[20px] border p-4 flex flex-col', isCurrent ? 'border-brand-500 ring-4 ring-brand-500/10' : 'border-white/80')}>
+                    <div key={t.level} className={cn('rounded-[20px] border p-4 flex flex-col', isCurrent ? 'border-brand-500 ring-4 ring-brand-500/10 bg-white shadow-xs' : 'border-white/80 bg-white/40')}>
                       <div className="flex items-center justify-between">
                         <span className="text-[12px] font-semibold text-slate-500">Tahap {i + 1}</span>
                         <span className="chip h-5 bg-rose-50 text-rose-700 border-rose-200 tabular">-{pct}%</span>
                       </div>
                       <div className="mt-2 text-[15px] font-semibold text-ink">{t.level}</div>
-                      <div className="text-[12px] text-slate-500">{t.window} · {t.note}</div>
+                      <div className="text-[12px] text-slate-500">{t.window}</div>
                       <div className="mt-4 text-2xl font-semibold text-ink tabular">{formatRupiah(t.price)}</div>
-                      <div className="text-[12px] text-brand-600 font-medium tabular">
-                        Laba/unit +{formatRupiah(Math.max(0, t.price - floor))}
+                      <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                        <span className={cn(
+                          'px-2.5 py-0.5 rounded-full text-[11px] font-bold border',
+                          totalProfit > 0 ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-slate-100 text-slate-700 border-slate-200'
+                        )}>
+                          {totalProfit > 0 ? `+${formatRupiah(totalProfit)} untung` : 'Rp 0 untung'}
+                        </span>
                       </div>
                       <button onClick={() => applyClearance(t.price)} className={cn('mt-4', isCurrent ? 'btn-secondary' : 'btn-primary')}>
                         <Check className="w-4 h-4" />

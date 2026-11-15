@@ -7,17 +7,21 @@ import {
   RotateCcw,
   X,
   Store,
+  PlusCircle,
+  ScanLine,
 } from 'lucide-react';
 import { InventoryBatch } from '../../types';
 import { getBatchStatus } from '../../utils/formatters';
 import { cn } from '../common/ui';
 
-export type ActiveTab = 'dashboard' | 'inventory' | 'calculator';
+export type ActiveTab = 'dashboard' | 'inventory' | 'calculator' | 'add-batch' | 'scan-date';
 
 export const NAV_ITEMS: Array<{ id: ActiveTab; label: string; short: string; icon: React.ElementType }> = [
   { id: 'dashboard', label: 'Ringkasan', short: 'Ringkasan', icon: LayoutDashboard },
   { id: 'inventory', label: 'Batch & FEFO', short: 'Batch', icon: Boxes },
   { id: 'calculator', label: 'Kalkulator HPP', short: 'HPP', icon: Calculator },
+  { id: 'add-batch', label: 'Tambah Batch', short: 'Tambah', icon: PlusCircle },
+  { id: 'scan-date', label: 'Scan Tanggal', short: 'Scan', icon: ScanLine },
 ];
 
 export const BrandMark: React.FC<{ className?: string }> = ({ className }) => (
@@ -120,34 +124,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </li>
             );
           })}
-
-          <li className="pt-1">
-            <div className="h-[1px] bg-slate-200/60 my-1 mx-2" />
-          </li>
-
-          <li>
-            <button
-              onClick={() => {
-                onOpenManualModal();
-                onCloseMobile();
-              }}
-              className="w-full flex items-center gap-2.5 h-10 px-3 rounded-full text-[13px] font-semibold text-slate-700 hover:text-ink bg-white/30 hover:bg-white/90 border border-white/50 shadow-xs transition-all duration-200"
-            >
-              <span className="flex-1 text-left">Tambah Batch</span>
-            </button>
-          </li>
-
-          <li>
-            <button
-              onClick={() => {
-                onOpenOcrModal();
-                onCloseMobile();
-              }}
-              className="w-full flex items-center gap-2.5 h-10 px-3 rounded-full text-[13px] font-semibold text-slate-700 hover:text-ink bg-white/30 hover:bg-white/90 border border-white/50 shadow-xs transition-all duration-200"
-            >
-              <span className="flex-1 text-left">Scan Tanggal (AI OCR)</span>
-            </button>
-          </li>
         </ul>
       </nav>
 
