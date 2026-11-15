@@ -31,6 +31,7 @@ interface TopbarProps {
   batches?: InventoryBatch[];
   onSelectBatchId?: (id: string) => void;
   onTriggerDiscount?: (batch: InventoryBatch) => void;
+  onReplayIntro?: () => void;
 }
 
 export const Topbar: React.FC<TopbarProps> = ({
@@ -45,6 +46,7 @@ export const Topbar: React.FC<TopbarProps> = ({
   batches = [],
   onSelectBatchId,
   onTriggerDiscount,
+  onReplayIntro,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -216,7 +218,7 @@ export const Topbar: React.FC<TopbarProps> = ({
           <button onClick={onOpenMenu} className="btn-icon lg:hidden" aria-label="Buka menu">
             <Menu className="w-[18px] h-[18px]" />
           </button>
-          <BrandMark className="pl-1 sm:pl-2" />
+          <BrandMark className="pl-1 sm:pl-2" onClick={onReplayIntro} />
 
           {/* Nav pill: Ringkasan, Batch & FEFO, Kalkulator HPP, Tambah Batch, Scan Tanggal */}
           <nav
@@ -410,6 +412,19 @@ export const Topbar: React.FC<TopbarProps> = ({
                     <span className="flex-1 text-left">UU PDP 27/2022</span>
                     <span className="text-[11.5px] font-semibold text-brand-600">{pdpConsent ? 'Aktif' : 'Lokal'}</span>
                   </div>
+                  {onReplayIntro && (
+                    <button
+                      role="menuitem"
+                      onClick={() => {
+                        onReplayIntro();
+                        setMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 h-10 px-3 rounded-2xl text-[13px] text-slate-700 hover:bg-white transition-colors"
+                    >
+                      <Sparkles className="w-4 h-4 text-brand-500" />
+                      Putar animasi intro GSAP
+                    </button>
+                  )}
                   {onResetData && (
                     <button
                       role="menuitem"

@@ -24,20 +24,32 @@ export const NAV_ITEMS: Array<{ id: ActiveTab; label: string; short: string; ico
   { id: 'scan-date', label: 'Scan Tanggal', short: 'Scan', icon: ScanLine },
 ];
 
-export const BrandMark: React.FC<{ className?: string }> = ({ className }) => (
-  <div className={cn('flex items-center gap-2.5', className)}>
-    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center shadow-[0_6px_16px_-6px_rgb(139_111_224/0.9)]">
-      <svg viewBox="0 0 32 32" className="w-6 h-6" aria-hidden>
+export const BrandMark: React.FC<{ className?: string; onClick?: () => void }> = ({ className, onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={cn(
+      'group flex items-center gap-2.5 text-left transition-transform duration-300 active:scale-95 focus:outline-none',
+      onClick && 'cursor-pointer',
+      className
+    )}
+    title={onClick ? 'Putar ulang animasi intro NolRugi' : undefined}
+  >
+    <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-400 via-brand-500 to-brand-600 flex items-center justify-center shadow-[0_6px_16px_-6px_rgb(139_111_224/0.9)] transition-all duration-300 ease-out group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-[0_10px_24px_-4px_rgba(139,111,224,0.8)]">
+      <svg viewBox="0 0 32 32" className="w-6 h-6 transition-transform duration-300 group-hover:scale-105" aria-hidden>
         <circle cx="16" cy="16" r="9" fill="none" stroke="white" strokeWidth="2.6" />
         <circle cx="16" cy="16" r="3.2" fill="white" />
         <path d="M4 22C10 19 22 13 28 9" stroke="#8b6fe0" strokeWidth="3.4" strokeLinecap="round" />
         <path d="M4 22C10 19 22 13 28 9" stroke="white" strokeWidth="1.4" strokeLinecap="round" opacity="0.9" />
       </svg>
+      <div className="absolute inset-0 rounded-2xl bg-white/25 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
     </div>
-    <span className="hidden sm:inline text-[17px] font-bold tracking-[-0.02em] text-ink">
-      NolRugi
-    </span>
-  </div>
+    <div className="hidden sm:flex flex-col">
+      <span className="text-[17px] font-bold tracking-[-0.02em] text-ink transition-colors duration-200 group-hover:text-brand-700">
+        Nol<span className="text-brand-600 group-hover:text-brand-500 underline decoration-amber-400 decoration-2 underline-offset-2 transition-all">Rugi</span>
+      </span>
+    </div>
+  </button>
 );
 
 interface SidebarProps {
@@ -50,6 +62,7 @@ interface SidebarProps {
   pdpConsent: boolean;
   onOpenOcrModal: () => void;
   onOpenManualModal: () => void;
+  onReplayIntro?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -62,6 +75,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   pdpConsent,
   onOpenOcrModal,
   onOpenManualModal,
+  onReplayIntro,
 }) => {
   const atRisk = batches.filter((b) => {
     const s = getBatchStatus(b.expiryDate, b.entryDate, b.packagingType).status;
@@ -71,7 +85,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const content = (
     <div className="flex flex-col h-full bg-white/60 backdrop-blur-2xl backdrop-saturate-[1.8] border-r border-white/70">
       <div className="h-14 px-4 flex items-center justify-between">
-        <BrandMark />
+        <BrandMark onClick={onReplayIntro} />
         <button onClick={onCloseMobile} className="btn-icon lg:hidden" aria-label="Tutup menu">
           <X className="w-4 h-4" />
         </button>

@@ -159,6 +159,7 @@ export function App() {
         pdpConsent={pdpConsent}
         onOpenOcrModal={() => setActiveTab('scan-date')}
         onOpenManualModal={() => setActiveTab('add-batch')}
+        onReplayIntro={() => setShowIntro(true)}
       />
 
       <div className="min-w-0">
@@ -174,6 +175,7 @@ export function App() {
           batches={batches}
           onSelectBatchId={setSelectedBatchId}
           onTriggerDiscount={setDiscountBatch}
+          onReplayIntro={() => setShowIntro(true)}
         />
 
         <main className="px-3 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-[1400px] mx-auto pb-20">
