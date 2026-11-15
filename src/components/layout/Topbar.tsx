@@ -133,18 +133,13 @@ export const Topbar: React.FC<TopbarProps> = ({
                     <div className="text-[13.5px] font-semibold text-ink">Dewi Berkah</div>
                     <div className="text-[12px] text-slate-500">Dapur Berkah Nusantara</div>
                   </div>
-                  <button
-                    role="menuitem"
-                    onClick={() => {
-                      onSelectTab('reports');
-                      setMenuOpen(false);
-                    }}
-                    className="w-full flex items-center gap-2.5 h-10 px-3 rounded-2xl text-[13px] text-slate-700 hover:bg-white transition-colors"
+                  <div
+                    className="w-full flex items-center gap-2.5 h-10 px-3 rounded-2xl text-[13px] text-slate-700"
                   >
                     <ShieldCheck className="w-4 h-4 text-slate-500" />
                     <span className="flex-1 text-left">UU PDP 27/2022</span>
                     <span className="text-[11.5px] font-semibold text-brand-600">{pdpConsent ? 'Aktif' : 'Lokal'}</span>
-                  </button>
+                  </div>
                   {onResetData && (
                     <button
                       role="menuitem"

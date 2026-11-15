@@ -171,7 +171,7 @@
   }
 }
 
-/* Print styling for SAK-EMKM Financial Report */
+/* Clean print styling */
 @media print {
   header, aside, .no-print, button {
     display: none !important;

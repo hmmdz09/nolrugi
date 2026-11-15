@@ -3,7 +3,6 @@ import {
   LayoutDashboard,
   Boxes,
   Calculator,
-  FileSpreadsheet,
   ShieldCheck,
   RotateCcw,
   X,
@@ -14,13 +13,12 @@ import { InventoryBatch } from '../../types';
 import { getBatchStatus } from '../../utils/formatters';
 import { cn } from '../common/ui';
 
-export type ActiveTab = 'dashboard' | 'inventory' | 'calculator' | 'reports';
+export type ActiveTab = 'dashboard' | 'inventory' | 'calculator';
 
 export const NAV_ITEMS: Array<{ id: ActiveTab; label: string; short: string; icon: React.ElementType }> = [
   { id: 'dashboard', label: 'Ringkasan', short: 'Ringkasan', icon: LayoutDashboard },
   { id: 'inventory', label: 'Batch & FEFO', short: 'Batch', icon: Boxes },
   { id: 'calculator', label: 'Kalkulator HPP', short: 'HPP', icon: Calculator },
-  { id: 'reports', label: 'Laporan SAK-EMKM', short: 'Laporan', icon: FileSpreadsheet },
 ];
 
 export const BrandMark: React.FC<{ className?: string }> = ({ className }) => (
@@ -154,13 +152,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </nav>
 
       <div className="px-3 pb-2">
-                <button
-          onClick={() => {
-            onSelectTab('reports');
-            onCloseMobile();
-          }}
-          className="w-full flex items-center gap-2.5 h-8 px-2.5 rounded-md text-[13px] font-medium text-slate-600 hover:bg-slate-100 hover:text-ink transition-colors"
-        >
+        <div className="w-full flex items-center gap-2.5 h-8 px-2.5 rounded-md text-[13px] font-medium text-slate-600">
           <ShieldCheck className="w-4 h-4 text-slate-400" />
           <span className="flex-1 text-left">UU PDP 27/2022</span>
           <span
@@ -171,7 +163,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           >
             {pdpConsent ? 'Aktif' : 'Lokal'}
           </span>
-        </button>
+        </div>
       </div>
 
       <div className="p-3 border-t border-slate-200">

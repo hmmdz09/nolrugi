@@ -8,7 +8,7 @@ import { PRODUCT_IMAGE_PRESETS } from '../utils/productImages';
  */
 export const getInitialBatches = (): InventoryBatch[] => {
   const today = new Date();
-  
+
   const formatDateOffset = (daysOffset: number): string => {
     const d = new Date(today);
     d.setDate(d.getDate() + daysOffset);

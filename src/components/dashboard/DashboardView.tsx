@@ -24,7 +24,7 @@ interface DashboardViewProps {
   onSelectBatchId: (id: string) => void;
   onTriggerDiscount: (batch: InventoryBatch) => void;
   onTriggerBundle: (batch: InventoryBatch) => void;
-  onNavigateToTab: (tab: 'inventory' | 'calculator' | 'reports') => void;
+  onNavigateToTab: (tab: 'inventory' | 'calculator') => void;
 }
 
 type RiskFilter = 'all' | 'kritis' | 'waspada' | 'dwell-alert';
@@ -167,12 +167,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const selected = enriched.find((e) => e.batch.id === selectedBatchId) ?? enriched[0];
   const selShelf = selected
     ? (() => {
-        const total = Math.max(
-          1,
-          (new Date(selected.batch.expiryDate).getTime() - new Date(selected.batch.entryDate).getTime()) / 86_400_000
-        );
-        return Math.max(4, Math.min(100, (selected.st.dwellDays / total) * 100));
-      })()
+      const total = Math.max(
+        1,
+        (new Date(selected.batch.expiryDate).getTime() - new Date(selected.batch.entryDate).getTime()) / 86_400_000
+      );
+      return Math.max(4, Math.min(100, (selected.st.dwellDays / total) * 100));
+    })()
     : 0;
 
   const stats = [
@@ -265,7 +265,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <CalendarDays className="w-4 h-4 text-slate-500" />
                   6 bulan
                 </span>
-                <CornerLink onClick={() => onNavigateToTab('reports')} label="Buka laporan" />
+                <CornerLink onClick={() => onNavigateToTab('calculator')} label="Buka kalkulator margin" />
               </div>
             </div>
 

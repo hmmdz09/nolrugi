@@ -182,17 +182,17 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 [mask-image:linear-gradient(to_right,black_85%,transparent)] sm:[mask-image:none]">
               <div className="inline-flex pr-8 sm:pr-0">
-              <Segmented<StatusFilter>
-                value={status}
-                onChange={setStatus}
-                options={[
-                  { value: 'all', label: 'Semua', count: batches.length },
-                  { value: 'kritis', label: 'Kritis', count: counts.kritis },
-                  { value: 'waspada', label: 'Waspada', count: counts.waspada },
-                  { value: 'dwell-alert', label: 'Dwell', count: counts['dwell-alert'] },
-                  { value: 'aman', label: 'Aman', count: counts.aman },
-                ]}
-              />
+                <Segmented<StatusFilter>
+                  value={status}
+                  onChange={setStatus}
+                  options={[
+                    { value: 'all', label: 'Semua', count: batches.length },
+                    { value: 'kritis', label: 'Kritis', count: counts.kritis },
+                    { value: 'waspada', label: 'Waspada', count: counts.waspada },
+                    { value: 'dwell-alert', label: 'Dwell', count: counts['dwell-alert'] },
+                    { value: 'aman', label: 'Aman', count: counts.aman },
+                  ]}
+                />
               </div>
             </div>
             <p className="text-[12px] text-slate-500 tabular">

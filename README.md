@@ -44,16 +44,7 @@ NolRugi adalah solusi digital inovatif yang dirancang khusus untuk memecahkan du
 - **Emergency Clearance Optimizer:**
   - Memilih batch tertentu dari inventori untuk membedah batas harga diskon terendah agar modal kerja tidak hilang.
 
-### 4. Laporan SAK-EMKM Sederhana & Skor Kesiapan KUR
-- **Laporan Laba Rugi SAK-EMKM:**
-  - Pendapatan Penjualan, Beban Pokok Penjualan (HPP), Penyelamatan Margin NolRugi, Kerugian Limbah Basi, Laba Kotor, Beban Operasional, Laba Sebelum Pajak (EBIT), PPh Final UMKM 0.5% (PP No. 55/2022), dan Laba Bersih Setelah Pajak (Net Profit).
-  - Modal Cetak / PDF Preview resmi lengkap dengan kop surat UMKM dan tanda tangan pimpinan.
-- **Credit Readiness Index (Skor Kesiapan KUR):**
-  - Skor finansial 84/100 ("Sangat Siap Pengajuan KUR BRI / BNI / Mandiri / BSI").
-  - Checklist Kepatuhan UU PDP (No. 27/2022) dengan enkripsi sisi klien dan toggle consent sharing perbankan.
-  - Export berkas verifikasi KUR dalam format JSON terenkripsi.
-
-### 5. Desain & UX
+### 4. Desain & UX
 - Design system konsisten (token warna brand emerald, kartu, tombol, input, chip status) di `src/index.css` + `src/components/common/ui.tsx`.
 - Layout aplikasi: sidebar tetap + topbar sticky (desktop), tab bar + drawer (mobile).
 - Satu sistem warna status: Kritis (merah), Waspada (kuning), Dwell (ungu), Aman (hijau).

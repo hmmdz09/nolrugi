@@ -18,9 +18,6 @@ const InventoryView = lazy(() =>
 const HppCalculatorView = lazy(() =>
   import('./components/calculator/HppCalculatorView').then((m) => ({ default: m.HppCalculatorView }))
 );
-const ReportsView = lazy(() =>
-  import('./components/reports/ReportsView').then((m) => ({ default: m.ReportsView }))
-);
 
 const ViewFallback = () => (
   <div className="space-y-4" aria-busy="true">
@@ -197,20 +194,6 @@ export function App() {
               {activeTab === 'calculator' && (
                 <Page id="calculator" key="calculator">
                   <HppCalculatorView batches={batches} onApplyClearancePrice={handleApplyClearancePrice} />
-                </Page>
-              )}
-
-              {activeTab === 'reports' && (
-                <Page id="reports" key="reports">
-                  <ReportsView
-                    batches={batches}
-                    pdpConsent={pdpConsent}
-                    onToggleConsent={(val) => {
-                      setPdpConsent(val);
-                      saveConsent(val);
-                    }}
-                    onShowToast={addToast}
-                  />
                 </Page>
               )}
             </AnimatePresence>
